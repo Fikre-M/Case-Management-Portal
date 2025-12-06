@@ -9,9 +9,10 @@ import AppointmentsList from '../pages/appointments/AppointmentsList'
 import AppointmentDetails from '../pages/appointments/AppointmentDetails'
 import NewAppointment from '../pages/appointments/NewAppointment'
 import EditAppointment from '../pages/appointments/EditAppointment'
-import Cases from '../pages/cases/Cases'
+import CaseList from '../pages/cases/CaseList'
 import CaseDetails from '../pages/cases/CaseDetails'
-import CreateCase from '../pages/cases/CreateCase'
+import NewCase from '../pages/cases/NewCase'
+import EditCase from '../pages/cases/EditCase'
 import Clients from '../pages/clients/Clients'
 import ClientDetails from '../pages/clients/ClientDetails'
 import AIAssistant from '../pages/ai/AIAssistant'
@@ -43,9 +44,10 @@ function AppRoutes() {
         <Route path="/appointments/:id/edit" element={<EditAppointment />} />
         
         {/* Cases */}
-        <Route path="/cases" element={<Cases />} />
+        <Route path="/cases" element={<CaseList />} />
+        <Route path="/cases/new" element={<NewCase />} />
         <Route path="/cases/:id" element={<CaseDetails />} />
-        <Route path="/cases/new" element={<CreateCase />} />
+        <Route path="/cases/:id/edit" element={<EditCase />} />
         
         {/* Clients */}
         <Route path="/clients" element={<Clients />} />
