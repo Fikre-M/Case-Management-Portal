@@ -1,28 +1,40 @@
 import { Link } from 'react-router-dom'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
+import Loading from '../../components/common/Loading'
+import { useApp } from '../../context/AppContext'
 
 function Dashboard() {
-  // Placeholder data
+  const {
+    getUpcomingAppointments,
+    getActiveCases,
+    getAppointmentStats,
+    getCaseStats,
+    appointmentsLoading,
+    casesLoading,
+  } = useApp()
+
+  // Get data from context
+  const appointmentStats = getAppointmentStats()
+  const caseStats = getCaseStats()
+  const recentAppointments = getUpcomingAppointments(4)
+  const activeCases = getActiveCases().slice(0, 3)
+
+  // Stats with real data
   const stats = [
-    { label: 'Total Appointments', value: '24', change: '+12%', trend: 'up', icon: '📅', color: 'blue' },
-    { label: 'Active Cases', value: '18', change: '+5%', trend: 'up', icon: '📋', color: 'green' },
+    { label: 'Total Appointments', value: appointmentStats.total, change: '+12%', trend: 'up', icon: '📅', color: 'blue' },
+    { label: 'Active Cases', value: caseStats.active, change: '+5%', trend: 'up', icon: '📋', color: 'green' },
     { label: 'Total Clients', value: '156', change: '+8%', trend: 'up', icon: '👥', color: 'purple' },
     { label: 'Pending Tasks', value: '7', change: '-3%', trend: 'down', icon: '✓', color: 'orange' },
   ]
 
-  const recentAppointments = [
-    { id: 1, client: 'Sarah Johnson', type: 'Consultation', date: 'Today, 2:00 PM', status: 'confirmed' },
-    { id: 2, client: 'Michael Chen', type: 'Follow-up', date: 'Today, 4:30 PM', status: 'confirmed' },
-    { id: 3, client: 'Emma Wilson', type: 'Initial Meeting', date: 'Tomorrow, 10:00 AM', status: 'pending' },
-    { id: 4, client: 'James Brown', type: 'Review', date: 'Tomorrow, 3:00 PM', status: 'confirmed' },
-  ]
-
-  const activeCases = [
-    { id: 1, title: 'Case #2024-001', client: 'Sarah Johnson', priority: 'high', progress: 75 },
-    { id: 2, title: 'Case #2024-002', client: 'Michael Chen', priority: 'medium', progress: 45 },
-    { id: 3, title: 'Case #2024-003', client: 'Emma Wilson', priority: 'low', progress: 20 },
-  ]
+  if (appointmentsLoading || casesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    )
+  }
 
   const quickLinks = [
     { label: 'Schedule Appointment', icon: '📅', path: '/appointments/new', color: 'bg-blue-500' },
@@ -113,21 +125,26 @@ function Dashboard() {
             </Link>
           </div>
           <div className="space-y-3">
-            {recentAppointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex-1">
-                  <p className="font-medium text-gray-900 dark:text-white">{appointment.client}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.type}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{appointment.date}</p>
-                </div>
-                <Badge variant={getStatusColor(appointment.status)}>
-                  {appointment.status}
-                </Badge>
-              </div>
-            ))}
+            {recentAppointments.length > 0 ? (
+              recentAppointments.map((appointment) => (
+                <Link
+                  key={appointment.id}
+                  to={`/appointments/${appointment.id}`}
+                  className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 dark:text-white">{appointment.clientName}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{appointment.type}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{appointment.date} at {appointment.time}</p>
+                  </div>
+                  <Badge variant={getStatusColor(appointment.status)}>
+                    {appointment.status}
+                  </Badge>
+                </Link>
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No upcoming appointments</p>
+            )}
           </div>
         </Card>
 
@@ -140,34 +157,39 @@ function Dashboard() {
             </Link>
           </div>
           <div className="space-y-4">
-            {activeCases.map((caseItem) => (
-              <div
-                key={caseItem.id}
-                className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">{caseItem.title}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{caseItem.client}</p>
+            {activeCases.length > 0 ? (
+              activeCases.map((caseItem) => (
+                <Link
+                  key={caseItem.id}
+                  to={`/cases/${caseItem.id}`}
+                  className="block p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">{caseItem.caseNumber}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{caseItem.clientName}</p>
+                    </div>
+                    <Badge variant={getPriorityColor(caseItem.priority)}>
+                      {caseItem.priority}
+                    </Badge>
                   </div>
-                  <Badge variant={getPriorityColor(caseItem.priority)}>
-                    {caseItem.priority}
-                  </Badge>
-                </div>
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-                    <span>Progress</span>
-                    <span>{caseItem.progress}%</span>
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      <span>Progress</span>
+                      <span>{caseItem.progress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-primary-600 h-2 rounded-full transition-all"
+                        style={{ width: `${caseItem.progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-primary-600 h-2 rounded-full transition-all"
-                      style={{ width: `${caseItem.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No active cases</p>
+            )}
           </div>
         </Card>
       </div>

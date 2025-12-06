@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { AppProvider } from './context/AppContext'
 import AppRoutes from './routes/AppRoutes'
 
 function App() {
@@ -8,7 +9,9 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-          <AppRoutes />
+          <AppProvider>
+            <AppRoutes />
+          </AppProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
