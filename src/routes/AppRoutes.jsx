@@ -15,7 +15,7 @@ import NewCase from '../pages/cases/NewCase'
 import EditCase from '../pages/cases/EditCase'
 import Clients from '../pages/clients/Clients'
 import ClientDetails from '../pages/clients/ClientDetails'
-import AIAssistant from '../pages/ai/AIAssistant'
+import AiChatPage from '../pages/ai/AiChatPage'
 import Calendar from '../pages/calendar/Calendar'
 import Reports from '../pages/reports/Reports'
 import Settings from '../pages/settings/Settings'
@@ -54,7 +54,7 @@ function AppRoutes() {
         <Route path="/clients/:id" element={<ClientDetails />} />
         
         {/* AI Assistant */}
-        <Route path="/ai-assistant" element={<AIAssistant />} />
+        <Route path="/ai-assistant" element={<AiChatPage />} />
         
         {/* Calendar */}
         <Route path="/calendar" element={<Calendar />} />
