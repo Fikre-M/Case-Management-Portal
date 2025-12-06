@@ -1,13 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/MainLayout'
 import AuthLayout from '../layouts/AuthLayout'
-import Dashboard from '../pages/Dashboard'
+import Dashboard from '../pages/dashboard/Dashboard'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import ForgotPassword from '../pages/auth/ForgotPassword'
-import Appointments from '../pages/appointments/Appointments'
+import AppointmentsList from '../pages/appointments/AppointmentsList'
 import AppointmentDetails from '../pages/appointments/AppointmentDetails'
-import CreateAppointment from '../pages/appointments/CreateAppointment'
+import NewAppointment from '../pages/appointments/NewAppointment'
+import EditAppointment from '../pages/appointments/EditAppointment'
 import Cases from '../pages/cases/Cases'
 import CaseDetails from '../pages/cases/CaseDetails'
 import CreateCase from '../pages/cases/CreateCase'
@@ -36,9 +37,10 @@ function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         
         {/* Appointments */}
-        <Route path="/appointments" element={<Appointments />} />
+        <Route path="/appointments" element={<AppointmentsList />} />
+        <Route path="/appointments/new" element={<NewAppointment />} />
         <Route path="/appointments/:id" element={<AppointmentDetails />} />
-        <Route path="/appointments/new" element={<CreateAppointment />} />
+        <Route path="/appointments/:id/edit" element={<EditAppointment />} />
         
         {/* Cases */}
         <Route path="/cases" element={<Cases />} />
