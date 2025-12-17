@@ -4,9 +4,11 @@ import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
 import Alert from '../../components/common/Alert'
 import { validateEmail, validateRequired } from '../../utils/validators'
+import { useAuth } from '../../context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -57,6 +59,15 @@ function Login() {
       
       // Mock validation
       if (formData.email === 'demo@example.com' && formData.password === 'password') {
+        // Login user through context
+        const userData = {
+          id: 1,
+          name: 'Demo User',
+          email: formData.email,
+          role: 'admin'
+        }
+        
+        login(userData)
         setAlert({ type: 'success', message: 'Login successful! Redirecting...' })
         setTimeout(() => navigate('/dashboard'), 1500)
       } else {
