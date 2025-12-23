@@ -8,53 +8,120 @@ export function AppProvider({ children }) {
   // Appointments State
   const [appointments, setAppointments] = useState([])
   const [appointmentsLoading, setAppointmentsLoading] = useState(true)
+  const [appointmentsError, setAppointmentsError] = useState(null)
 
   // Cases State
   const [cases, setCases] = useState([])
   const [casesLoading, setCasesLoading] = useState(true)
+  const [casesError, setCasesError] = useState(null)
 
   // Initialize data on mount
   useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setAppointments(mockAppointments)
-      setAppointmentsLoading(false)
-    }, 500)
+    const loadAppointments = async () => {
+      try {
+        setAppointmentsLoading(true)
+        setAppointmentsError(null)
+        // Simulate API call with delay
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setAppointments(mockAppointments)
+      } catch (error) {
+        setAppointmentsError(error)
+      } finally {
+        setAppointmentsLoading(false)
+      }
+    }
 
-    setTimeout(() => {
-      setCases(mockCases)
-      setCasesLoading(false)
-    }, 500)
+    const loadCases = async () => {
+      try {
+        setCasesLoading(true)
+        setCasesError(null)
+        // Simulate API call with delay
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setCases(mockCases)
+      } catch (error) {
+        setCasesError(error)
+      } finally {
+        setCasesLoading(false)
+      }
+    }
+
+    loadAppointments()
+    loadCases()
   }, [])
+
+  // Retry functions
+  const retryLoadAppointments = () => {
+    const loadAppointments = async () => {
+      try {
+        setAppointmentsLoading(true)
+        setAppointmentsError(null)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setAppointments(mockAppointments)
+      } catch (error) {
+        setAppointmentsError(error)
+      } finally {
+        setAppointmentsLoading(false)
+      }
+    }
+    loadAppointments()
+  }
+
+  const retryLoadCases = () => {
+    const loadCases = async () => {
+      try {
+        setCasesLoading(true)
+        setCasesError(null)
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setCases(mockCases)
+      } catch (error) {
+        setCasesError(error)
+      } finally {
+        setCasesLoading(false)
+      }
+    }
+    loadCases()
+  }
 
   // Appointment CRUD Operations
   const getAppointmentById = (id) => {
     return appointments.find(apt => apt.id === parseInt(id))
   }
 
-  const createAppointment = (appointmentData) => {
-    const newAppointment = {
-      id: Math.max(...appointments.map(a => a.id), 0) + 1,
-      ...appointmentData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+  const createAppointment = async (appointmentData) => {
+    try {
+      const newAppointment = {
+        id: Math.max(...appointments.map(a => a.id), 0) + 1,
+        ...appointmentData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      setAppointments(prev => [...prev, newAppointment])
+      return newAppointment
+    } catch (error) {
+      throw new Error('Failed to create appointment')
     }
-    setAppointments(prev => [...prev, newAppointment])
-    return newAppointment
   }
 
-  const updateAppointment = (id, appointmentData) => {
-    setAppointments(prev =>
-      prev.map(apt =>
-        apt.id === parseInt(id)
-          ? { ...apt, ...appointmentData, updatedAt: new Date().toISOString() }
-          : apt
+  const updateAppointment = async (id, appointmentData) => {
+    try {
+      setAppointments(prev =>
+        prev.map(apt =>
+          apt.id === parseInt(id)
+            ? { ...apt, ...appointmentData, updatedAt: new Date().toISOString() }
+            : apt
+        )
       )
-    )
+    } catch (error) {
+      throw new Error('Failed to update appointment')
+    }
   }
 
-  const deleteAppointment = (id) => {
-    setAppointments(prev => prev.filter(apt => apt.id !== parseInt(id)))
+  const deleteAppointment = async (id) => {
+    try {
+      setAppointments(prev => prev.filter(apt => apt.id !== parseInt(id)))
+    } catch (error) {
+      throw new Error('Failed to delete appointment')
+    }
   }
 
   const getAppointmentsByStatus = (status) => {
@@ -83,39 +150,51 @@ export function AppProvider({ children }) {
     return cases.find(c => c.id === parseInt(id))
   }
 
-  const createCase = (caseData) => {
-    const newCase = {
-      id: Math.max(...cases.map(c => c.id), 0) + 1,
-      caseNumber: `CASE-2024-${String(cases.length + 1).padStart(3, '0')}`,
-      ...caseData,
-      openedDate: new Date().toISOString().split('T')[0],
-      lastUpdated: new Date().toISOString().split('T')[0],
-      timeline: [
-        {
-          date: new Date().toISOString().split('T')[0],
-          event: 'Case opened',
-          type: 'info'
-        }
-      ],
-      documents: [],
-      notes: [],
+  const createCase = async (caseData) => {
+    try {
+      const newCase = {
+        id: Math.max(...cases.map(c => c.id), 0) + 1,
+        caseNumber: `CASE-2024-${String(cases.length + 1).padStart(3, '0')}`,
+        ...caseData,
+        openedDate: new Date().toISOString().split('T')[0],
+        lastUpdated: new Date().toISOString().split('T')[0],
+        timeline: [
+          {
+            date: new Date().toISOString().split('T')[0],
+            event: 'Case opened',
+            type: 'info'
+          }
+        ],
+        documents: [],
+        notes: [],
+      }
+      setCases(prev => [...prev, newCase])
+      return newCase
+    } catch (error) {
+      throw new Error('Failed to create case')
     }
-    setCases(prev => [...prev, newCase])
-    return newCase
   }
 
-  const updateCase = (id, caseData) => {
-    setCases(prev =>
-      prev.map(c =>
-        c.id === parseInt(id)
-          ? { ...c, ...caseData, lastUpdated: new Date().toISOString().split('T')[0] }
-          : c
+  const updateCase = async (id, caseData) => {
+    try {
+      setCases(prev =>
+        prev.map(c =>
+          c.id === parseInt(id)
+            ? { ...c, ...caseData, lastUpdated: new Date().toISOString().split('T')[0] }
+            : c
+        )
       )
-    )
+    } catch (error) {
+      throw new Error('Failed to update case')
+    }
   }
 
-  const deleteCase = (id) => {
-    setCases(prev => prev.filter(c => c.id !== parseInt(id)))
+  const deleteCase = async (id) => {
+    try {
+      setCases(prev => prev.filter(c => c.id !== parseInt(id)))
+    } catch (error) {
+      throw new Error('Failed to delete case')
+    }
   }
 
   const getCasesByStatus = (status) => {
@@ -161,6 +240,8 @@ export function AppProvider({ children }) {
     // Appointments
     appointments,
     appointmentsLoading,
+    appointmentsError,
+    retryLoadAppointments,
     getAppointmentById,
     createAppointment,
     updateAppointment,
@@ -174,6 +255,8 @@ export function AppProvider({ children }) {
     // Cases
     cases,
     casesLoading,
+    casesError,
+    retryLoadCases,
     getCaseById,
     createCase,
     updateCase,

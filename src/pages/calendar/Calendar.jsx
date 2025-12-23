@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
+import Loading from '../../components/common/Loading'
+import EmptyState from '../../components/common/EmptyState'
+import ErrorState from '../../components/common/ErrorState'
 import { useApp } from '../../context/AppContext'
 
 function Calendar() {
-  const { appointments } = useApp()
+  const { appointments, appointmentsLoading, appointmentsError, retryLoadAppointments } = useApp()
   const [currentDate, setCurrentDate] = useState(new Date())
   
   // Get current month and year
@@ -46,26 +49,56 @@ function Calendar() {
     setCurrentDate(new Date(currentYear, currentMonth + direction, 1))
   }
 
+  const getTodayAppointments = () => {
+    const today = new Date().toISOString().split('T')[0]
+    return appointments.filter(apt => apt.date === today)
+  }
+
+  if (appointmentsLoading) {
+    return <Loading message="Loading calendar..." />
+  }
+
+  if (appointmentsError) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">View and manage your appointments</p>
+        </div>
+        <ErrorState 
+          error={appointmentsError}
+          onRetry={retryLoadAppointments}
+          title="Failed to load calendar"
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Calendar</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">View and manage your appointments</p>
+        </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigateMonth(-1)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+            aria-label="Previous month"
           >
-            ←
+            <span aria-hidden="true">←</span>
           </button>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white min-w-[200px] text-center">
             {monthNames[currentMonth]} {currentYear}
           </h2>
           <button
             onClick={() => navigateMonth(1)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+            aria-label="Next month"
           >
-            →
+            <span aria-hidden="true">→</span>
           </button>
         </div>
       </div>
@@ -96,6 +129,8 @@ function Calendar() {
                 className={`min-h-[100px] p-2 border border-gray-200 dark:border-gray-700 rounded-lg ${
                   day ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700' : 'bg-gray-50 dark:bg-gray-900'
                 } ${isToday ? 'ring-2 ring-primary-500' : ''} transition-colors`}
+                role={day ? 'gridcell' : 'presentation'}
+                aria-label={day ? `${monthNames[currentMonth]} ${day}, ${currentYear}. ${dayAppointments.length} appointments` : undefined}
               >
                 {day && (
                   <>
@@ -109,7 +144,7 @@ function Calendar() {
                         <div
                           key={apt.id}
                           className="text-xs p-1 rounded bg-primary-100 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200 truncate"
-                          title={`${apt.time} - ${apt.title}`}
+                          title={`${apt.time} - ${apt.title} with ${apt.clientName}`}
                         >
                           {apt.time} {apt.clientName}
                         </div>
@@ -130,15 +165,9 @@ function Calendar() {
 
       {/* Today's Appointments */}
       <Card title="Today's Appointments">
-        {appointments.filter(apt => {
-          const today = new Date().toISOString().split('T')[0]
-          return apt.date === today
-        }).length > 0 ? (
+        {getTodayAppointments().length > 0 ? (
           <div className="space-y-3">
-            {appointments.filter(apt => {
-              const today = new Date().toISOString().split('T')[0]
-              return apt.date === today
-            }).map(apt => (
+            {getTodayAppointments().map(apt => (
               <div key={apt.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{apt.title}</p>
@@ -151,7 +180,12 @@ function Calendar() {
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No appointments today</p>
+          <EmptyState
+            icon="📅"
+            title="No appointments today"
+            description="You have a clear schedule for today."
+            className="py-8"
+          />
         )}
       </Card>
     </div>
