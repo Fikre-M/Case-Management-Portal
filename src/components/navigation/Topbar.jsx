@@ -130,7 +130,7 @@ function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
               className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                JD
+                FM
               </div>
               <svg className="hidden md:block w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -141,8 +141,8 @@ function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
             {showProfile && (
               <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                  <p className="font-medium text-gray-900 dark:text-white">John Doe</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">john@example.com</p>
+                  <p className="font-medium text-gray-900 dark:text-white">Fikre Mariam</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">fikre@example.com</p>
                 </div>
                 <div className="py-2">
                   <Link

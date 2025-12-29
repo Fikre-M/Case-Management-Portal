@@ -101,7 +101,7 @@ function ForgotPassword() {
                 label="Email Address"
                 type="email"
                 name="email"
-                placeholder="you@example.com"
+                placeholder="your-email@example.com"
                 value={email}
                 onChange={handleChange}
                 error={error}

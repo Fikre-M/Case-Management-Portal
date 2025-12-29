@@ -150,7 +150,7 @@ function Register() {
             label="Email Address"
             type="email"
             name="email"
-            placeholder="you@example.com"
+            placeholder="your-email@example.com"
             value={formData.email}
             onChange={handleChange}
             error={errors.email}
