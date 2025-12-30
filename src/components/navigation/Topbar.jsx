@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTheme } from '../../context/ThemeContext'
 
-function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
+function Topbar({ onMenuClick }) {
+  const { theme, toggleTheme } = useTheme()
+  const darkMode = theme === 'dark'
   const [searchQuery, setSearchQuery] = useState('')
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showNewMenu, setShowNewMenu] = useState(false)
 
   const notifications = [
     { id: 1, title: 'New appointment scheduled', time: '5 min ago', unread: true },
@@ -48,7 +52,7 @@ function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
         <div className="flex items-center space-x-2 md:space-x-4">
           {/* Dark Mode Toggle */}
           <button
-            onClick={onToggleDarkMode}
+            onClick={toggleTheme}
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title={darkMode ? 'Light mode' : 'Dark mode'}
           >
@@ -118,10 +122,61 @@ function Topbar({ onMenuClick, darkMode, onToggleDarkMode }) {
           </div>
 
           {/* Quick Actions */}
-          <button className="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
-            <span>➕</span>
-            <span className="text-sm font-medium">New</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowNewMenu(!showNewMenu)}
+              className="hidden md:flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              <span>➕</span>
+              <span className="text-sm font-medium">New</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* New Menu Dropdown */}
+            {showNewMenu && (
+              <div 
+                className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50"
+                onMouseLeave={() => setShowNewMenu(false)}
+              >
+                <div className="py-2">
+                  <Link
+                    to="/appointments/new"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setShowNewMenu(false)}
+                  >
+                    <span className="mr-3">📅</span>
+                    New Appointment
+                  </Link>
+                  <Link
+                    to="/cases/new"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setShowNewMenu(false)}
+                  >
+                    <span className="mr-3">📋</span>
+                    New Case
+                  </Link>
+                  <Link
+                    to="/clients/new"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setShowNewMenu(false)}
+                  >
+                    <span className="mr-3">👤</span>
+                    New Client
+                  </Link>
+                  <Link
+                    to="/documents/upload"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setShowNewMenu(false)}
+                  >
+                    <span className="mr-3">📄</span>
+                    Upload Document
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Profile Dropdown */}
           <div className="relative">

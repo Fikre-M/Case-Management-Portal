@@ -1,22 +1,19 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { useTheme } from '../context/ThemeContext'
 import Sidebar from '../components/navigation/Sidebar'
 import Topbar from '../components/navigation/Topbar'
 
 function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
   }
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
-  }
-
   return (
-    <div className={`${darkMode ? 'dark' : ''}`}>
+    <div className={theme}>
       <div className="flex h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
         {/* Sidebar */}
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -26,8 +23,8 @@ function MainLayout() {
           {/* Topbar */}
           <Topbar 
             onMenuClick={toggleSidebar} 
-            darkMode={darkMode}
-            onToggleDarkMode={toggleDarkMode}
+            darkMode={theme === 'dark'}
+            onToggleDarkMode={toggleTheme}
           />
 
           {/* Page Content */}
