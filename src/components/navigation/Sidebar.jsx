@@ -68,7 +68,7 @@ function Sidebar({ isOpen, onClose }) {
             className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">
-              JD
+              FM
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
