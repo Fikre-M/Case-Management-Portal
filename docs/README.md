@@ -10,12 +10,10 @@ cp .env.example .env
 npm run dev
 ```
 
-**Demo Credentials:** `demo@example.com` / `password`
-
 ## 🎯 Key Features
 
 - **Authentication System** - Complete login/register with session management
-- **Dashboard** - Real-time stats and activity monitoring  
+- **Dashboard** - Real-time stats and activity monitoring
 - **Appointment Management** - Full CRUD with calendar integration
 - **Case Management** - Comprehensive case tracking with progress monitoring
 - **AI Assistant** - Intelligent chat interface for case assistance
@@ -45,25 +43,6 @@ npm run dev
 - Real-time updates
 - Mobile-first responsive design
 - Dark mode with system preference detection
-
-## 📁 Project Structure
-
-```
-src/
-├── components/     # Reusable UI components
-├── pages/          # Page components  
-├── layouts/        # Layout components
-├── context/        # React Context providers
-├── services/       # API service functions
-├── utils/          # Utility functions
-├── hooks/          # Custom React hooks
-├── theme/          # Global styles and theme
-└── routes/         # Route configuration
-```
-
-## 📚 Documentation
-
-See `/docs` folder for detailed documentation and guides.
 
 ---
 
