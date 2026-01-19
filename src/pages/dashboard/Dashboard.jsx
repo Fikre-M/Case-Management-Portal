@@ -1,8 +1,55 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Loading from '../../components/common/Loading'
+import AppointmentChart from '../../components/charts/AppointmentChart'
+import CaseStatusChart from '../../components/charts/CaseStatusChart'
 import { useApp } from '../../context/AppContext'
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+}
+
+const statCardVariants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 120,
+      damping: 10
+    }
+  },
+  hover: {
+    scale: 1.05,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  }
+}
 
 function Dashboard() {
   const {
@@ -62,57 +109,103 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Header */}
-      <div>
+      <motion.div variants={itemVariants}>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">Welcome back! Here's what's happening today.</p>
-      </div>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
+        variants={containerVariants}
+      >
         {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{stat.value}</p>
-                <div className="flex items-center mt-2">
-                  <span className={`text-sm font-medium ${
-                    stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stat.trend === 'up' ? '↑' : '↓'} {stat.change}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">vs last month</span>
+          <motion.div
+            key={index}
+            variants={statCardVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.95 }}
+          >
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
+                  <motion.p 
+                    className="text-3xl font-bold text-gray-900 dark:text-white mt-2"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.1 + 0.5, type: "spring", stiffness: 200 }}
+                  >
+                    {stat.value}
+                  </motion.p>
+                  <div className="flex items-center mt-2">
+                    <motion.span 
+                      className={`text-sm font-medium ${
+                        stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                      }`}
+                      initial={{ x: -10, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.1 + 0.7 }}
+                    >
+                      {stat.trend === 'up' ? '↑' : '↓'} {stat.change}
+                    </motion.span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">vs last month</span>
+                  </div>
                 </div>
+                <motion.div 
+                  className={`w-12 h-12 rounded-lg bg-${stat.color}-100 dark:bg-${stat.color}-900/20 flex items-center justify-center`}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <span className="text-2xl">{stat.icon}</span>
+                </motion.div>
               </div>
-              <div className={`w-12 h-12 rounded-lg bg-${stat.color}-100 dark:bg-${stat.color}-900/20 flex items-center justify-center`}>
-                <span className="text-2xl">{stat.icon}</span>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Quick Links */}
-      <Card title="Quick Actions">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {quickLinks.map((link, index) => (
-            <Link
-              key={index}
-              to={link.path}
-              className="flex flex-col items-center p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 hover:shadow-md transition-all group"
-            >
-              <div className={`w-12 h-12 ${link.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                <span className="text-2xl">{link.icon}</span>
-              </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
-                {link.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </Card>
+      <motion.div variants={itemVariants}>
+        <Card title="Quick Actions">
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            variants={containerVariants}
+          >
+            {quickLinks.map((link, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link
+                  to={link.path}
+                  className="flex flex-col items-center p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-400 hover:shadow-md transition-all group"
+                >
+                  <motion.div 
+                    className={`w-12 h-12 ${link.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
+                    whileHover={{ rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <span className="text-2xl">{link.icon}</span>
+                  </motion.div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                    {link.label}
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </Card>
+      </motion.div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -195,33 +288,24 @@ function Dashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        variants={containerVariants}
+      >
         {/* Appointments Chart */}
-        <Card title="Appointments Overview" className="lg:col-span-2">
-          <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">📊</span>
-              <p className="text-gray-500 dark:text-gray-400">Chart placeholder</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                Appointments trend over time
-              </p>
-            </div>
-          </div>
-        </Card>
+        <motion.div variants={itemVariants} className="lg:col-span-2">
+          <Card title="Appointments Overview">
+            <AppointmentChart />
+          </Card>
+        </motion.div>
 
         {/* Case Status Distribution */}
-        <Card title="Case Status">
-          <div className="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">🥧</span>
-              <p className="text-gray-500 dark:text-gray-400">Chart placeholder</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                Case distribution
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
+        <motion.div variants={itemVariants}>
+          <Card title="Case Status">
+            <CaseStatusChart />
+          </Card>
+        </motion.div>
+      </motion.div>
 
       {/* Activity Feed */}
       <Card title="Recent Activity">
@@ -243,7 +327,7 @@ function Dashboard() {
           ))}
         </div>
       </Card>
-    </div>
+    </motion.div>
   )
 }
 

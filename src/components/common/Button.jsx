@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import LoadingSpinner from './LoadingSpinner'
 
 function Button({ 
@@ -15,9 +16,9 @@ function Button({
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
   
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 disabled:bg-primary-300 disabled:cursor-not-allowed',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 disabled:bg-primary-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md',
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400 disabled:bg-gray-100 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 disabled:bg-red-300 disabled:cursor-not-allowed',
+    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 disabled:bg-red-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md',
     ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400 disabled:text-gray-400 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-800',
   }
 
@@ -29,8 +30,18 @@ function Button({
 
   const isDisabled = disabled || loading
 
+  const buttonVariants = {
+    initial: { scale: 1 },
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 }
+  }
+
   return (
-    <button
+    <motion.button
+      variants={buttonVariants}
+      initial="initial"
+      whileHover={!isDisabled ? "hover" : "initial"}
+      whileTap={!isDisabled ? "tap" : "initial"}
       type={type}
       onClick={onClick}
       disabled={isDisabled}
@@ -47,8 +58,10 @@ function Button({
         />
       )}
       {children}
-    </button>
+    </motion.button>
   )
 }
+
+export default Button
 
 export default Button
