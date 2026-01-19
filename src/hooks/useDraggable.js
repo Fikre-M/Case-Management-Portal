@@ -1,11 +1,42 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 export function useDraggable(initialPosition = { x: 16, y: 16 }) {
-  const [position, setPosition] = useState(initialPosition)
+  // Responsive initial positioning
+  const getResponsivePosition = useCallback(() => {
+    const isMobile = window.innerWidth < 768
+    const padding = isMobile ? 8 : 16
+    
+    let x = initialPosition.x
+    let y = initialPosition.y
+    
+    // Handle negative positions (right/bottom edge positioning)
+    if (x < 0) {
+      x = Math.max(padding, window.innerWidth + x - 80) // Adjust for element width
+    }
+    if (y < 0) {
+      y = Math.max(padding, window.innerHeight + y - 80) // Adjust for element height
+    }
+    
+    // Ensure within bounds
+    return {
+      x: Math.max(padding, Math.min(x, window.innerWidth - 100)),
+      y: Math.max(padding, Math.min(y, window.innerHeight - 100))
+    }
+  }, [initialPosition])
+
+  const [position, setPosition] = useState(() => {
+    // Safe initial position that works during SSR
+    return { x: 16, y: 16 }
+  })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const elementRef = useRef(null)
   const dragHandleRef = useRef(null)
+
+  // Update position once window is available
+  useEffect(() => {
+    setPosition(getResponsivePosition())
+  }, [getResponsivePosition])
 
   const handleMouseDown = useCallback((e) => {
     // Check if the target is within the drag handle
@@ -39,8 +70,9 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
     const elementWidth = element?.offsetWidth || 200
     const elementHeight = element?.offsetHeight || 100
 
-    // Keep within viewport bounds with padding
-    const padding = 10
+    // Responsive padding
+    const isMobile = window.innerWidth < 768
+    const padding = isMobile ? 8 : 16
     const maxX = window.innerWidth - elementWidth - padding
     const maxY = window.innerHeight - elementHeight - padding
 
@@ -101,7 +133,8 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
     const elementWidth = element?.offsetWidth || 200
     const elementHeight = element?.offsetHeight || 100
 
-    const padding = 10
+    const isMobile = window.innerWidth < 768
+    const padding = isMobile ? 8 : 16
     const maxX = window.innerWidth - elementWidth - padding
     const maxY = window.innerHeight - elementHeight - padding
 
@@ -129,14 +162,15 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
     }
   }, [isDragging, handleTouchMove, handleTouchEnd])
 
-  // Handle window resize
+  // Handle window resize with responsive repositioning
   useEffect(() => {
     const handleResize = () => {
       const element = elementRef.current
       const elementWidth = element?.offsetWidth || 200
       const elementHeight = element?.offsetHeight || 100
 
-      const padding = 10
+      const isMobile = window.innerWidth < 768
+      const padding = isMobile ? 8 : 16
       const maxX = window.innerWidth - elementWidth - padding
       const maxY = window.innerHeight - elementHeight - padding
 
@@ -147,6 +181,9 @@ export function useDraggable(initialPosition = { x: 16, y: 16 }) {
     }
 
     window.addEventListener('resize', handleResize)
+    // Initial resize check
+    handleResize()
+    
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 

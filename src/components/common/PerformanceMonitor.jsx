@@ -8,7 +8,17 @@ function PerformanceMonitor() {
   const { metrics } = usePerformance()
   const [isVisible, setIsVisible] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
-  const { position, isDragging, elementRef, dragHandleProps } = useDraggable({ x: 16, y: 80 })
+  
+  // Separate draggable instances for button and panel
+  // Use safer initial positions that work on all screen sizes
+  const buttonDraggable = useDraggable({ 
+    x: -60, // Will be adjusted by responsive positioning to right side
+    y: -60  // Will be adjusted to bottom right
+  })
+  const panelDraggable = useDraggable({ 
+    x: -200, // Will be adjusted by responsive positioning to right side
+    y: -200  // Will be adjusted to bottom right
+  })
   
   if (process.env.NODE_ENV !== 'development') {
     return null
@@ -17,13 +27,23 @@ function PerformanceMonitor() {
   if (!isVisible) {
     return (
       <motion.button
+        ref={buttonDraggable.elementRef}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         onClick={() => setIsVisible(true)}
-        className="fixed bottom-4 left-4 w-12 h-12 bg-black/80 hover:bg-black/90 text-white rounded-full flex items-center justify-center z-50 backdrop-blur-sm border border-gray-600 transition-colors shadow-lg"
-        title="Show Performance Monitor"
+        style={{
+          position: 'fixed',
+          left: buttonDraggable.position.x,
+          top: buttonDraggable.position.y,
+          zIndex: 50
+        }}
+        className={`w-12 h-12 bg-black/80 hover:bg-black/90 text-white rounded-full flex items-center justify-center backdrop-blur-sm border border-gray-600 transition-colors shadow-lg select-none ${
+          buttonDraggable.isDragging ? 'shadow-2xl scale-110' : ''
+        } ${buttonDraggable.dragHandleProps.className}`}
+        title="Show Performance Monitor (Drag to move)"
+        {...buttonDraggable.dragHandleProps}
       >
-        ⚡
+        <span className="pointer-events-none">⚡</span>
       </motion.button>
     )
   }
@@ -31,24 +51,24 @@ function PerformanceMonitor() {
   return (
     <AnimatePresence>
       <motion.div
-        ref={elementRef}
+        ref={panelDraggable.elementRef}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
         style={{
           position: 'fixed',
-          left: position.x,
-          top: position.y,
+          left: panelDraggable.position.x,
+          top: panelDraggable.position.y,
           zIndex: 50
         }}
-        className={`bg-black/90 text-white text-xs rounded-lg font-mono backdrop-blur-sm border border-gray-600 shadow-lg select-none ${
-          isDragging ? 'shadow-2xl scale-105' : ''
+        className={`bg-black/90 text-white text-xs rounded-lg font-mono backdrop-blur-sm border border-gray-600 shadow-lg select-none max-w-[220px] ${
+          panelDraggable.isDragging ? 'shadow-2xl scale-105' : ''
         } transition-all duration-200`}
       >
         {/* Draggable Header */}
         <div 
-          {...dragHandleProps}
-          className={`flex items-center justify-between p-2 border-b border-gray-600 bg-gray-800/50 rounded-t-lg ${dragHandleProps.className} hover:bg-gray-700/50 transition-colors`}
+          {...panelDraggable.dragHandleProps}
+          className={`flex items-center justify-between p-2 border-b border-gray-600 bg-gray-800/50 rounded-t-lg ${panelDraggable.dragHandleProps.className} hover:bg-gray-700/50 transition-colors`}
           title="Drag to move this panel"
         >
           <div className="flex items-center space-x-2">
@@ -127,7 +147,7 @@ function PerformanceMonitor() {
 
               {/* Drag Hint */}
               <div className="pt-1 border-t border-gray-700">
-                <span className="text-xs text-gray-500">💡 Drag this header to move</span>
+                <span className="text-xs text-gray-500">💡 Drag header to move</span>
               </div>
             </motion.div>
           )}
