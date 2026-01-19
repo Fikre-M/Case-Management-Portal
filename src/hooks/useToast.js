@@ -1,18 +1,25 @@
 import { useState, useCallback } from 'react'
 
-function useToast() {
+let toastId = 0
+
+export function useToast() {
   const [toasts, setToasts] = useState([])
 
-  const showToast = useCallback((message, type = 'info', duration = 3000) => {
-    const id = Date.now()
-    const toast = { id, message, type, duration }
-    
-    setToasts(prev => [...prev, toast])
+  const addToast = useCallback((toast) => {
+    const id = ++toastId
+    const newToast = {
+      id,
+      type: 'info',
+      duration: 5000,
+      ...toast
+    }
 
-    if (duration > 0) {
+    setToasts(prev => [...prev, newToast])
+
+    if (newToast.duration > 0) {
       setTimeout(() => {
         removeToast(id)
-      }, duration)
+      }, newToast.duration)
     }
 
     return id
@@ -22,31 +29,29 @@ function useToast() {
     setToasts(prev => prev.filter(toast => toast.id !== id))
   }, [])
 
-  const success = useCallback((message, duration) => {
-    return showToast(message, 'success', duration)
-  }, [showToast])
+  const success = useCallback((message, options = {}) => {
+    return addToast({ ...options, message, type: 'success' })
+  }, [addToast])
 
-  const error = useCallback((message, duration) => {
-    return showToast(message, 'error', duration)
-  }, [showToast])
+  const error = useCallback((message, options = {}) => {
+    return addToast({ ...options, message, type: 'error' })
+  }, [addToast])
 
-  const warning = useCallback((message, duration) => {
-    return showToast(message, 'warning', duration)
-  }, [showToast])
+  const warning = useCallback((message, options = {}) => {
+    return addToast({ ...options, message, type: 'warning' })
+  }, [addToast])
 
-  const info = useCallback((message, duration) => {
-    return showToast(message, 'info', duration)
-  }, [showToast])
+  const info = useCallback((message, options = {}) => {
+    return addToast({ ...options, message, type: 'info' })
+  }, [addToast])
 
   return {
     toasts,
-    showToast,
+    addToast,
     removeToast,
     success,
     error,
     warning,
-    info,
+    info
   }
 }
-
-export default useToast

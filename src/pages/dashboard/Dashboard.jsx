@@ -208,84 +208,198 @@ function Dashboard() {
       </motion.div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        variants={containerVariants}
+      >
         {/* Recent Appointments */}
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Appointments</h3>
-            <Link to="/appointments" className="text-sm text-primary-600 dark:text-primary-400 hover:underline">
-              View all
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {recentAppointments.length > 0 ? (
-              recentAppointments.map((appointment) => (
-                <Link
-                  key={appointment.id}
-                  to={`/appointments/${appointment.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        <motion.div variants={itemVariants}>
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <motion.span
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 5 }}
+                  className="mr-2"
                 >
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 dark:text-white">{appointment.clientName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{appointment.type}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{appointment.date} at {appointment.time}</p>
-                  </div>
-                  <Badge variant={getStatusColor(appointment.status)}>
-                    {appointment.status}
-                  </Badge>
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No upcoming appointments</p>
-            )}
-          </div>
-        </Card>
+                  📅
+                </motion.span>
+                Recent Appointments
+              </h3>
+              <Link 
+                to="/appointments" 
+                className="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center group"
+              >
+                View all
+                <motion.span
+                  animate={{ x: [0, 3, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+                  className="ml-1 group-hover:translate-x-1 transition-transform"
+                >
+                  →
+                </motion.span>
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {recentAppointments.length > 0 ? (
+                recentAppointments.map((appointment, index) => (
+                  <motion.div
+                    key={appointment.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, x: 5 }}
+                  >
+                    <Link
+                      to={`/appointments/${appointment.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {appointment.clientName}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{appointment.type}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 flex items-center">
+                          <span className="mr-1">🕒</span>
+                          {appointment.date} at {appointment.time}
+                        </p>
+                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Badge variant={getStatusColor(appointment.status)}>
+                          {appointment.status}
+                        </Badge>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-8"
+                >
+                  <span className="text-4xl mb-2 block">📅</span>
+                  <p className="text-gray-500 dark:text-gray-400">No upcoming appointments</p>
+                  <Link
+                    to="/appointments/new"
+                    className="text-primary-600 dark:text-primary-400 hover:underline text-sm mt-2 inline-block"
+                  >
+                    Schedule your first appointment
+                  </Link>
+                </motion.div>
+              )}
+            </div>
+          </Card>
+        </motion.div>
 
         {/* Active Cases */}
-        <Card>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Active Cases</h3>
-            <Link to="/cases" className="text-sm text-primary-600 dark:text-primary-400 hover:underline">
-              View all
-            </Link>
-          </div>
-          <div className="space-y-4">
-            {activeCases.length > 0 ? (
-              activeCases.map((caseItem) => (
-                <Link
-                  key={caseItem.id}
-                  to={`/cases/${caseItem.id}`}
-                  className="block p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+        <motion.div variants={itemVariants}>
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <motion.span
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  className="mr-2"
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{caseItem.caseNumber}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{caseItem.clientName}</p>
-                    </div>
-                    <Badge variant={getPriorityColor(caseItem.priority)}>
-                      {caseItem.priority}
-                    </Badge>
-                  </div>
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      <span>Progress</span>
-                      <span>{caseItem.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className="bg-primary-600 h-2 rounded-full transition-all"
-                        style={{ width: `${caseItem.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No active cases</p>
-            )}
-          </div>
-        </Card>
-      </div>
+                  📋
+                </motion.span>
+                Active Cases
+              </h3>
+              <Link 
+                to="/cases" 
+                className="text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center group"
+              >
+                View all
+                <motion.span
+                  animate={{ x: [0, 3, 0] }}
+                  transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
+                  className="ml-1 group-hover:translate-x-1 transition-transform"
+                >
+                  →
+                </motion.span>
+              </Link>
+            </div>
+            <div className="space-y-4">
+              {activeCases.length > 0 ? (
+                activeCases.map((caseItem, index) => (
+                  <motion.div
+                    key={caseItem.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Link
+                      to={`/cases/${caseItem.id}`}
+                      className="block p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 group"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                            {caseItem.caseNumber}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
+                            <span className="mr-1">👤</span>
+                            {caseItem.clientName}
+                          </p>
+                        </div>
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Badge variant={getPriorityColor(caseItem.priority)}>
+                            {caseItem.priority}
+                          </Badge>
+                        </motion.div>
+                      </div>
+                      <div className="mt-3">
+                        <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                          <span>Progress</span>
+                          <motion.span
+                            key={caseItem.progress}
+                            initial={{ scale: 1.2 }}
+                            animate={{ scale: 1 }}
+                            className="font-medium"
+                          >
+                            {caseItem.progress}%
+                          </motion.span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                          <motion.div
+                            className="bg-primary-600 h-2 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${caseItem.progress}%` }}
+                            transition={{ duration: 1, delay: index * 0.2 }}
+                          />
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-8"
+                >
+                  <span className="text-4xl mb-2 block">📋</span>
+                  <p className="text-gray-500 dark:text-gray-400">No active cases</p>
+                  <Link
+                    to="/cases/new"
+                    className="text-primary-600 dark:text-primary-400 hover:underline text-sm mt-2 inline-block"
+                  >
+                    Create your first case
+                  </Link>
+                </motion.div>
+              )}
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
 
       {/* Charts Section */}
       <motion.div 

@@ -1,75 +1,97 @@
-function SkeletonLoader({ type = 'card', count = 1 }) {
-  const skeletons = {
-    card: (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-          </div>
-          <div className="h-6 w-16 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-        </div>
-        <div className="space-y-2">
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-        </div>
-      </div>
-    ),
-    
-    table: (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
-        </div>
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-4">
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/6"></div>
-          </div>
-        ))}
-      </div>
-    ),
-    
-    list: (
-      <div className="space-y-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 animate-pulse">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    ),
-    
-    stat: (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 space-y-3">
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-            <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-          </div>
-          <div className="w-12 h-12 bg-gray-300 dark:bg-gray-600 rounded-lg"></div>
-        </div>
-      </div>
-    ),
+import { motion } from 'framer-motion'
+
+const shimmer = {
+  hidden: { x: '-100%' },
+  visible: {
+    x: '100%',
+    transition: {
+      repeat: Infinity,
+      duration: 1.5,
+      ease: 'linear'
+    }
+  }
+}
+
+function SkeletonLoader({ className = '', variant = 'default' }) {
+  const variants = {
+    default: 'h-4 bg-gray-200 dark:bg-gray-700 rounded',
+    card: 'h-32 bg-gray-200 dark:bg-gray-700 rounded-lg',
+    avatar: 'h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full',
+    button: 'h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg',
+    text: 'h-3 bg-gray-200 dark:bg-gray-700 rounded',
+    title: 'h-6 bg-gray-200 dark:bg-gray-700 rounded'
   }
 
   return (
-    <>
-      {[...Array(count)].map((_, index) => (
-        <div key={index}>
-          {skeletons[type] || skeletons.card}
-        </div>
-      ))}
-    </>
+    <div className={`relative overflow-hidden ${variants[variant]} ${className}`}>
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent dark:via-gray-600/20"
+        variants={shimmer}
+        initial="hidden"
+        animate="visible"
+      />
+    </div>
+  )
+}
+
+export function DashboardSkeleton() {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
+    >
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <SkeletonLoader variant="title" className="w-48" />
+        <SkeletonLoader variant="text" className="w-96" />
+      </div>
+
+      {/* Stats Grid Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex-1 space-y-3">
+                <SkeletonLoader variant="text" className="w-20" />
+                <SkeletonLoader variant="title" className="w-16" />
+                <SkeletonLoader variant="text" className="w-24" />
+              </div>
+              <SkeletonLoader variant="avatar" className="w-12 h-12 rounded-lg" />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Charts Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+        >
+          <SkeletonLoader variant="title" className="w-40 mb-4" />
+          <SkeletonLoader variant="card" className="h-64" />
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+        >
+          <SkeletonLoader variant="title" className="w-32 mb-4" />
+          <SkeletonLoader variant="card" className="h-64" />
+        </motion.div>
+      </div>
+    </motion.div>
   )
 }
 
