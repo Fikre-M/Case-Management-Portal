@@ -8,7 +8,7 @@ import Loading from '../../components/common/Loading'
 import EmptyState from '../../components/common/EmptyState'
 import ErrorState from '../../components/common/ErrorState'
 import SkeletonLoader from '../../components/common/SkeletonLoader'
-import useToast from '../../hooks/useToast'
+import { useToast } from '../../hooks/useToast'
 import useErrorHandler from '../../hooks/useErrorHandler'
 import ToastContainer from '../../components/common/ToastContainer'
 

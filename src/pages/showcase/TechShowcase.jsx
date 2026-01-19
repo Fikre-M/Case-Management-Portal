@@ -4,7 +4,7 @@ import Button from '../../components/common/Button'
 import Badge from '../../components/common/Badge'
 import Modal from '../../components/common/Modal'
 import SkeletonLoader from '../../components/common/SkeletonLoader'
-import useToast from '../../hooks/useToast'
+import { useToast } from '../../hooks/useToast'
 import ToastContainer from '../../components/common/ToastContainer'
 
 function TechShowcase() {

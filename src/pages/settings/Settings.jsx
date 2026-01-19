@@ -3,7 +3,7 @@ import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
 import { useTheme } from '../../context/ThemeContext'
 import { useAuth } from '../../context/AuthContext'
-import useToast from '../../hooks/useToast'
+import { useToast } from '../../hooks/useToast'
 import ToastContainer from '../../components/common/ToastContainer'
 
 function Settings() {

@@ -3,7 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { AppProvider } from './context/AppContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
-import { PerformanceMonitor } from './hooks/usePerformance'
+import PerformanceMonitor from './components/common/PerformanceMonitor'
 import AppRoutes from './routes/AppRoutes'
 
 function App() {
