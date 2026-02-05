@@ -75,12 +75,8 @@ function MainLayout() {
           collapsed={sidebarCollapsed}
         />
 
-        {/* Main Content Area */}
-        <div
-          className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
-            sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
-          }`}
-        >
+        {/* Main Content Area - NO GAP */}
+        <div className="flex-1 flex flex-col overflow-hidden">
           {/* Topbar */}
           <Topbar
             onMenuClick={toggleSidebar}

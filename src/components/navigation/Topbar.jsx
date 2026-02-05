@@ -278,7 +278,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const navigate = useNavigate();
   const darkMode = theme === "dark";
 
-  // Temporary user data
+  // Static user data
   const user = { name: "User Name", email: "user@example.com" };
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -287,7 +287,6 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
-      // Add your logout logic here
       navigate("/login", { replace: true });
     }
     setShowProfile(false);
@@ -311,7 +310,6 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  // Get user initials
   const getUserInitials = () => {
     if (!user?.name) return "U";
     return user.name

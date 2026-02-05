@@ -182,13 +182,13 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
     return location.pathname === path;
   };
 
-  // Simplified user data (remove AuthContext dependency temporarily)
+  // Static user data
   const user = { name: "User Name", email: "user@example.com" };
   const userInitials = "UN";
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - NO MARGIN, NO PADDING ON RIGHT */}
       <aside
         className={`hidden lg:flex flex-col bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
           collapsed ? "w-20" : "w-64"
@@ -223,7 +223,9 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center transition-all ${collapsed ? "justify-center px-4 py-3" : "px-6 py-3 mx-2 rounded-lg"} ${
+                className={`flex items-center transition-all ${
+                  collapsed ? "justify-center px-4 py-3" : "px-6 py-3"
+                } ${
                   isActive(item.path)
                     ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
