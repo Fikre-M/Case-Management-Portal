@@ -273,14 +273,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext"; // Add this back
 
 function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth(); // Get user and logout from AuthContext
   const navigate = useNavigate();
   const darkMode = theme === "dark";
 
-  // Static user data
-  const user = { name: "User Name", email: "user@example.com" };
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -319,6 +319,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
+      logout(); // Call the logout function from AuthContext
       navigate("/login", { replace: true });
     }
     setShowProfile(false);
@@ -342,6 +343,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
+  // Function to get user initials - updated to use actual user data
   const getUserInitials = () => {
     if (!user?.name) return "U";
     return user.name
@@ -350,6 +352,16 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Function to get user name - fallback to default if not available
+  const getUserName = () => {
+    return user?.name || "User Name";
+  };
+
+  // Function to get user email - fallback to default if not available
+  const getUserEmail = () => {
+    return user?.email || "user@example.com";
   };
 
   return (
@@ -575,10 +587,10 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
               <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.name}
+                    {getUserName()}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {user.email}
+                    {getUserEmail()}
                   </p>
                 </div>
                 <div className="py-2">
