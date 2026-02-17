@@ -21,6 +21,8 @@ The app will open at `http://localhost:3000`
 - **Register** (`/register`) - Create new account
 - **Forgot Password** (`/forgot-password`) - Password reset flow
 
+**⚠️ Security Notice:** The authentication system is for demo purposes only and uses client-side localStorage with plain-text passwords. Never use this approach in production applications.
+
 ### Main Application
 - **Dashboard** (`/dashboard`) - Overview with stats and activity
 - **Appointments** (`/appointments`) - Manage appointments

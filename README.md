@@ -26,6 +26,8 @@ npm run dev
 
 **🎯 Demo Access:** `demo@example.com` / `password`
 
+**⚠️ Security Notice:** This is a demo application with client-side authentication for demonstration purposes only. The authentication system stores plain-text passwords in localStorage and should NEVER be used in production. For production applications, implement proper backend authentication with secure password hashing, HTTPS, and server-side session management.
+
 **🌐 Live Demo:** [http://localhost:5001](http://localhost:5001)
 
 ---
@@ -98,6 +100,14 @@ const { metrics } = usePerformance()
 - 24-hour session timeout with auto-extension
 - Secure localStorage with session validation
 - Complete user registration and login flow
+
+**⚠️ Demo Implementation Notice:**  
+The current authentication is for demonstration purposes only. It uses client-side localStorage with plain-text passwords. Production applications require:
+- Backend authentication server (Node.js, Django, etc.)
+- Password hashing (bcrypt, argon2)
+- JWT or session-based authentication
+- HTTPS-only secure cookies
+- CSRF protection and rate limiting
 
 ---
 

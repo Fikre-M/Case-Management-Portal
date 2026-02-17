@@ -7,17 +7,33 @@ const USERS_KEY = 'ai_casemanager_users'
 const CURRENT_USER_KEY = 'ai_casemanager_current_user'
 const SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 hours
 
+// ⚠️ SECURITY WARNING - DEMO ONLY ⚠️
+// This implementation stores plain-text passwords in localStorage for demonstration purposes.
+// 
+// 🔴 CRITICAL: DO NOT USE IN PRODUCTION 🔴
+// 
+// Production Requirements:
+// 1. Never store passwords in localStorage or any client-side storage
+// 2. Use proper backend authentication (JWT, OAuth, etc.)
+// 3. Hash passwords server-side (bcrypt, argon2, etc.)
+// 4. Implement HTTPS-only secure cookies for session management
+// 5. Add CSRF protection and rate limiting
+// 6. Use environment variables for sensitive configuration
+// 
+// This code is intentionally simplified for demo/development purposes only.
+
 // Initialize with demo user
 const initializeUsers = () => {
   try {
     const existingUsers = localStorage.getItem(USERS_KEY)
     if (!existingUsers) {
+      // ⚠️ DEMO ONLY: Hard-coded credentials with plain-text password
       const demoUsers = [
         {
           id: 1,
           name: 'Demo User',
           email: 'demo@example.com',
-          password: 'password',
+          password: 'password', // 🔴 NEVER store plain-text passwords in production
           role: 'admin'
         }
       ]
@@ -107,11 +123,12 @@ export function AuthProvider({ children }) {
       }
 
       // Create new user
+      // ⚠️ DEMO ONLY: Storing plain-text password - NEVER do this in production
       const newUser = {
         id: users.length + 1,
         name: userData.fullName,
         email: userData.email,
-        password: userData.password,
+        password: userData.password, // 🔴 Should be hashed server-side in production
         role: 'user',
         createdAt: new Date().toISOString()
       }
@@ -140,6 +157,7 @@ export function AuthProvider({ children }) {
   const login = (email, password) => {
     try {
       const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+      // ⚠️ DEMO ONLY: Plain-text password comparison - use secure backend auth in production
       const foundUser = users.find(u => u.email === email && u.password === password)
 
       if (foundUser) {

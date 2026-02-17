@@ -1,5 +1,25 @@
 # Authentication System - Complete ✅
 
+## ⚠️ CRITICAL SECURITY NOTICE
+
+**🔴 THIS IS A DEMO IMPLEMENTATION ONLY - NOT FOR PRODUCTION USE 🔴**
+
+The current authentication system stores plain-text passwords in localStorage for demonstration purposes. This is a critical security vulnerability and must NEVER be used in production environments.
+
+### Production Requirements:
+1. **Backend Authentication Server** - Never handle auth client-side only
+2. **Password Hashing** - Use bcrypt, argon2, or similar (server-side)
+3. **Secure Session Management** - JWT tokens or HTTPS-only cookies
+4. **HTTPS Required** - All authentication must use encrypted connections
+5. **CSRF Protection** - Implement anti-CSRF tokens
+6. **Rate Limiting** - Prevent brute force attacks
+7. **Environment Variables** - Never hard-code credentials
+8. **Security Headers** - Implement proper HTTP security headers
+
+This demo is intentionally simplified for learning and demonstration purposes only.
+
+---
+
 ## Files Created/Updated
 
 ### New Files
@@ -101,10 +121,14 @@ All forms use setTimeout to simulate API calls:
 
 ## Demo Credentials
 
+**⚠️ SECURITY WARNING:** These credentials are hard-coded for demo purposes only.
+
 ```
 Email: demo@example.com
 Password: password
 ```
+
+**Never use hard-coded credentials or plain-text passwords in production applications.**
 
 ## Next Steps to Connect Backend
 
