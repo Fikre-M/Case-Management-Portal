@@ -15,72 +15,39 @@ export function AppProvider({ children }) {
   const [casesLoading, setCasesLoading] = useState(true)
   const [casesError, setCasesError] = useState(null)
 
+  // Reusable data loading function to eliminate duplication
+  const loadData = async (setLoading, setError, setData, mockData, delay = 500) => {
+    try {
+      setLoading(true)
+      setError(null)
+      // Simulate API call with delay
+      await new Promise(resolve => setTimeout(resolve, delay))
+      setData(mockData)
+    } catch (error) {
+      setError(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Specific loader functions using the reusable logic
+  const loadAppointments = () => {
+    loadData(setAppointmentsLoading, setAppointmentsError, setAppointments, mockAppointments)
+  }
+
+  const loadCases = () => {
+    loadData(setCasesLoading, setCasesError, setCases, mockCases)
+  }
+
   // Initialize data on mount
   useEffect(() => {
-    const loadAppointments = async () => {
-      try {
-        setAppointmentsLoading(true)
-        setAppointmentsError(null)
-        // Simulate API call with delay
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setAppointments(mockAppointments)
-      } catch (error) {
-        setAppointmentsError(error)
-      } finally {
-        setAppointmentsLoading(false)
-      }
-    }
-
-    const loadCases = async () => {
-      try {
-        setCasesLoading(true)
-        setCasesError(null)
-        // Simulate API call with delay
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setCases(mockCases)
-      } catch (error) {
-        setCasesError(error)
-      } finally {
-        setCasesLoading(false)
-      }
-    }
-
     loadAppointments()
     loadCases()
   }, [])
 
-  // Retry functions
-  const retryLoadAppointments = () => {
-    const loadAppointments = async () => {
-      try {
-        setAppointmentsLoading(true)
-        setAppointmentsError(null)
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setAppointments(mockAppointments)
-      } catch (error) {
-        setAppointmentsError(error)
-      } finally {
-        setAppointmentsLoading(false)
-      }
-    }
-    loadAppointments()
-  }
-
-  const retryLoadCases = () => {
-    const loadCases = async () => {
-      try {
-        setCasesLoading(true)
-        setCasesError(null)
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setCases(mockCases)
-      } catch (error) {
-        setCasesError(error)
-      } finally {
-        setCasesLoading(false)
-      }
-    }
-    loadCases()
-  }
+  // Retry functions now simply call the loader functions
+  const retryLoadAppointments = loadAppointments
+  const retryLoadCases = loadCases
 
   // Appointment CRUD Operations
   const getAppointmentById = (id) => {
