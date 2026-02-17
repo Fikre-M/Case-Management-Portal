@@ -124,7 +124,7 @@ export function AppProvider({ children }) {
   const createCase = async (caseData) => {
     try {
       const newCase = await caseService.create(caseData)
-      setCases(prev => [...prev, newCase])
+      setCases(prev => [...prev, newCase])  
       return newCase
     } catch (error) {
       console.error('Failed to create case:', error)
