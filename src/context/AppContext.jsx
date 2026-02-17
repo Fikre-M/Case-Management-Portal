@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import mockAppointments from '../services/mockAppointments'
-import mockCases from '../services/mockCases'
+import { appointmentService } from '../services/appointmentService'
+import { caseService } from '../services/caseService'
 
 const AppContext = createContext()
 
@@ -16,28 +16,34 @@ export function AppProvider({ children }) {
   const [casesLoading, setCasesLoading] = useState(true)
   const [casesError, setCasesError] = useState(null)
 
-  // Reusable data loading function to eliminate duplication
-  const loadData = async (setLoading, setError, setData, mockData, delay = 500) => {
+  // Load appointments using service layer
+  const loadAppointments = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      // Simulate API call with delay
-      await new Promise(resolve => setTimeout(resolve, delay))
-      setData(mockData)
+      setAppointmentsLoading(true)
+      setAppointmentsError(null)
+      const data = await appointmentService.getAll()
+      setAppointments(data)
     } catch (error) {
-      setError(error)
+      console.error('Failed to load appointments:', error)
+      setAppointmentsError(error.message || 'Failed to load appointments')
     } finally {
-      setLoading(false)
+      setAppointmentsLoading(false)
     }
   }
 
-  // Specific loader functions using the reusable logic
-  const loadAppointments = () => {
-    loadData(setAppointmentsLoading, setAppointmentsError, setAppointments, mockAppointments)
-  }
-
-  const loadCases = () => {
-    loadData(setCasesLoading, setCasesError, setCases, mockCases)
+  // Load cases using service layer
+  const loadCases = async () => {
+    try {
+      setCasesLoading(true)
+      setCasesError(null)
+      const data = await caseService.getAll()
+      setCases(data)
+    } catch (error) {
+      console.error('Failed to load cases:', error)
+      setCasesError(error.message || 'Failed to load cases')
+    } finally {
+      setCasesLoading(false)
+    }
   }
 
   // Initialize data on mount
@@ -57,38 +63,35 @@ export function AppProvider({ children }) {
 
   const createAppointment = async (appointmentData) => {
     try {
-      const newAppointment = {
-        id: Math.max(...appointments.map(a => a.id), 0) + 1,
-        ...appointmentData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
+      const newAppointment = await appointmentService.create(appointmentData)
       setAppointments(prev => [...prev, newAppointment])
       return newAppointment
     } catch (error) {
-      throw new Error('Failed to create appointment')
+      console.error('Failed to create appointment:', error)
+      throw new Error(error.message || 'Failed to create appointment')
     }
   }
 
   const updateAppointment = async (id, appointmentData) => {
     try {
+      const updatedAppointment = await appointmentService.update(id, appointmentData)
       setAppointments(prev =>
-        prev.map(apt =>
-          apt.id === parseInt(id)
-            ? { ...apt, ...appointmentData, updatedAt: new Date().toISOString() }
-            : apt
-        )
+        prev.map(apt => apt.id === parseInt(id) ? updatedAppointment : apt)
       )
+      return updatedAppointment
     } catch (error) {
-      throw new Error('Failed to update appointment')
+      console.error('Failed to update appointment:', error)
+      throw new Error(error.message || 'Failed to update appointment')
     }
   }
 
   const deleteAppointment = async (id) => {
     try {
+      await appointmentService.delete(id)
       setAppointments(prev => prev.filter(apt => apt.id !== parseInt(id)))
     } catch (error) {
-      throw new Error('Failed to delete appointment')
+      console.error('Failed to delete appointment:', error)
+      throw new Error(error.message || 'Failed to delete appointment')
     }
   }
 
@@ -120,48 +123,35 @@ export function AppProvider({ children }) {
 
   const createCase = async (caseData) => {
     try {
-      const newCase = {
-        id: Math.max(...cases.map(c => c.id), 0) + 1,
-        caseNumber: `CASE-2024-${String(cases.length + 1).padStart(3, '0')}`,
-        ...caseData,
-        openedDate: new Date().toISOString().split('T')[0],
-        lastUpdated: new Date().toISOString().split('T')[0],
-        timeline: [
-          {
-            date: new Date().toISOString().split('T')[0],
-            event: 'Case opened',
-            type: 'info'
-          }
-        ],
-        documents: [],
-        notes: [],
-      }
+      const newCase = await caseService.create(caseData)
       setCases(prev => [...prev, newCase])
       return newCase
     } catch (error) {
-      throw new Error('Failed to create case')
+      console.error('Failed to create case:', error)
+      throw new Error(error.message || 'Failed to create case')
     }
   }
 
   const updateCase = async (id, caseData) => {
     try {
+      const updatedCase = await caseService.update(id, caseData)
       setCases(prev =>
-        prev.map(c =>
-          c.id === parseInt(id)
-            ? { ...c, ...caseData, lastUpdated: new Date().toISOString().split('T')[0] }
-            : c
-        )
+        prev.map(c => c.id === parseInt(id) ? updatedCase : c)
       )
+      return updatedCase
     } catch (error) {
-      throw new Error('Failed to update case')
+      console.error('Failed to update case:', error)
+      throw new Error(error.message || 'Failed to update case')
     }
   }
 
   const deleteCase = async (id) => {
     try {
+      await caseService.delete(id)
       setCases(prev => prev.filter(c => c.id !== parseInt(id)))
     } catch (error) {
-      throw new Error('Failed to delete case')
+      console.error('Failed to delete case:', error)
+      throw new Error(error.message || 'Failed to delete case')
     }
   }
 
