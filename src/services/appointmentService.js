@@ -1,5 +1,11 @@
 import apiRequest, { simulateNetworkDelay, isMockMode } from './api'
 import mockAppointments from './mockAppointments'
+import { generateId, initializeIdCounter } from '../utils/idGenerator'
+
+// Initialize ID counter once when module loads
+if (isMockMode() && mockAppointments.length > 0) {
+  initializeIdCounter('appointment', mockAppointments)
+}
 
 /**
  * Appointment Service
@@ -44,7 +50,7 @@ export const appointmentService = {
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const newAppointment = {
-        id: Math.max(...mockAppointments.map(a => a.id), 0) + 1,
+        id: generateId('appointment'), // O(1) instead of O(n)
         ...data,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

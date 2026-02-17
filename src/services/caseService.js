@@ -1,5 +1,11 @@
 import apiRequest, { simulateNetworkDelay, isMockMode } from './api'
 import mockCases from './mockCases'
+import { generateId, initializeIdCounter } from '../utils/idGenerator'
+
+// Initialize ID counter once when module loads
+if (isMockMode() && mockCases.length > 0) {
+  initializeIdCounter('case', mockCases)
+}
 
 /**
  * Case Service
@@ -44,7 +50,7 @@ export const caseService = {
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const newCase = {
-        id: Math.max(...mockCases.map(c => c.id), 0) + 1,
+        id: generateId('case'), // O(1) instead of O(n)
         caseNumber: `CASE-2024-${String(mockCases.length + 1).padStart(3, '0')}`,
         ...data,
         openedDate: new Date().toISOString().split('T')[0],
