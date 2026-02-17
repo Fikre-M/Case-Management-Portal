@@ -1,4 +1,5 @@
 import { useState, useId } from 'react'
+import PropTypes from 'prop-types'
 
 function Input({ 
   label, 
@@ -72,6 +73,19 @@ function Input({
       )}
     </div>
   )
+}
+
+Input.propTypes = {
+  label: PropTypes.string,
+  type: PropTypes.string,
+  placeholder: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onChange: PropTypes.func,
+  required: PropTypes.bool,
+  error: PropTypes.string,
+  disabled: PropTypes.bool,
+  className: PropTypes.string,
+  'aria-describedby': PropTypes.string,
 }
 
 export default Input

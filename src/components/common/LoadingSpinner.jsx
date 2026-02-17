@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 function LoadingSpinner({ 
   size = 'md', 
   color = 'primary', 
@@ -28,6 +30,13 @@ function LoadingSpinner({
       </div>
     </div>
   )
+}
+
+LoadingSpinner.propTypes = {
+  size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl']),
+  color: PropTypes.oneOf(['primary', 'white', 'gray']),
+  className: PropTypes.string,
+  label: PropTypes.string,
 }
 
 export default LoadingSpinner

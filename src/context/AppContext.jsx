@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import mockAppointments from '../services/mockAppointments'
 import mockCases from '../services/mockCases'
 
@@ -236,6 +237,10 @@ export function AppProvider({ children }) {
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+}
+
+AppProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 }
 
 export function useApp() {

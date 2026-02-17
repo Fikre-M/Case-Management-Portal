@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 function Modal({ isOpen, onClose, title, children, size = 'md' }) {
   useEffect(() => {
@@ -60,6 +61,14 @@ function Modal({ isOpen, onClose, title, children, size = 'md' }) {
       </div>
     </div>
   )
+}
+
+Modal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
+  size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl', 'full']),
 }
 
 export default Modal

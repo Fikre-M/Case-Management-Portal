@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import PropTypes from 'prop-types'
 
 function Card({ children, title, className = '', hover = true, ...props }) {
   const cardVariants = {
@@ -24,6 +25,13 @@ function Card({ children, title, className = '', hover = true, ...props }) {
       {children}
     </motion.div>
   )
+}
+
+Card.propTypes = {
+  children: PropTypes.node.isRequired,
+  title: PropTypes.string,
+  className: PropTypes.string,
+  hover: PropTypes.bool,
 }
 
 export default Card

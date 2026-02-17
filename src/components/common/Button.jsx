@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import PropTypes from 'prop-types'
 import LoadingSpinner from './LoadingSpinner'
 
 function Button({ 
@@ -60,6 +61,18 @@ function Button({
       {children}
     </motion.button>
   )
+}
+
+Button.propTypes = {
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.oneOf(['primary', 'secondary', 'danger', 'ghost']),
+  onClick: PropTypes.func,
+  type: PropTypes.oneOf(['button', 'submit', 'reset']),
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
+  loading: PropTypes.bool,
+  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  'aria-label': PropTypes.string,
 }
 
 export default Button

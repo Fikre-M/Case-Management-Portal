@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import PropTypes from 'prop-types'
 
 function Alert({ 
   type = 'info', 
@@ -81,6 +82,15 @@ function Alert({
       )}
     </div>
   )
+}
+
+Alert.propTypes = {
+  type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
+  message: PropTypes.string.isRequired,
+  onClose: PropTypes.func,
+  autoClose: PropTypes.bool,
+  autoCloseDelay: PropTypes.number,
+  className: PropTypes.string,
 }
 
 export default Alert

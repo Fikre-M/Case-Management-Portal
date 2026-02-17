@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types'
+
 function AuthInput({ 
   label, 
   type = 'text', 
@@ -50,6 +52,18 @@ function AuthInput({
       )}
     </div>
   );
+}
+
+AuthInput.propTypes = {
+  label: PropTypes.string,
+  type: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  placeholder: PropTypes.string,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  error: PropTypes.string,
+  required: PropTypes.bool,
+  icon: PropTypes.node,
 }
 
 export default AuthInput
