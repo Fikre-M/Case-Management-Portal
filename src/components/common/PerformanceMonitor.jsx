@@ -1,27 +1,62 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePerformance } from '../../hooks/usePerformance'
+import { useWebVitals } from '../../hooks/useWebVitals'
 import { useDraggable } from '../../hooks/useDraggable'
 
-// Performance monitoring component for development
+/**
+ * Enhanced Performance Monitor for 2026 Web Standards
+ * 
+ * Monitors Core Web Vitals (LCP, FID, CLS, INP) alongside traditional metrics.
+ * Provides real-time performance insights and optimization recommendations.
+ * 
+ * @component
+ * @returns {JSX.Element|null} Performance monitoring panel or null in production
+ */
 function PerformanceMonitor() {
   const { metrics } = usePerformance()
+  const { vitals, isGoodPerformance, getStatus } = useWebVitals()
   const [isVisible, setIsVisible] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [activeTab, setActiveTab] = useState('vitals') // 'vitals' | 'metrics'
   
   // Separate draggable instances for button and panel
-  // Use safer initial positions that work on all screen sizes
   const buttonDraggable = useDraggable({ 
-    x: -60, // Will be adjusted by responsive positioning to right side
-    y: -60  // Will be adjusted to bottom right
+    x: -60, 
+    y: -60  
   })
   const panelDraggable = useDraggable({ 
-    x: -200, // Will be adjusted by responsive positioning to right side
-    y: -200  // Will be adjusted to bottom right
+    x: -280, // Wider panel for Web Vitals
+    y: -200  
   })
   
   if (process.env.NODE_ENV !== 'development') {
     return null
+  }
+
+  /**
+   * Formats metric values for display
+   */
+  const formatMetric = (name, vital) => {
+    if (!vital) return 'N/A'
+    
+    const value = vital.value
+    if (name === 'CLS') return (value * 1000).toFixed(1)
+    if (name === 'LCP' || name === 'FCP' || name === 'TTFB') return `${Math.round(value)}ms`
+    if (name === 'FID' || name === 'INP') return `${Math.round(value)}ms`
+    return Math.round(value)
+  }
+
+  /**
+   * Gets color for metric status
+   */
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'good': return 'text-green-400'
+      case 'needs-improvement': return 'text-yellow-400'
+      case 'poor': return 'text-red-400'
+      default: return 'text-gray-400'
+    }
   }
 
   if (!isVisible) {
@@ -37,10 +72,10 @@ function PerformanceMonitor() {
           top: buttonDraggable.position.y,
           zIndex: 50
         }}
-        className={`w-12 h-12 bg-black/80 hover:bg-black/90 text-white rounded-full flex items-center justify-center backdrop-blur-sm border border-gray-600 transition-colors shadow-lg select-none ${
+        className={`w-12 h-12 ${isGoodPerformance ? 'bg-green-600/80 hover:bg-green-600/90' : 'bg-red-600/80 hover:bg-red-600/90'} text-white rounded-full flex items-center justify-center backdrop-blur-sm border border-gray-600 transition-colors shadow-lg select-none ${
           buttonDraggable.isDragging ? 'shadow-2xl scale-110' : ''
         } ${buttonDraggable.dragHandleProps.className}`}
-        title="Show Performance Monitor (Drag to move)"
+        title={`Performance: ${isGoodPerformance ? 'Good' : 'Needs Attention'} (Drag to move)`}
         {...buttonDraggable.dragHandleProps}
       >
         <span className="pointer-events-none">⚡</span>
@@ -61,7 +96,7 @@ function PerformanceMonitor() {
           top: panelDraggable.position.y,
           zIndex: 50
         }}
-        className={`bg-black/90 text-white text-xs rounded-lg font-mono backdrop-blur-sm border border-gray-600 shadow-lg select-none max-w-[220px] ${
+        className={`bg-black/90 text-white text-xs rounded-lg font-mono backdrop-blur-sm border border-gray-600 shadow-lg select-none max-w-[280px] ${
           panelDraggable.isDragging ? 'shadow-2xl scale-105' : ''
         } transition-all duration-200`}
       >
@@ -73,8 +108,8 @@ function PerformanceMonitor() {
         >
           <div className="flex items-center space-x-2">
             <span className="text-gray-400 text-xs">⋮⋮</span>
-            <span className="text-green-400 font-bold">⚡</span>
-            <span className="text-green-400 font-bold">Performance</span>
+            <span className={`font-bold ${isGoodPerformance ? 'text-green-400' : 'text-red-400'}`}>⚡</span>
+            <span className={`font-bold ${isGoodPerformance ? 'text-green-400' : 'text-red-400'}`}>Performance 2026</span>
           </div>
           <div className="flex items-center space-x-1">
             <button
@@ -107,47 +142,129 @@ function PerformanceMonitor() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="p-3 space-y-2 min-w-[160px]"
+              className="min-w-[240px]"
             >
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300">Load:</span>
-                <span className="text-white font-medium">{metrics.loadTime}ms</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300">Render:</span>
-                <span className="text-white font-medium">{metrics.renderTime}ms</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300">Memory:</span>
-                <span className="text-white font-medium">{metrics.memoryUsage}MB</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-300">FPS:</span>
-                <span className={`font-medium ${
-                  metrics.fps >= 50 ? 'text-green-400' : 
-                  metrics.fps >= 30 ? 'text-yellow-400' : 'text-red-400'
-                }`}>
-                  {metrics.fps}
-                </span>
-              </div>
-              
-              {/* Performance Status */}
-              <div className="pt-2 border-t border-gray-600">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-2 h-2 rounded-full ${
-                    metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'bg-green-400' :
-                    metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'bg-yellow-400' : 'bg-red-400'
-                  }`} />
-                  <span className="text-xs text-gray-300">
-                    {metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'Excellent' :
-                     metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'Good' : 'Needs Optimization'}
-                  </span>
-                </div>
+              {/* Tab Navigation */}
+              <div className="flex border-b border-gray-600">
+                <button
+                  onClick={() => setActiveTab('vitals')}
+                  className={`flex-1 p-2 text-xs transition-colors ${
+                    activeTab === 'vitals' 
+                      ? 'bg-blue-600/50 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  }`}
+                >
+                  Web Vitals
+                </button>
+                <button
+                  onClick={() => setActiveTab('metrics')}
+                  className={`flex-1 p-2 text-xs transition-colors ${
+                    activeTab === 'metrics' 
+                      ? 'bg-blue-600/50 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                  }`}
+                >
+                  Runtime
+                </button>
               </div>
 
-              {/* Drag Hint */}
-              <div className="pt-1 border-t border-gray-700">
-                <span className="text-xs text-gray-500">💡 Drag header to move</span>
+              {/* Tab Content */}
+              <div className="p-3 space-y-2">
+                {activeTab === 'vitals' ? (
+                  <>
+                    {/* Core Web Vitals */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">LCP:</span>
+                        <span className={`font-medium ${getStatusColor(getStatus('LCP'))}`}>
+                          {formatMetric('LCP', vitals.LCP)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">FID:</span>
+                        <span className={`font-medium ${getStatusColor(getStatus('FID'))}`}>
+                          {formatMetric('FID', vitals.FID)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">CLS:</span>
+                        <span className={`font-medium ${getStatusColor(getStatus('CLS'))}`}>
+                          {formatMetric('CLS', vitals.CLS)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">INP:</span>
+                        <span className={`font-medium ${getStatusColor(getStatus('INP'))}`}>
+                          {formatMetric('INP', vitals.INP)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">TTFB:</span>
+                        <span className={`font-medium ${getStatusColor(getStatus('TTFB'))}`}>
+                          {formatMetric('TTFB', vitals.TTFB)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Overall Status */}
+                    <div className="pt-2 border-t border-gray-600">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          isGoodPerformance ? 'bg-green-400' : 'bg-red-400'
+                        }`} />
+                        <span className="text-xs text-gray-300">
+                          {isGoodPerformance ? '2026 Ready' : 'Needs Optimization'}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Runtime Metrics */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Load:</span>
+                        <span className="text-white font-medium">{metrics.loadTime}ms</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Render:</span>
+                        <span className="text-white font-medium">{metrics.renderTime}ms</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Memory:</span>
+                        <span className="text-white font-medium">{metrics.memoryUsage}MB</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">FPS:</span>
+                        <span className={`font-medium ${
+                          metrics.fps >= 50 ? 'text-green-400' : 
+                          metrics.fps >= 30 ? 'text-yellow-400' : 'text-red-400'
+                        }`}>
+                          {metrics.fps}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Performance Status */}
+                    <div className="pt-2 border-t border-gray-600">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${
+                          metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'bg-green-400' :
+                          metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'bg-yellow-400' : 'bg-red-400'
+                        }`} />
+                        <span className="text-xs text-gray-300">
+                          {metrics.fps >= 50 && metrics.memoryUsage < 100 ? 'Excellent' :
+                           metrics.fps >= 30 && metrics.memoryUsage < 200 ? 'Good' : 'Needs Optimization'}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Drag Hint */}
+                <div className="pt-1 border-t border-gray-700">
+                  <span className="text-xs text-gray-500">💡 Drag header to move</span>
+                </div>
               </div>
             </motion.div>
           )}
