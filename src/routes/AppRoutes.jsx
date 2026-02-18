@@ -22,6 +22,7 @@ import Reports from '../pages/reports/Reports'
 import Settings from '../pages/settings/Settings'
 import Profile from '../pages/profile/Profile'
 import TechShowcase from '../pages/showcase/TechShowcase'
+import DocumentUpload from '../pages/documents/DocumentUpload'
 import NotFound from '../pages/NotFound'
 
 function AppRoutes() {
@@ -64,6 +65,9 @@ function AppRoutes() {
           
           {/* Reports */}
           <Route path="/reports" element={<Reports />} />
+          
+          {/* Documents */}
+          <Route path="/documents/upload" element={<DocumentUpload />} />
           
           {/* Tech Showcase */}
           <Route path="/showcase" element={<TechShowcase />} />
