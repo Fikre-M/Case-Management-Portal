@@ -48,6 +48,25 @@ module.exports = {
     'prefer-arrow-callback': 'warn',
     'no-duplicate-imports': 'error',
 
+    // Security Rules
+    'no-eval': 'error',
+    'no-implied-eval': 'error',
+    'no-new-func': 'error',
+    'no-script-url': 'error',
+    'no-unsafe-innerhtml/no-unsafe-innerhtml': 'off', // Would need plugin
+
+    // Prevent common security issues
+    'no-caller': 'error',
+    'no-extend-native': 'error',
+    'no-extra-bind': 'error',
+    'no-iterator': 'error',
+    'no-lone-blocks': 'error',
+    'no-proto': 'error',
+    'no-self-compare': 'error',
+    'no-sequences': 'error',
+    'no-throw-literal': 'error',
+    'no-with': 'error',
+
     // JSDoc Enforcement
     'valid-jsdoc': ['warn', {
       requireReturn: false,
