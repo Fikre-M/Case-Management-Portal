@@ -21,22 +21,31 @@ import { useEffect } from 'react'
  * @returns {JSX.Element} Main application component
  */
 function App() {
-  const { vitals, isGoodPerformance } = useWebVitals()
+  const { vitals, isGoodPerformance, webVitalsAvailable } = useWebVitals()
 
   // Log performance status in development
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('🚀 Performance Status:', {
-        isGoodPerformance,
-        vitals: Object.entries(vitals)
-          .filter(([_, value]) => value !== null)
-          .reduce((acc, [key, value]) => ({
-            ...acc,
-            [key]: `${value.value}${key === 'CLS' ? '' : 'ms'} (${value.rating})`
-          }), {})
-      })
+      const hasMetrics = Object.values(vitals).some(v => v !== null)
+      
+      if (hasMetrics) {
+        console.log('🚀 Performance Status:', {
+          isGoodPerformance,
+          webVitalsLibrary: webVitalsAvailable ? '✅ Loaded' : '📦 Using fallback',
+          vitals: Object.entries(vitals)
+            .filter(([_, value]) => value !== null)
+            .reduce((acc, [key, value]) => ({
+              ...acc,
+              [key]: `${value.value}${key === 'CLS' ? '' : 'ms'} (${value.rating})`
+            }), {})
+        })
+        
+        if (!webVitalsAvailable) {
+          console.log('💡 For accurate Web Vitals, run: npm install web-vitals')
+        }
+      }
     }
-  }, [vitals, isGoodPerformance])
+  }, [vitals, isGoodPerformance, webVitalsAvailable])
 
   return (
     <ErrorBoundary>

@@ -15,7 +15,7 @@ import { useDraggable } from '../../hooks/useDraggable'
  */
 function PerformanceMonitor() {
   const { metrics } = usePerformance()
-  const { vitals, isGoodPerformance, getStatus } = useWebVitals()
+  const { vitals, isGoodPerformance, getStatus, webVitalsAvailable } = useWebVitals()
   const [isVisible, setIsVisible] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
   const [activeTab, setActiveTab] = useState('vitals') // 'vitals' | 'metrics'
@@ -110,6 +110,11 @@ function PerformanceMonitor() {
             <span className="text-gray-400 text-xs">⋮⋮</span>
             <span className={`font-bold ${isGoodPerformance ? 'text-green-400' : 'text-red-400'}`}>⚡</span>
             <span className={`font-bold ${isGoodPerformance ? 'text-green-400' : 'text-red-400'}`}>Performance 2026</span>
+            {!webVitalsAvailable && (
+              <span className="text-xs text-yellow-400 ml-1" title="Using fallback metrics. Install 'npm install web-vitals' for accurate measurements.">
+                (Fallback)
+              </span>
+            )}
           </div>
           <div className="flex items-center space-x-1">
             <button

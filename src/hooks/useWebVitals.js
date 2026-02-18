@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
  * Hook for monitoring Core Web Vitals in real-time
  * 
  * Tracks LCP, FID, CLS, FCP, and TTFB metrics for 2026 performance standards.
- * Automatically reports to analytics and provides performance insights.
+ * Falls back to manual implementation if web-vitals package is not available.
  * 
  * @returns {Object} Web Vitals metrics and reporting functions
  * @returns {Object} returns.vitals - Current Web Vitals measurements
@@ -34,6 +34,7 @@ export function useWebVitals() {
   })
 
   const [performanceEntries, setPerformanceEntries] = useState([])
+  const [webVitalsAvailable, setWebVitalsAvailable] = useState(false)
 
   /**
    * Reports a Web Vital metric
@@ -117,6 +118,109 @@ export function useWebVitals() {
   }
 
   /**
+   * Fallback implementation for basic performance monitoring
+   */
+  const initializeFallbackMetrics = () => {
+    if (typeof window === 'undefined') return
+
+    // Monitor navigation timing for TTFB
+    const navigation = performance.getEntriesByType('navigation')[0]
+    if (navigation) {
+      const ttfb = navigation.responseStart - navigation.requestStart
+      reportVital({
+        name: 'TTFB',
+        value: ttfb,
+        rating: ttfb <= 600 ? 'good' : ttfb <= 1000 ? 'needs-improvement' : 'poor',
+        id: `ttfb-${Date.now()}`,
+        delta: ttfb
+      })
+    }
+
+    // Monitor paint timing for FCP
+    const paintEntries = performance.getEntriesByType('paint')
+    const fcpEntry = paintEntries.find(entry => entry.name === 'first-contentful-paint')
+    if (fcpEntry) {
+      reportVital({
+        name: 'FCP',
+        value: fcpEntry.startTime,
+        rating: fcpEntry.startTime <= 1800 ? 'good' : fcpEntry.startTime <= 3000 ? 'needs-improvement' : 'poor',
+        id: `fcp-${Date.now()}`,
+        delta: fcpEntry.startTime
+      })
+    }
+
+    // Basic LCP estimation using largest image or text block
+    setTimeout(() => {
+      const images = document.querySelectorAll('img')
+      const textBlocks = document.querySelectorAll('h1, h2, p')
+      const allElements = [...images, ...textBlocks]
+      
+      if (allElements.length > 0) {
+        // Estimate LCP as time when largest element becomes visible
+        const estimatedLCP = performance.now()
+        reportVital({
+          name: 'LCP',
+          value: estimatedLCP,
+          rating: estimatedLCP <= 2500 ? 'good' : estimatedLCP <= 4000 ? 'needs-improvement' : 'poor',
+          id: `lcp-estimated-${Date.now()}`,
+          delta: estimatedLCP
+        })
+      }
+    }, 1000)
+
+    // Monitor layout shifts (basic implementation)
+    let clsValue = 0
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (entry.entryType === 'layout-shift' && !entry.hadRecentInput) {
+          clsValue += entry.value
+        }
+      }
+    })
+
+    try {
+      observer.observe({ entryTypes: ['layout-shift'] })
+      
+      // Report CLS after 5 seconds
+      setTimeout(() => {
+        reportVital({
+          name: 'CLS',
+          value: clsValue,
+          rating: clsValue <= 0.1 ? 'good' : clsValue <= 0.25 ? 'needs-improvement' : 'poor',
+          id: `cls-${Date.now()}`,
+          delta: clsValue
+        })
+        observer.disconnect()
+      }, 5000)
+    } catch (e) {
+      console.warn('Layout shift monitoring not supported')
+    }
+
+    // Monitor first input delay
+    let fidReported = false
+    const handleFirstInput = (event) => {
+      if (fidReported) return
+      fidReported = true
+      
+      const fid = event.processingStart - event.startTime
+      reportVital({
+        name: 'FID',
+        value: fid,
+        rating: fid <= 100 ? 'good' : fid <= 300 ? 'needs-improvement' : 'poor',
+        id: `fid-${Date.now()}`,
+        delta: fid
+      })
+      
+      // Remove listeners after first input
+      document.removeEventListener('click', handleFirstInput, true)
+      document.removeEventListener('keydown', handleFirstInput, true)
+    }
+
+    document.addEventListener('click', handleFirstInput, true)
+    document.addEventListener('keydown', handleFirstInput, true)
+  }
+
+  /**
    * Monitors performance entries
    */
   useEffect(() => {
@@ -126,19 +230,6 @@ export function useWebVitals() {
     const observer = new PerformanceObserver((list) => {
       const entries = list.getEntries()
       setPerformanceEntries(prev => [...prev, ...entries])
-      
-      entries.forEach(entry => {
-        if (entry.entryType === 'navigation') {
-          // Calculate TTFB
-          const ttfb = entry.responseStart - entry.requestStart
-          reportVital({
-            name: 'TTFB',
-            value: ttfb,
-            rating: ttfb <= 600 ? 'good' : ttfb <= 1000 ? 'needs-improvement' : 'poor',
-            id: `ttfb-${Date.now()}`
-          })
-        }
-      })
     })
 
     try {
@@ -152,26 +243,39 @@ export function useWebVitals() {
   }, [])
 
   /**
-   * Load and initialize web-vitals library
+   * Load and initialize web-vitals library or fallback
    */
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Dynamically import web-vitals to avoid SSR issues
-    import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB, onINP }) => {
-      onCLS(reportVital)
-      onFID(reportVital)
-      onFCP(reportVital)
-      onLCP(reportVital)
-      onTTFB(reportVital)
-      
-      // INP is the new FID replacement for 2024+
-      if (onINP) {
-        onINP(reportVital)
-      }
-    }).catch(error => {
-      console.warn('Failed to load web-vitals:', error)
-    })
+    // Try to dynamically import web-vitals
+    import('web-vitals')
+      .then(({ onCLS, onFID, onFCP, onLCP, onTTFB, onINP }) => {
+        setWebVitalsAvailable(true)
+        
+        onCLS(reportVital)
+        onFID(reportVital)
+        onFCP(reportVital)
+        onLCP(reportVital)
+        onTTFB(reportVital)
+        
+        // INP is the new FID replacement for 2024+
+        if (onINP) {
+          onINP(reportVital)
+        }
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Web Vitals library loaded successfully')
+        }
+      })
+      .catch(error => {
+        console.warn('📦 Web Vitals library not found, using fallback implementation')
+        console.log('💡 To get accurate Web Vitals, install: npm install web-vitals')
+        setWebVitalsAvailable(false)
+        
+        // Use fallback implementation
+        initializeFallbackMetrics()
+      })
   }, [])
 
   return {
@@ -179,6 +283,7 @@ export function useWebVitals() {
     performanceEntries,
     reportVital,
     isGoodPerformance: isGoodPerformance(),
+    webVitalsAvailable,
     getStatus: (metricName) => {
       const vital = vitals[metricName]
       return vital ? getStatus(metricName, vital.value) : 'unknown'
