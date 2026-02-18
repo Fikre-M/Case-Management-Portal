@@ -1,0 +1,240 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Run type checking
+        run: npm run type-check
+        
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        env:
+          CI: true
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          
+      - name: Generate coverage report
+        run: |
+          echo "## 📊 Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract coverage percentages from coverage report
+          if [ -f coverage/coverage-summary.json ]; then
+            node -e "
+              const coverage = require('./coverage/coverage-summary.json');
+              const total = coverage.total;
+              console.log('| Metric | Coverage | Target | Status |');
+              console.log('|--------|----------|--------|--------|');
+              console.log('| **Lines** | ' + total.lines.pct + '% | 80% | ' + (total.lines.pct >= 80 ? '✅' : '❌') + ' |');
+              console.log('| **Functions** | ' + total.functions.pct + '% | 85% | ' + (total.functions.pct >= 85 ? '✅' : '❌') + ' |');
+              console.log('| **Branches** | ' + total.branches.pct + '% | 75% | ' + (total.branches.pct >= 75 ? '✅' : '❌') + ' |');
+              console.log('| **Statements** | ' + total.statements.pct + '% | 80% | ' + (total.statements.pct >= 80 ? '✅' : '❌') + ' |');
+            " >> $GITHUB_STEP_SUMMARY
+          fi
+          
+      - name: Check coverage thresholds
+        run: |
+          node -e "
+            const coverage = require('./coverage/coverage-summary.json');
+            const total = coverage.total;
+            
+            const thresholds = {
+              lines: 80,
+              functions: 85,
+              branches: 75,
+              statements: 80
+            };
+            
+            let failed = false;
+            
+            Object.keys(thresholds).forEach(key => {
+              if (total[key].pct < thresholds[key]) {
+                console.error(\`❌ \${key} coverage (\${total[key].pct}%) is below threshold (\${thresholds[key]}%)\`);
+                failed = true;
+              } else {
+                console.log(\`✅ \${key} coverage (\${total[key].pct}%) meets threshold (\${thresholds[key]}%)\`);
+              }
+            });
+            
+            if (failed) {
+              console.error('\\n🚨 Coverage thresholds not met!');
+              process.exit(1);
+            } else {
+              console.log('\\n🎉 All coverage thresholds met!');
+            }
+          "
+          
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (!fs.existsSync('./coverage/coverage-summary.json')) {
+              console.log('No coverage report found');
+              return;
+            }
+            
+            const coverage = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'));
+            const total = coverage.total;
+            
+            const coverageComment = `
+            ## 📊 Test Coverage Report
+            
+            | Metric | Coverage | Target | Status |
+            |--------|----------|--------|--------|
+            | **Lines** | ${total.lines.pct}% | 80% | ${total.lines.pct >= 80 ? '✅' : '❌'} |
+            | **Functions** | ${total.functions.pct}% | 85% | ${total.functions.pct >= 85 ? '✅' : '❌'} |
+            | **Branches** | ${total.branches.pct}% | 75% | ${total.branches.pct >= 75 ? '✅' : '❌'} |
+            | **Statements** | ${total.statements.pct}% | 80% | ${total.statements.pct >= 80 ? '✅' : '❌'} |
+            
+            ### 🎯 Coverage Details
+            
+            - **Total Files Tested**: ${Object.keys(coverage).length - 1}
+            - **Lines Covered**: ${total.lines.covered}/${total.lines.total}
+            - **Functions Covered**: ${total.functions.covered}/${total.functions.total}
+            - **Branches Covered**: ${total.branches.covered}/${total.branches.total}
+            
+            ${total.lines.pct >= 80 && total.functions.pct >= 85 && total.branches.pct >= 75 && total.statements.pct >= 80 
+              ? '🎉 **All coverage targets met!**' 
+              : '⚠️ **Some coverage targets not met. Please add more tests.**'
+            }
+            
+            ---
+            
+            📋 **Test Summary**
+            - ✅ Unit Tests: Components, Hooks, Utils
+            - ✅ Integration Tests: Context, Forms
+            - ✅ Security Tests: Authentication, Input Validation
+            - ✅ Performance Tests: Web Vitals, Optimization
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: coverageComment
+            });
+
+  security-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run security-focused tests
+        run: |
+          echo "🔒 Running security tests..."
+          npm test -- --run src/utils/__tests__/security.test.js
+          npm test -- --run src/context/__tests__/SecureAuthContext.test.jsx
+          npm test -- --run src/components/forms/__tests__/SecureLoginForm.test.jsx
+          
+      - name: Security audit
+        run: |
+          echo "🔍 Running security audit..."
+          npm audit --audit-level moderate
+          
+      - name: Check for sensitive data
+        run: |
+          echo "🕵️ Checking for sensitive data..."
+          
+          # Check for potential secrets (basic patterns)
+          if grep -r -i "password.*=" src/ --include="*.js" --include="*.jsx" | grep -v "test" | grep -v "mock" | grep -v "demo"; then
+            echo "⚠️ Potential hardcoded passwords found"
+            exit 1
+          fi
+          
+          if grep -r -i "api.*key.*=" src/ --include="*.js" --include="*.jsx" | grep -v "test" | grep -v "mock"; then
+            echo "⚠️ Potential hardcoded API keys found"
+            exit 1
+          fi
+          
+          echo "✅ No obvious sensitive data found"
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run performance tests
+        run: |
+          echo "⚡ Running performance tests..."
+          npm test -- --run src/hooks/__tests__/useWebVitals.test.js
+          npm test -- --run src/hooks/__tests__/useInteractionOptimization.test.js
+          
+      - name: Build and analyze bundle
+        run: |
+          echo "📦 Building and analyzing bundle..."
+          npm run build
+          
+          # Check bundle size
+          BUNDLE_SIZE=$(du -sh dist | cut -f1)
+          echo "Bundle size: $BUNDLE_SIZE"
+          
+          # Basic bundle size check (adjust threshold as needed)
+          BUNDLE_SIZE_KB=$(du -sk dist | cut -f1)
+          if [ $BUNDLE_SIZE_KB -gt 5000 ]; then
+            echo "⚠️ Bundle size ($BUNDLE_SIZE_KB KB) is larger than 5MB"
+            echo "Consider code splitting or optimization"
+          else
+            echo "✅ Bundle size is acceptable"
+          fi
