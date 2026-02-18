@@ -56,11 +56,43 @@ export function AppProvider({ children }) {
   const retryLoadAppointments = loadAppointments
   const retryLoadCases = loadCases
 
-  // Appointment CRUD Operations
+  /**
+   * Retrieves an appointment by its ID
+   * @param {number|string} id - The appointment ID to search for
+   * @returns {Object|undefined} The appointment object if found, undefined otherwise
+   * @example
+   * const appointment = getAppointmentById(123)
+   * if (appointment) {
+   *   console.log(appointment.title)
+   * }
+   */
   const getAppointmentById = (id) => {
     return appointments.find(apt => apt.id === parseInt(id))
   }
 
+  /**
+   * Creates a new appointment
+   * @param {Object} appointmentData - The appointment data to create
+   * @param {string} appointmentData.title - Appointment title
+   * @param {string} appointmentData.clientName - Client name
+   * @param {string} appointmentData.date - Appointment date (YYYY-MM-DD)
+   * @param {string} appointmentData.time - Appointment time (HH:MM)
+   * @param {string} [appointmentData.type='consultation'] - Appointment type
+   * @param {string} [appointmentData.status='scheduled'] - Appointment status
+   * @returns {Promise<Object>} Promise that resolves to the created appointment
+   * @throws {Error} When appointment creation fails
+   * @example
+   * try {
+   *   const newAppointment = await createAppointment({
+   *     title: 'Initial Consultation',
+   *     clientName: 'John Doe',
+   *     date: '2024-12-15',
+   *     time: '14:00'
+   *   })
+   * } catch (error) {
+   *   console.error('Failed to create appointment:', error.message)
+   * }
+   */
   const createAppointment = async (appointmentData) => {
     try {
       const newAppointment = await appointmentService.create(appointmentData)
@@ -72,6 +104,13 @@ export function AppProvider({ children }) {
     }
   }
 
+  /**
+   * Updates an existing appointment
+   * @param {number|string} id - The appointment ID to update
+   * @param {Object} appointmentData - The updated appointment data
+   * @returns {Promise<Object>} Promise that resolves to the updated appointment
+   * @throws {Error} When appointment update fails
+   */
   const updateAppointment = async (id, appointmentData) => {
     try {
       const updatedAppointment = await appointmentService.update(id, appointmentData)
@@ -85,6 +124,12 @@ export function AppProvider({ children }) {
     }
   }
 
+  /**
+   * Deletes an appointment by ID
+   * @param {number|string} id - The appointment ID to delete
+   * @returns {Promise<void>} Promise that resolves when deletion is complete
+   * @throws {Error} When appointment deletion fails
+   */
   const deleteAppointment = async (id) => {
     try {
       await appointmentService.delete(id)
@@ -95,19 +140,38 @@ export function AppProvider({ children }) {
     }
   }
 
+  /**
+   * Filters appointments by status
+   * @param {string} status - The status to filter by ('scheduled', 'confirmed', 'completed', 'cancelled')
+   * @returns {Array<Object>} Array of appointments matching the status
+   */
   const getAppointmentsByStatus = (status) => {
     return appointments.filter(apt => apt.status === status)
   }
 
+  /**
+   * Filters appointments by date
+   * @param {string} date - The date to filter by (YYYY-MM-DD format)
+   * @returns {Array<Object>} Array of appointments on the specified date
+   */
   const getAppointmentsByDate = (date) => {
     return appointments.filter(apt => apt.date === date)
   }
 
+  /**
+   * Gets all appointments scheduled for today
+   * @returns {Array<Object>} Array of today's appointments
+   */
   const getTodayAppointments = () => {
     const today = new Date().toISOString().split('T')[0]
     return getAppointmentsByDate(today)
   }
 
+  /**
+   * Gets upcoming appointments sorted by date
+   * @param {number} [limit=5] - Maximum number of appointments to return
+   * @returns {Array<Object>} Array of upcoming appointments, sorted by date
+   */
   const getUpcomingAppointments = (limit = 5) => {
     const today = new Date().toISOString().split('T')[0]
     return appointments
@@ -233,6 +297,54 @@ AppProvider.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
+/**
+ * Custom hook to access the App Context
+ * 
+ * Provides access to all appointment and case management functionality,
+ * including CRUD operations, filtering, and statistics.
+ * 
+ * @returns {Object} App context object containing:
+ * @returns {Array<Object>} returns.appointments - Array of all appointments
+ * @returns {Array<Object>} returns.cases - Array of all cases
+ * @returns {boolean} returns.appointmentsLoading - Loading state for appointments
+ * @returns {boolean} returns.casesLoading - Loading state for cases
+ * @returns {string|null} returns.appointmentsError - Error message for appointments
+ * @returns {string|null} returns.casesError - Error message for cases
+ * @returns {Function} returns.createAppointment - Function to create new appointment
+ * @returns {Function} returns.updateAppointment - Function to update appointment
+ * @returns {Function} returns.deleteAppointment - Function to delete appointment
+ * @returns {Function} returns.getAppointmentById - Function to get appointment by ID
+ * @returns {Function} returns.getUpcomingAppointments - Function to get upcoming appointments
+ * @returns {Function} returns.getTodayAppointments - Function to get today's appointments
+ * @returns {Function} returns.getAppointmentStats - Function to get appointment statistics
+ * @returns {Function} returns.createCase - Function to create new case
+ * @returns {Function} returns.updateCase - Function to update case
+ * @returns {Function} returns.deleteCase - Function to delete case
+ * @returns {Function} returns.getCaseById - Function to get case by ID
+ * @returns {Function} returns.getActiveCases - Function to get active cases
+ * @returns {Function} returns.getCaseStats - Function to get case statistics
+ * 
+ * @throws {Error} When used outside of AppProvider
+ * 
+ * @example
+ * function AppointmentsList() {
+ *   const { 
+ *     appointments, 
+ *     appointmentsLoading, 
+ *     createAppointment 
+ *   } = useApp()
+ * 
+ *   if (appointmentsLoading) return <Loading />
+ * 
+ *   return (
+ *     <div>
+ *       {appointments.map(apt => (
+ *         <AppointmentCard key={apt.id} appointment={apt} />
+ *       ))}
+ *     </div>
+ *   )
+ * }
+ */
 export function useApp() {
   const context = useContext(AppContext)
   if (!context) {
