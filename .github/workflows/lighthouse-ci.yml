@@ -1,0 +1,103 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build application
+        run: npm run build
+        
+      - name: Serve application
+        run: |
+          npm install -g serve
+          serve -s dist -p 3000 &
+          sleep 5
+          
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          
+      - name: Comment PR with results
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read Lighthouse results
+            const resultsPath = '.lighthouseci/lhr-*.json';
+            const results = fs.readdirSync('.lighthouseci/')
+              .filter(file => file.startsWith('lhr-') && file.endsWith('.json'))
+              .map(file => JSON.parse(fs.readFileSync(path.join('.lighthouseci', file), 'utf8')));
+            
+            if (results.length === 0) return;
+            
+            const result = results[0];
+            const scores = result.categories;
+            
+            const comment = `
+            ## 🚀 Lighthouse Performance Report
+            
+            | Metric | Score | Status |
+            |--------|-------|--------|
+            | Performance | ${Math.round(scores.performance.score * 100)} | ${scores.performance.score >= 0.9 ? '✅' : scores.performance.score >= 0.7 ? '⚠️' : '❌'} |
+            | Accessibility | ${Math.round(scores.accessibility.score * 100)} | ${scores.accessibility.score >= 0.9 ? '✅' : scores.accessibility.score >= 0.7 ? '⚠️' : '❌'} |
+            | Best Practices | ${Math.round(scores['best-practices'].score * 100)} | ${scores['best-practices'].score >= 0.9 ? '✅' : scores['best-practices'].score >= 0.7 ? '⚠️' : '❌'} |
+            | SEO | ${Math.round(scores.seo.score * 100)} | ${scores.seo.score >= 0.9 ? '✅' : scores.seo.score >= 0.7 ? '⚠️' : '❌'} |
+            
+            ### 🎯 Core Web Vitals (2026 Standards)
+            
+            | Metric | Value | Target | Status |
+            |--------|-------|--------|--------|
+            | LCP | ${result.audits['largest-contentful-paint'].displayValue} | < 2.5s | ${result.audits['largest-contentful-paint'].score >= 0.9 ? '✅' : '❌'} |
+            | FID | ${result.audits['max-potential-fid'].displayValue} | < 100ms | ${result.audits['max-potential-fid'].score >= 0.9 ? '✅' : '❌'} |
+            | CLS | ${result.audits['cumulative-layout-shift'].displayValue} | < 0.1 | ${result.audits['cumulative-layout-shift'].score >= 0.9 ? '✅' : '❌'} |
+            
+            ### 📊 Performance Metrics
+            
+            - **First Contentful Paint**: ${result.audits['first-contentful-paint'].displayValue}
+            - **Speed Index**: ${result.audits['speed-index'].displayValue}
+            - **Time to Interactive**: ${result.audits['interactive'].displayValue}
+            - **Total Blocking Time**: ${result.audits['total-blocking-time'].displayValue}
+            
+            ${scores.performance.score < 0.9 ? '⚠️ **Performance needs improvement for 2026 standards**' : '🎉 **Excellent performance for 2026!**'}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
