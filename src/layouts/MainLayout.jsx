@@ -51,10 +51,13 @@ import { Outlet } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import Sidebar from "../components/navigation/Sidebar";
 import Topbar from "../components/navigation/Topbar";
+import AIAssistant from "../components/ai/AIAssistant";
+import AIAssistantToggle from "../components/ai/AIAssistantToggle";
 
 function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
   const { theme } = useTheme();
 
   const toggleSidebar = () => {
@@ -63,6 +66,10 @@ function MainLayout() {
 
   const toggleCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  const toggleAiAssistant = () => {
+    setAiAssistantOpen(!aiAssistantOpen);
   };
 
   return (
@@ -97,6 +104,18 @@ function MainLayout() {
             onClick={() => setSidebarOpen(false)}
           />
         )}
+
+        {/* AI Assistant */}
+        <AIAssistant 
+          isOpen={aiAssistantOpen} 
+          onToggle={toggleAiAssistant}
+        />
+
+        {/* AI Assistant Toggle Button */}
+        <AIAssistantToggle 
+          isOpen={aiAssistantOpen} 
+          onToggle={toggleAiAssistant}
+        />
       </div>
     </div>
   );
