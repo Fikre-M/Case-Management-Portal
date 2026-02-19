@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { AppProvider } from './context/AppContext'
 import { ErrorProvider } from './context/ErrorContext'
+import { AIProvider } from './context/AIContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import GlobalErrorDisplay from './components/common/GlobalErrorDisplay'
 import PerformanceMonitor from './components/common/PerformanceMonitor'
@@ -54,10 +55,12 @@ function App() {
           <AuthProvider>
             <ThemeProvider>
               <AppProvider>
-                <AppRoutes />
-                <GlobalErrorDisplay />
-                <PerformanceMonitor />
-                <AuthDebugger />
+                <AIProvider>
+                  <AppRoutes />
+                  <GlobalErrorDisplay />
+                  <PerformanceMonitor />
+                  <AuthDebugger />
+                </AIProvider>
               </AppProvider>
             </ThemeProvider>
           </AuthProvider>
