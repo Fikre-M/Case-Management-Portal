@@ -157,13 +157,8 @@ Please provide helpful, actionable advice based on this context. Focus on practi
       const context = buildAIContext()
       const systemPrompt = buildSystemPrompt(context)
       
-      // For OpenAI, we'll send the system prompt as part of the message
-      // For mock responses, it will use the existing logic
-      const enhancedMessage = serviceStatus.available 
-        ? `${systemPrompt}\n\nUser question: ${content}`
-        : content
-
-      const response = await sendMessage(enhancedMessage)
+      // Send message with custom system prompt if OpenAI is available
+      const response = await sendMessage(content, systemPrompt)
       
       const assistantMessage = {
         id: Date.now() + 1,

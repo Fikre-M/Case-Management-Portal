@@ -16,6 +16,18 @@ export function AppProvider({ children }) {
   const [casesLoading, setCasesLoading] = useState(true)
   const [casesError, setCasesError] = useState(null)
 
+  // AI Assistant State
+  const [aiChatHistory, setAiChatHistory] = useState(() => {
+    // Load chat history from localStorage
+    try {
+      const saved = localStorage.getItem('aiChatHistory')
+      return saved ? JSON.parse(saved) : []
+    } catch (error) {
+      console.warn('Failed to load AI chat history:', error)
+      return []
+    }
+  })
+
   // Load appointments using service layer
   const loadAppointments = async () => {
     try {
@@ -51,6 +63,15 @@ export function AppProvider({ children }) {
     loadAppointments()
     loadCases()
   }, [])
+
+  // Save AI chat history to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('aiChatHistory', JSON.stringify(aiChatHistory))
+    } catch (error) {
+      console.warn('Failed to save AI chat history:', error)
+    }
+  }, [aiChatHistory])
 
   // Retry functions now simply call the loader functions
   const retryLoadAppointments = loadAppointments
@@ -237,7 +258,18 @@ export function AppProvider({ children }) {
       .slice(0, limit)
   }
 
-  // Statistics
+  // AI Assistant Functions
+  const addAiMessage = (message) => {
+    setAiChatHistory(prev => [...prev, { ...message, id: Date.now() + Math.random() }])
+  }
+
+  const clearAiChatHistory = () => {
+    setAiChatHistory([])
+  }
+
+  const getAiChatHistory = () => {
+    return aiChatHistory
+  }
   const getAppointmentStats = () => {
     return {
       total: appointments.length,
@@ -288,6 +320,12 @@ export function AppProvider({ children }) {
     getActiveCases,
     getRecentCases,
     getCaseStats,
+
+    // AI Assistant
+    aiChatHistory,
+    addAiMessage,
+    clearAiChatHistory,
+    getAiChatHistory,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
