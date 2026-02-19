@@ -100,16 +100,18 @@ function getRandomResponse(category) {
 }
 
 // Main function to send message and get response
-export async function sendMessage(message) {
+export async function sendMessage(message, systemPrompt = null) {
   // Try OpenAI API first if available
   if (openai) {
     try {
+      const messages = [
+        { role: "system", content: systemPrompt || SYSTEM_PROMPT },
+        { role: "user", content: message }
+      ]
+
       const completion = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: message }
-        ],
+        messages: messages,
         max_tokens: 500,
         temperature: 0.7,
       })
