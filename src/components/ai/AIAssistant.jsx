@@ -26,30 +26,56 @@ function AIAssistant({
   caseContext = null, 
   appointmentContext = null 
 }) {
-  // Chat state
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'assistant',
-      content: 'Hello! I\'m your AI case management assistant. I can help you with appointments, case notes, best practices, and next steps. How can I assist you today?',
-      timestamp: new Date().toISOString(),
+  // Chat state - use persistent history from context or initialize with welcome message
+  const [messages, setMessages] = useState(() => {
+    if (aiChatHistory && aiChatHistory.length > 0) {
+      return aiChatHistory
     }
-  ])
+    return [
+      {
+        id: 1,
+        type: 'assistant',
+        content: 'Hello! I\'m your AI case management assistant. I can help you with appointments, case notes, best practices, and next steps. How can I assist you today?',
+        timestamp: new Date().toISOString(),
+      }
+    ]
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [serviceStatus] = useState(getServiceStatus())
   
-  // App context for case/appointment data
+  // App context for case/appointment data and chat persistence
   const { 
     cases, 
     appointments, 
     getActiveCases, 
     getTodayAppointments,
-    getUpcomingAppointments 
+    getUpcomingAppointments,
+    aiChatHistory,
+    addAiMessage,
+    clearAiChatHistory,
   } = useApp()
   
   // Refs
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
+
+  // Sync messages with context when they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Only sync if messages have changed from the stored history
+      const currentIds = messages.map(m => m.id).sort()
+      const storedIds = aiChatHistory.map(m => m.id).sort()
+      
+      if (JSON.stringify(currentIds) !== JSON.stringify(storedIds)) {
+        // Update the context with current messages
+        messages.forEach(message => {
+          if (!aiChatHistory.find(m => m.id === message.id)) {
+            addAiMessage(message)
+          }
+        })
+      }
+    }
+  }, [messages, aiChatHistory, addAiMessage])
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
@@ -217,14 +243,14 @@ Please provide helpful, actionable advice based on this context. Focus on practi
   // Clear chat
   const handleClearChat = () => {
     if (window.confirm('Clear chat history?')) {
-      setMessages([
-        {
-          id: 1,
-          type: 'assistant',
-          content: 'Chat cleared. How can I help you with your case management today?',
-          timestamp: new Date().toISOString(),
-        }
-      ])
+      const welcomeMessage = {
+        id: 1,
+        type: 'assistant',
+        content: 'Chat cleared. How can I help you with your case management today?',
+        timestamp: new Date().toISOString(),
+      }
+      setMessages([welcomeMessage])
+      clearAiChatHistory()
     }
   }
 
