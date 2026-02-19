@@ -96,6 +96,14 @@ function AiChatPage() {
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Your intelligent legal assistant powered by AI
           </p>
+          {/* Service Status Indicator */}
+          <div className="flex items-center mt-2 space-x-2">
+            <div className={`w-2 h-2 rounded-full ${serviceStatus.available ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {serviceStatus.provider} ({serviceStatus.model})
+              {!serviceStatus.available && ' - Demo Mode'}
+            </span>
+          </div>
         </div>
         <button
           onClick={handleClearChat}
