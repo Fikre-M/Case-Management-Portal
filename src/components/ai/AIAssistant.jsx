@@ -42,6 +42,7 @@ function AIAssistant({
     ]
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   const [serviceStatus] = useState(getServiceStatus())
   
   // App context for case/appointment data and chat persistence
@@ -168,6 +169,9 @@ Please provide helpful, actionable advice based on this context. Focus on practi
   const handleSendMessage = async (content) => {
     if (!content.trim()) return
 
+    // Clear any previous errors
+    setError(null)
+
     // Add user message
     const userMessage = {
       id: Date.now(),
@@ -197,10 +201,14 @@ Please provide helpful, actionable advice based on this context. Focus on practi
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
       console.error('AI Assistant error:', error)
+      
+      // Set error state for display
+      setError(error.message)
+      
       const errorMessage = {
         id: Date.now() + 1,
         type: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again. If the problem persists, check your connection or contact support.',
+        content: `⚠️ ${error.message}\n\nYou can continue using the assistant in demo mode with mock responses.`,
         timestamp: new Date().toISOString(),
         isError: true,
       }
@@ -363,20 +371,34 @@ Please provide helpful, actionable advice based on this context. Focus on practi
             <ChatMessage key={message.id} message={message} />
           ))}
 
-          {/* Loading Indicator */}
-          {isLoading && (
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg">🤖</span>
-              </div>
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%]">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          {/* Loading Skeleton */}
+          {isLoading && <AILoadingSkeleton variant="message" />}
+
+          {/* Error Banner */}
+          {error && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3"
+            >
+              <div className="flex items-start space-x-2">
+                <span className="text-yellow-600 dark:text-yellow-400">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                    API Error
+                  </p>
+                  <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                    {error}
+                  </p>
                 </div>
+                <button
+                  onClick={() => setError(null)}
+                  className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200"
+                >
+                  ✕
+                </button>
               </div>
-            </div>
+            </motion.div>
           )}
 
           <div ref={messagesEndRef} />
