@@ -3,13 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Modern AI-powered case management system built with React 18",
+  "description": "AI-Powered Case Management Dashboard with OpenAI GPT-3.5-turbo Integration - Modern React 18 application showcasing intelligent AI assistance, context-aware suggestions, and professional frontend development",
   "keywords": [
     "react",
     "vite",
     "tailwindcss",
     "case-management",
-    "ai-assistant"
+    "ai-assistant",
+    "openai",
+    "gpt-3.5-turbo",
+    "framer-motion",
+    "recharts",
+    "smart-suggestions",
+    "context-aware-ai",
+    "frontend-portfolio"
   ],
   "scripts": {
     "dev": "vite",
