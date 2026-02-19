@@ -101,9 +101,28 @@ function getRandomResponse(category) {
 
 // Main function to send message and get response
 export async function sendMessage(message) {
-  // Simulate network delay (500-1500ms)
-  await delay(500 + Math.random() * 1000)
+  // Try OpenAI API first if available
+  if (openai) {
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: message }
+        ],
+        max_tokens: 500,
+        temperature: 0.7,
+      })
+      
+      return completion.choices[0]?.message?.content || "I apologize, but I couldn't generate a response. Please try again."
+    } catch (error) {
+      console.error('OpenAI API error:', error)
+      // Fall back to mock response on API error
+    }
+  }
   
+  // Fallback to mock responses
+  await delay(500 + Math.random() * 1000)
   const category = analyzeInput(message)
   return getRandomResponse(category)
 }
@@ -146,8 +165,24 @@ export function getQuickActions() {
   ]
 }
 
+// Check if OpenAI is available
+export function isOpenAIAvailable() {
+  return openai !== null
+}
+
+// Get AI service status
+export function getServiceStatus() {
+  return {
+    provider: openai ? 'OpenAI' : 'Mock',
+    available: openai !== null,
+    model: openai ? 'gpt-3.5-turbo' : 'mock-responses'
+  }
+}
+
 export default {
   sendMessage,
   getSuggestedPrompts,
   getQuickActions,
+  isOpenAIAvailable,
+  getServiceStatus,
 }

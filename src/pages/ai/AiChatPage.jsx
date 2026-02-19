@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import Card from '../../components/common/Card'
 import ChatMessage from '../../components/ai/ChatMessage'
 import InputBar from '../../components/ai/InputBar'
-import { sendMessage, getSuggestedPrompts } from '../../services/aiService'
+import { sendMessage, getSuggestedPrompts, getServiceStatus } from '../../services/aiService'
 
 function AiChatPage() {
   const [messages, setMessages] = useState([
@@ -15,6 +15,7 @@ function AiChatPage() {
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [suggestedPrompts] = useState(getSuggestedPrompts())
+  const [serviceStatus] = useState(getServiceStatus())
   const messagesEndRef = useRef(null)
   const chatContainerRef = useRef(null)
 
