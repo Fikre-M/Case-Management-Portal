@@ -1,5 +1,33 @@
-// Mock AI Service - Simulates AI responses
-// In production, this would connect to a real AI API
+// AI Service - Integrates with OpenAI API
+// Falls back to mock responses if API key is not configured
+import OpenAI from 'openai'
+
+// Initialize OpenAI client
+let openai = null
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+
+// Only initialize if we have a real API key (not placeholder)
+if (apiKey && apiKey !== 'sk-placeholder-replace-with-actual-key' && apiKey.startsWith('sk-')) {
+  try {
+    openai = new OpenAI({
+      apiKey: apiKey,
+      dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
+    })
+  } catch (error) {
+    console.warn('Failed to initialize OpenAI client:', error.message)
+  }
+}
+
+// System prompt for the AI assistant
+const SYSTEM_PROMPT = `You are a helpful AI assistant for a legal case management system. You specialize in:
+
+1. Case Management: Analyzing cases, tracking deadlines, organizing documents
+2. Appointment Scheduling: Managing calendars, scheduling meetings, sending reminders  
+3. Document Drafting: Creating legal documents, letters, contracts, and correspondence
+4. Legal Research: Finding relevant case law, statutes, and legal precedents
+5. Client Communication: Drafting professional emails and letters
+
+Provide helpful, professional responses that are relevant to legal practice. Keep responses concise but informative. Always maintain client confidentiality and professional standards.`
 
 const mockResponses = {
   greeting: [
