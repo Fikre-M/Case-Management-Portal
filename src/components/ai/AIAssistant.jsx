@@ -27,6 +27,18 @@ function AIAssistant({
   caseContext = null, 
   appointmentContext = null 
 }) {
+  // App context for case/appointment data and chat persistence
+  const { 
+    cases, 
+    appointments, 
+    getActiveCases, 
+    getTodayAppointments,
+    getUpcomingAppointments,
+    aiChatHistory,
+    addAiMessage,
+    clearAiChatHistory,
+  } = useApp()
+  
   // Chat state - use persistent history from context or initialize with welcome message
   const [messages, setMessages] = useState(() => {
     if (aiChatHistory && aiChatHistory.length > 0) {
@@ -44,18 +56,6 @@ function AIAssistant({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [serviceStatus] = useState(getServiceStatus())
-  
-  // App context for case/appointment data and chat persistence
-  const { 
-    cases, 
-    appointments, 
-    getActiveCases, 
-    getTodayAppointments,
-    getUpcomingAppointments,
-    aiChatHistory,
-    addAiMessage,
-    clearAiChatHistory,
-  } = useApp()
   
   // Refs
   const messagesEndRef = useRef(null)
