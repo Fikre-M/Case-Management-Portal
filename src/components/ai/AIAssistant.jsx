@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PropTypes from 'prop-types'
 import ChatMessage from './ChatMessage'
 import InputBar from './InputBar'
+import AILoadingSkeleton from './AILoadingSkeleton'
 import { sendMessage, getServiceStatus } from '../../services/aiService'
 import { useApp } from '../../context/AppContext'
 
