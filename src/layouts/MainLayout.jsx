@@ -105,17 +105,17 @@ function MainLayout() {
           />
         )}
 
-        {/* AI Assistant */}
-        <AIAssistant 
+        {/* AI Assistant - Temporarily disabled to fix freezing */}
+        {/* <AIAssistant 
           isOpen={aiAssistantOpen} 
           onToggle={toggleAiAssistant}
-        />
+        /> */}
 
         {/* AI Assistant Toggle Button */}
-        <AIAssistantToggle 
+        {/* <AIAssistantToggle 
           isOpen={aiAssistantOpen} 
           onToggle={toggleAiAssistant}
-        />
+        /> */}
       </div>
     </div>
   );

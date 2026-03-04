@@ -55,12 +55,14 @@ function App() {
           <AuthProvider>
             <ThemeProvider>
               <AppProvider>
-                <AIProvider>
+                {/* AIProvider temporarily disabled to fix freezing */}
+                {/* <AIProvider> */}
                   <AppRoutes />
                   <GlobalErrorDisplay />
-                  <PerformanceMonitor />
-                  <AuthDebugger />
-                </AIProvider>
+                  {/* PerformanceMonitor and AuthDebugger disabled - causing performance issues */}
+                  {/* <PerformanceMonitor /> */}
+                  {/* <AuthDebugger /> */}
+                {/* </AIProvider> */}
               </AppProvider>
             </ThemeProvider>
           </AuthProvider>
