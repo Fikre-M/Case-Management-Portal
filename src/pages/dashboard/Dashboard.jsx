@@ -7,46 +7,41 @@ import AppointmentChart from '../../components/charts/AppointmentChart'
 import CaseStatusChart from '../../components/charts/CaseStatusChart'
 import { useApp } from '../../context/AppContext'
 
-// Animation variants
+// Simplified animation variants for better performance
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.05, // Reduced from 0.1
+      duration: 0.3
     }
   }
 }
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { y: 10, opacity: 0 }, // Reduced from y: 20
   visible: {
     y: 0,
     opacity: 1,
     transition: {
-      type: "spring",
-      stiffness: 100
+      duration: 0.3 // Simpler transition
     }
   }
 }
 
 const statCardVariants = {
-  hidden: { scale: 0.8, opacity: 0 },
+  hidden: { opacity: 0 },
   visible: {
-    scale: 1,
     opacity: 1,
     transition: {
-      type: "spring",
-      stiffness: 120,
-      damping: 10
+      duration: 0.3
     }
   },
   hover: {
-    scale: 1.05,
+    scale: 1.02, // Reduced from 1.05
     transition: {
-      type: "spring",
-      stiffness: 400,
-      damping: 10
+      duration: 0.2
     }
   }
 }

@@ -13,24 +13,34 @@ let lastRequestTime = 0
 let requestCount = 0
 const MAX_REQUESTS_PER_MINUTE = 20
 
-// Initialize OpenAI client
+// Initialize OpenAI client lazily
 let openai = null
+let initializationAttempted = false
 
-// Only initialize if AI is enabled and we have a real API key
-if (AI_ENABLED && apiKey && apiKey !== 'sk-placeholder-replace-with-actual-key' && apiKey.startsWith('sk-')) {
-  try {
-    openai = new OpenAI({
-      apiKey: apiKey,
-      dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
-    })
-    console.info('✅ OpenAI client initialized successfully')
-  } catch (error) {
-    console.warn('⚠️ Failed to initialize OpenAI client:', error.message)
+// Lazy initialization function
+function initializeOpenAI() {
+  if (initializationAttempted) return openai
+  
+  initializationAttempted = true
+  
+  // Only initialize if AI is enabled and we have a real API key
+  if (AI_ENABLED && apiKey && apiKey !== 'sk-placeholder-replace-with-actual-key' && apiKey.startsWith('sk-')) {
+    try {
+      openai = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
+      })
+      console.info('✅ OpenAI client initialized successfully')
+    } catch (error) {
+      console.warn('⚠️ Failed to initialize OpenAI client:', error.message)
+    }
+  } else if (!AI_ENABLED) {
+    console.info('ℹ️ AI features disabled via VITE_AI_ENABLED')
+  } else {
+    console.info('ℹ️ Using mock AI responses (no API key configured)')
   }
-} else if (!AI_ENABLED) {
-  console.info('ℹ️ AI features disabled via VITE_AI_ENABLED')
-} else {
-  console.info('ℹ️ Using mock AI responses (no API key configured)')
+  
+  return openai
 }
 
 // System prompt for the AI assistant
@@ -210,8 +220,11 @@ export async function sendMessage(message, systemPrompt = null) {
     return getRandomResponse(category)
   }
   
+  // Initialize OpenAI lazily on first use
+  const client = initializeOpenAI()
+  
   // Try OpenAI API first if available
-  if (openai) {
+  if (client) {
     try {
       // Check rate limit
       const waitTime = checkRateLimit()
@@ -230,7 +243,7 @@ export async function sendMessage(message, systemPrompt = null) {
       // Use low-cost model if configured
       const model = USE_LOW_COST_MODEL ? "gpt-3.5-turbo" : "gpt-3.5-turbo"
       
-      const completion = await openai.chat.completions.create({
+      const completion = await client.chat.completions.create({
         model: model,
         messages: messages,
         max_tokens: USE_LOW_COST_MODEL ? 300 : 500, // Reduce tokens for cost savings
@@ -314,7 +327,8 @@ export function getQuickActions() {
 
 // Check if OpenAI is available
 export function isOpenAIAvailable() {
-  return AI_ENABLED && openai !== null
+  const client = initializeOpenAI()
+  return AI_ENABLED && client !== null
 }
 
 // Get AI service status
@@ -328,10 +342,12 @@ export function getServiceStatus() {
     }
   }
   
+  const client = initializeOpenAI()
+  
   return {
-    provider: openai ? 'OpenAI' : 'Mock',
-    available: openai !== null,
-    model: openai ? (USE_LOW_COST_MODEL ? 'gpt-3.5-turbo (cost-optimized)' : 'gpt-3.5-turbo') : 'mock-responses',
+    provider: client ? 'OpenAI' : 'Mock',
+    available: client !== null,
+    model: client ? (USE_LOW_COST_MODEL ? 'gpt-3.5-turbo (cost-optimized)' : 'gpt-3.5-turbo') : 'mock-responses',
     enabled: true
   }
 }
