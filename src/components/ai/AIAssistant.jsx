@@ -62,6 +62,7 @@ function AIAssistant({
   const chatContainerRef = useRef(null)
 
   // Sync messages with context when they change
+  // FIXED: Removed addAiMessage from dependencies to prevent infinite loop
   useEffect(() => {
     if (messages.length > 0) {
       // Only sync if messages have changed from the stored history
@@ -77,7 +78,8 @@ function AIAssistant({
         })
       }
     }
-  }, [messages, aiChatHistory, addAiMessage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages])
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
