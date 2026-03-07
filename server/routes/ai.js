@@ -1,14 +1,52 @@
 import express from 'express'
-import OpenAI from 'openai'
 import { verifyToken } from './auth.js'
 import { Conversation, Usage } from '../config/db.js'
 
 const router = express.Router()
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Initialize OpenAI client only if we have a real API key
+let openai = null
+const apiKey = process.env.OPENAI_API_KEY
+
+if (apiKey && apiKey !== 'sk-placeholder-replace-with-actual-key' && apiKey.startsWith('sk-')) {
+  import('openai').then(OpenAI => {
+    openai = new OpenAI.default({
+      apiKey: apiKey,
+    })
+    console.log('✅ OpenAI client initialized')
+  }).catch(error => {
+    console.error('❌ Failed to initialize OpenAI:', error.message)
+  })
+} else {
+  console.log('ℹ️ Using mock AI responses (no valid API key)')
+}
+
+// Mock responses for fallback
+function getMockResponse(message) {
+  const lowerMessage = message.toLowerCase()
+  
+  if (lowerMessage.match(/\b(hi|hello|hey|greetings)\b/)) {
+    return "Hello! I'm here to help you with your legal case management needs. What would you like to know?"
+  }
+  
+  if (lowerMessage.match(/\b(case|cases|litigation|lawsuit)\b/)) {
+    return "I can help you with case management in several ways: Case Analysis, Document Drafting, Research, Timeline Management, and Client Communication. What specific aspect would you like help with?"
+  }
+  
+  if (lowerMessage.match(/\b(appointment|schedule|meeting|calendar)\b/)) {
+    return "I can assist with appointment scheduling: Find optimal meeting times, Send appointment reminders, Reschedule conflicts, Prepare meeting agendas, and Draft follow-up emails. What do you need help with?"
+  }
+  
+  if (lowerMessage.match(/\b(draft|write|document|letter|contract)\b/)) {
+    return "I can help draft various legal documents: Contracts and agreements, Letters and correspondence, Case briefs and summaries, Client intake forms, and Motion templates. What type of document do you need?"
+  }
+  
+  if (lowerMessage.match(/\b(research|law|statute|precedent|case law)\b/)) {
+    return "I can assist with legal research: Case law and precedents, Statutory interpretation, Legal principles and doctrines, Jurisdiction-specific rules, and Recent legal developments. What area of law are you researching?"
+  }
+  
+  return "I'm here to help! I specialize in case management and analysis, appointment scheduling, document drafting, legal research, and client communication. Could you clarify how I can help with your specific need?"
+}
 
 // System prompt for the AI assistant
 const SYSTEM_PROMPT = `You are a helpful AI assistant for a legal case management system. You specialize in:
@@ -41,24 +79,46 @@ router.post('/chat', verifyToken, async (req, res) => {
       { upsert: true }
     )
 
-    // Prepare messages for OpenAI
-    const messages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: message }
-    ]
+    let response
 
-    // Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: messages,
-      max_tokens: 500,
-      temperature: 0.7,
-    })
+    // Try OpenAI API if available
+    if (openai) {
+      try {
+        // Prepare messages for OpenAI
+        const messages = [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: message }
+        ]
 
-    const response = completion.choices[0]?.message?.content
-    
-    if (!response) {
-      throw new Error('Empty response from AI')
+        // Call OpenAI API
+        const completion = await openai.chat.completions.create({
+          model: "gpt-3.5-turbo",
+          messages: messages,
+          max_tokens: 500,
+          temperature: 0.7,
+        })
+
+        response = completion.choices[0]?.message?.content
+        
+        if (!response) {
+          throw new Error('Empty response from AI')
+        }
+
+        // Update token usage
+        const tokensUsed = completion.usage?.total_tokens || 0
+        await Usage.findOneAndUpdate(
+          { userId: req.user.userId, date: today },
+          { $inc: { tokensUsed } }
+        )
+
+      } catch (openaiError) {
+        console.error('OpenAI API error:', openaiError)
+        // Fall back to mock responses
+        response = getMockResponse(message)
+      }
+    } else {
+      // Use mock responses
+      response = getMockResponse(message)
     }
 
     // Save conversation if conversationId provided
@@ -77,26 +137,10 @@ router.post('/chat', verifyToken, async (req, res) => {
       )
     }
 
-    // Update token usage
-    const tokensUsed = completion.usage?.total_tokens || 0
-    await Usage.findOneAndUpdate(
-      { userId: req.user.userId, date: today },
-      { $inc: { tokensUsed } }
-    )
-
     res.json({ response })
 
   } catch (error) {
     console.error('AI chat error:', error)
-    
-    if (error.message.includes('insufficient_quota')) {
-      return res.status(402).json({ error: 'AI service quota exceeded' })
-    }
-    
-    if (error.message.includes('invalid_api_key')) {
-      return res.status(401).json({ error: 'AI service configuration error' })
-    }
-
     res.status(500).json({ error: 'Failed to get AI response' })
   }
 })

@@ -17,9 +17,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if user exists
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
-    })
+    const existingUser = await User.findOne({ email })
     
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' })
@@ -30,13 +28,11 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     // Create user
-    const user = new User({
+    const user = await User.create({
       username,
       email,
       password: hashedPassword
     })
-
-    await user.save()
 
     // Generate JWT
     const token = jwt.sign(
