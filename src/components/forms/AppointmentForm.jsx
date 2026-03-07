@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Input from '../common/Input'
 import Button from '../common/Button'
 import Alert from '../common/Alert'
+import { useAIAssistant } from '../../hooks/useAIAssistant'
 
 function AppointmentForm({ initialData = null, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -18,6 +19,8 @@ function AppointmentForm({ initialData = null, onSubmit, onCancel }) {
 
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [aiSuggestions, setAiSuggestions] = useState([])
+  const { openWithAppointment } = useAIAssistant()
 
   const appointmentTypes = [
     'Consultation',
@@ -38,6 +41,48 @@ function AppointmentForm({ initialData = null, onSubmit, onCancel }) {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
     }
+    
+    // Generate AI suggestions based on input
+    generateAISuggestions(name, value)
+  }
+
+  // Generate intelligent AI suggestions based on form context
+  const generateAISuggestions = async (fieldName, value) => {
+    const suggestions = []
+    
+    if (fieldName === 'title' && value.length > 3) {
+      suggestions.push({
+        type: 'title_optimization',
+        text: `Consider adding specific details: "${value} - Initial Consultation"`,
+        action: () => setFormData(prev => ({ ...prev, title: `${value} - Initial Consultation` }))
+      })
+    }
+    
+    if (fieldName === 'clientName' && value.length > 2) {
+      suggestions.push({
+        type: 'preparation',
+        text: `Prepare client file for ${value}`,
+        action: () => openWithAppointment({ ...formData, clientName: value })
+      })
+    }
+    
+    if (fieldName === 'type' && value === 'consultation') {
+      suggestions.push({
+        type: 'duration',
+        text: 'Consultations typically need 60 minutes',
+        action: () => setFormData(prev => ({ ...prev, duration: '60' }))
+      })
+    }
+    
+    if (fieldName === 'priority' && value === 'high') {
+      suggestions.push({
+        type: 'preparation',
+        text: 'High priority - prepare briefing documents',
+        action: () => openWithAppointment({ ...formData, priority: 'high' })
+      })
+    }
+    
+    setAiSuggestions(suggestions.slice(0, 3)) // Limit to 3 suggestions
   }
 
   const validateForm = () => {
@@ -81,6 +126,33 @@ function AppointmentForm({ initialData = null, onSubmit, onCancel }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* AI Suggestions Panel */}
+      {aiSuggestions.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🤖</span>
+            <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200">AI Suggestions</h4>
+          </div>
+          <div className="space-y-2">
+            {aiSuggestions.map((suggestion, index) => (
+              <div 
+                key={index}
+                className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-md p-3 border border-blue-100 dark:border-blue-900"
+              >
+                <span className="text-sm text-gray-700 dark:text-gray-300">{suggestion.text}</span>
+                <button
+                  type="button"
+                  onClick={suggestion.action}
+                  className="ml-3 px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Apply
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
