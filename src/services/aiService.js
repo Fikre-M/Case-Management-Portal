@@ -1,11 +1,9 @@
-// AI Service - Integrates with OpenAI API
-// Falls back to mock responses if API key is not configured
-import OpenAI from 'openai'
+// AI Service - Integrates with secure backend API
+// Replaces direct OpenAI browser integration with secure backend calls
 
 // Configuration
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const AI_ENABLED = import.meta.env.VITE_AI_ENABLED !== 'false' // Default to true
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY
-const USE_LOW_COST_MODEL = import.meta.env.VITE_USE_LOW_COST_MODEL === 'true'
 
 // Rate limiting configuration
 const RATE_LIMIT_DELAY = 2000 // 2 seconds between requests
@@ -13,34 +11,9 @@ let lastRequestTime = 0
 let requestCount = 0
 const MAX_REQUESTS_PER_MINUTE = 20
 
-// Initialize OpenAI client lazily
-let openai = null
-let initializationAttempted = false
-
-// Lazy initialization function
-function initializeOpenAI() {
-  if (initializationAttempted) return openai
-  
-  initializationAttempted = true
-  
-  // Only initialize if AI is enabled and we have a real API key
-  if (AI_ENABLED && apiKey && apiKey !== 'sk-placeholder-replace-with-actual-key' && apiKey.startsWith('sk-')) {
-    try {
-      openai = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
-      })
-      console.info('✅ OpenAI client initialized successfully')
-    } catch (error) {
-      console.warn('⚠️ Failed to initialize OpenAI client:', error.message)
-    }
-  } else if (!AI_ENABLED) {
-    console.info('ℹ️ AI features disabled via VITE_AI_ENABLED')
-  } else {
-    console.info('ℹ️ Using mock AI responses (no API key configured)')
-  }
-  
-  return openai
+// Get auth token from localStorage
+function getAuthToken() {
+  return localStorage.getItem('authToken')
 }
 
 // System prompt for the AI assistant
@@ -176,20 +149,20 @@ function getErrorMessage(error) {
     }
   }
   
-  // Invalid API key
-  if (errorMessage.includes('401') || errorMessage.includes('invalid_api_key')) {
+  // Auth errors
+  if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
     return {
       type: 'auth_error',
-      message: 'Invalid API key. Please check your OpenAI API key configuration.',
+      message: 'Please login to use AI features.',
       retryAfter: null
     }
   }
   
   // Insufficient quota
-  if (errorMessage.includes('insufficient_quota') || errorMessage.includes('quota')) {
+  if (errorMessage.includes('quota') || errorMessage.includes('402')) {
     return {
       type: 'quota_error',
-      message: 'OpenAI API quota exceeded. Please check your billing or use mock mode.',
+      message: 'AI service quota exceeded. Please try again later.',
       retryAfter: null
     }
   }
@@ -212,7 +185,7 @@ function getErrorMessage(error) {
 }
 
 // Main function to send message and get response
-export async function sendMessage(message, systemPrompt = null) {
+export async function sendMessage(message, conversationId = null) {
   // Check if AI is enabled
   if (!AI_ENABLED) {
     await delay(500 + Math.random() * 1000)
@@ -220,65 +193,62 @@ export async function sendMessage(message, systemPrompt = null) {
     return getRandomResponse(category)
   }
   
-  // Initialize OpenAI lazily on first use
-  const client = initializeOpenAI()
+  // Check rate limit
+  const waitTime = checkRateLimit()
+  if (waitTime > 0) {
+    await delay(waitTime)
+  }
   
-  // Try OpenAI API first if available
-  if (client) {
-    try {
-      // Check rate limit
-      const waitTime = checkRateLimit()
-      if (waitTime > 0) {
-        await delay(waitTime)
-      }
-      
-      // Update rate limit tracking
-      updateRateLimit()
-      
-      const messages = [
-        { role: "system", content: systemPrompt || SYSTEM_PROMPT },
-        { role: "user", content: message }
-      ]
-
-      // Use low-cost model if configured
-      const model = USE_LOW_COST_MODEL ? "gpt-3.5-turbo" : "gpt-3.5-turbo"
-      
-      const completion = await client.chat.completions.create({
-        model: model,
-        messages: messages,
-        max_tokens: USE_LOW_COST_MODEL ? 300 : 500, // Reduce tokens for cost savings
-        temperature: 0.7,
-      })
-      
-      const response = completion.choices[0]?.message?.content
-      
-      if (!response) {
-        throw new Error('Empty response from API')
-      }
-      
-      return response
-      
-    } catch (error) {
-      console.error('OpenAI API error:', error)
-      
-      // Get user-friendly error message
-      const errorInfo = getErrorMessage(error)
-      
-      // Log error details for debugging
-      console.error('Error details:', {
-        type: errorInfo.type,
-        message: errorInfo.message,
-        retryAfter: errorInfo.retryAfter
-      })
-      
-      // For auth and quota errors, throw to show user
-      if (errorInfo.type === 'auth_error' || errorInfo.type === 'quota_error') {
-        throw new Error(errorInfo.message)
-      }
-      
-      // For other errors, fall back to mock
-      console.info('Falling back to mock responses')
+  // Update rate limit tracking
+  updateRateLimit()
+  
+  // Try secure backend API first
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
     }
+
+    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        message,
+        conversationId
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || `HTTP ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.response
+    
+  } catch (error) {
+    console.error('Backend API error:', error)
+    
+    // Get user-friendly error message
+    const errorInfo = getErrorMessage(error)
+    
+    // Log error details for debugging
+    console.error('Error details:', {
+      type: errorInfo.type,
+      message: errorInfo.message,
+      retryAfter: errorInfo.retryAfter
+    })
+    
+    // For auth errors, throw to show user
+    if (errorInfo.type === 'auth_error') {
+      throw new Error(errorInfo.message)
+    }
+    
+    // For other errors, fall back to mock
+    console.info('Falling back to mock responses')
   }
   
   // Fallback to mock responses
@@ -325,10 +295,10 @@ export function getQuickActions() {
   ]
 }
 
-// Check if OpenAI is available
+// Check if AI is available
 export function isOpenAIAvailable() {
-  const client = initializeOpenAI()
-  return AI_ENABLED && client !== null
+  const token = getAuthToken()
+  return AI_ENABLED && token !== null
 }
 
 // Get AI service status
@@ -342,12 +312,12 @@ export function getServiceStatus() {
     }
   }
   
-  const client = initializeOpenAI()
+  const token = getAuthToken()
   
   return {
-    provider: client ? 'OpenAI' : 'Mock',
-    available: client !== null,
-    model: client ? (USE_LOW_COST_MODEL ? 'gpt-3.5-turbo (cost-optimized)' : 'gpt-3.5-turbo') : 'mock-responses',
+    provider: token ? 'Secure Backend' : 'Mock',
+    available: token !== null,
+    model: token ? 'gpt-3.5-turbo (secure backend)' : 'mock-responses',
     enabled: true
   }
 }
@@ -365,6 +335,143 @@ export function getRateLimitStatus() {
   }
 }
 
+// Conversation management functions
+export async function createConversation(title, category = 'general') {
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/conversations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ title, category })
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create conversation')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Create conversation error:', error)
+    // Return mock conversation for fallback
+    return {
+      id: Date.now(),
+      title,
+      category,
+      messages: [],
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
+    }
+  }
+}
+
+export async function getConversations() {
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/conversations`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get conversations')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Get conversations error:', error)
+    return []
+  }
+}
+
+export async function getConversation(id) {
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/conversations/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get conversation')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Get conversation error:', error)
+    return null
+  }
+}
+
+export async function deleteConversation(id) {
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/conversations/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to delete conversation')
+    }
+
+    return true
+  } catch (error) {
+    console.error('Delete conversation error:', error)
+    return false
+  }
+}
+
+export async function getUsageStatistics() {
+  try {
+    const token = getAuthToken()
+    if (!token) {
+      throw new Error('No authentication token found')
+    }
+
+    const response = await fetch(`${API_BASE_URL}/ai/usage`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get usage statistics')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Get usage error:', error)
+    return {
+      totalRequests: 0,
+      totalTokens: 0,
+      dailyUsage: []
+    }
+  }
+}
+
 export default {
   sendMessage,
   getSuggestedPrompts,
@@ -372,4 +479,9 @@ export default {
   isOpenAIAvailable,
   getServiceStatus,
   getRateLimitStatus,
+  createConversation,
+  getConversations,
+  getConversation,
+  deleteConversation,
+  getUsageStatistics,
 }
