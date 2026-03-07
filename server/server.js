@@ -1,14 +1,32 @@
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+import dotenv from 'dotenv'
 import { connectDB } from './config/db.js'
 import authRoutes from './routes/auth.js'
 import aiRoutes from './routes/ai.js'
 
-// Load environment variables
-dotenv.config()
+// Load environment variables from server directory
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// Try multiple paths for .env file
+const envPaths = [
+  join(__dirname, '.env'),
+  join(__dirname, '../.env'),
+  '.env'
+]
+
+for (const envPath of envPaths) {
+  const result = dotenv.config({ path: envPath })
+  if (result.parsed) {
+    console.log(`✅ Loaded .env from: ${envPath}`)
+    break
+  }
+}
 
 const app = express()
 const PORT = process.env.PORT || 5000

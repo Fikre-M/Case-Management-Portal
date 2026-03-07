@@ -9,13 +9,10 @@ const memoryStorage = {
 
 export const connectDB = async () => {
   try {
-    // Only connect to MongoDB if URI is provided and not placeholder
-    const mongoUri = process.env.MONGODB_URI
-    if (!mongoUri || mongoUri === 'mongodb://localhost:27017/aidflow') {
-      console.log('⚠️ MongoDB not configured - using in-memory storage')
-      return false
-    }
-
+    // Use hardcoded URI for now since .env is having issues
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aidflow'
+    
+    // Connect to MongoDB
     const conn = await mongoose.connect(mongoUri)
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
     return true
