@@ -30,12 +30,12 @@
 
 [[redirects]]
   from = "/api/ai/conversations"
-  to = "/.netlify/functions/ai-conversations"
+  to = "/.netlify/functions/ai-conversations-simple"
   status = 200
 
 [[redirects]]
   from = "/api/ai/usage"
-  to = "/.netlify/functions/ai-usage"
+  to = "/.netlify/functions/ai-usage-simple"
   status = 200
 
 [[redirects]]
