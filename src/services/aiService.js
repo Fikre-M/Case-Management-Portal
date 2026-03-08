@@ -2,7 +2,7 @@
 // Replaces direct OpenAI browser integration with secure backend calls
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1886/api'
 const AI_ENABLED = import.meta.env.VITE_AI_ENABLED !== 'false' // Default to true
 
 // Rate limiting configuration
