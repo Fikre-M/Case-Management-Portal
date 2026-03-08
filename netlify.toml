@@ -10,6 +10,9 @@
   node_bundler = "esbuild"
   esbuild = { format = "esm" }
 
+  [functions.external]
+  external_node_modules = ["jsonwebtoken", "mongoose", "bcryptjs"]
+
 [[redirects]]
   from = "/api/auth/register"
   to = "/.netlify/functions/auth-register-simple"
