@@ -1,6 +1,6 @@
 // Authentication Service - Handles user authentication with secure backend
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1886/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 // Store auth token in localStorage
 export function setAuthToken(token) {

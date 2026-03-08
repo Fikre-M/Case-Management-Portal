@@ -5,6 +5,40 @@
 [build.environment]
   NODE_VERSION = "18"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/auth/register"
+  to = "/.netlify/functions/auth-register"
+  status = 200
+
+[[redirects]]
+  from = "/api/auth/login"
+  to = "/.netlify/functions/auth-login"
+  status = 200
+
+[[redirects]]
+  from = "/api/ai/chat"
+  to = "/.netlify/functions/ai-chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/ai/conversations"
+  to = "/.netlify/functions/ai-conversations"
+  status = 200
+
+[[redirects]]
+  from = "/api/ai/usage"
+  to = "/.netlify/functions/ai-usage"
+  status = 200
+
+[[redirects]]
+  from = "/api/ai/suggestions"
+  to = "/.netlify/functions/ai-suggestions"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
