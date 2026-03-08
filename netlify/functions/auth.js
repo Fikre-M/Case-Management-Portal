@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { connectDB } from '../../server/config/db.js'
-import { User } from '../../server/config/db.js'
+import { connectDB, getModels } from '../../server/config/db.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
@@ -36,6 +35,7 @@ export const register = async (event, context, callback) => {
 
   try {
     await connectDB()
+    const { User } = await getModels()
     const { username, email, password } = JSON.parse(event.body)
 
     // Validate input
@@ -95,6 +95,7 @@ export const login = async (event, context, callback) => {
 
   try {
     await connectDB()
+    const { User } = await getModels()
     const { email, password } = JSON.parse(event.body)
 
     if (!email || !password) {

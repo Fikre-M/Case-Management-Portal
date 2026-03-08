@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { connectDB } from '../../server/config/db.js'
-import { Conversation, Usage } from '../../server/config/db.js'
+import { connectDB, getModels } from '../../server/config/db.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
@@ -106,6 +105,7 @@ export const chat = async (event, context, callback) => {
   try {
     const user = verifyToken(event)
     await connectDB()
+    const { Conversation, Usage } = await getModels()
     
     const { message, conversationId } = JSON.parse(event.body)
 
@@ -206,6 +206,7 @@ export const createConversation = async (event, context, callback) => {
   try {
     const user = verifyToken(event)
     await connectDB()
+    const { Conversation } = await getModels()
     
     const { title, category } = JSON.parse(event.body)
 
@@ -239,6 +240,7 @@ export const getConversations = async (event, context, callback) => {
   try {
     const user = verifyToken(event)
     await connectDB()
+    const { Conversation } = await getModels()
     
     const conversations = await Conversation.find({ userId: user.userId })
       .sort({ lastUpdated: -1 })
@@ -267,6 +269,7 @@ export const getUsage = async (event, context, callback) => {
   try {
     const user = verifyToken(event)
     await connectDB()
+    const { Usage } = await getModels()
     
     const usage = await Usage.find({ userId: user.userId })
       .sort({ date: -1 })
