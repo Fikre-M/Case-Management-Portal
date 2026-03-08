@@ -113,7 +113,7 @@ const createMockModels = () => {
 }
 
 // Create real Mongoose models or mock models
-let User, Conversation, Usage
+export let User, Conversation, Usage
 let isUsingMongoDB = false
 
 export const getModels = async () => {
@@ -173,6 +173,11 @@ export const getModels = async () => {
   }
 }
 
-// Initialize models immediately
-const models = await getModels()
-export { User, Conversation, Usage }
+// Initialize models when needed, not at top level
+let models = null
+
+export const initializeModels = async () => {
+  if (models) return models
+  models = await getModels()
+  return models
+}
