@@ -12,6 +12,7 @@ export default defineConfig({
     minify: 'terser',
     sourcemap: true,
     rollupOptions: {
+      external: ['jsonwebtoken', 'mongoose', 'bcryptjs', 'openai'],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],

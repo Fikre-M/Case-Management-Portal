@@ -8,6 +8,7 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  esbuild = { format = "esm" }
 
 [[redirects]]
   from = "/api/auth/register"
