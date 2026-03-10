@@ -16,6 +16,16 @@ function getAuthToken() {
   return localStorage.getItem('authToken')
 }
 
+// Check if user is authenticated
+function isAuthenticated() {
+  const token = getAuthToken()
+  if (!token) {
+    console.warn('🔐 No authentication token found - user not logged in')
+    return false
+  }
+  return true
+}
+
 // System prompt for the AI assistant
 const SYSTEM_PROMPT = `You are a helpful AI assistant for a legal case management system. You specialize in:
 
@@ -193,6 +203,12 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     return getRandomResponse(category)
   }
   
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    // Return a helpful message instead of throwing error
+    return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
+  }
+  
   // Check rate limit
   const waitTime = checkRateLimit()
   if (waitTime > 0) {
@@ -205,11 +221,8 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   // Try secure backend API first
   try {
     const token = getAuthToken()
-    if (!token) {
-      throw new Error('No authentication token found')
-    }
 
-    // Try the new AI proxy first (with OpenAI)
+    // Try new AI proxy first (with Gemini)
     const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
       method: 'POST',
       headers: {
@@ -232,7 +245,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       return data.choices[0]?.message?.content || 'No response received'
     }
 
-    // If proxy fails, try the simple backend endpoint
+    // If proxy fails, try to simple backend endpoint
     const response = await fetch(`${API_BASE_URL}/ai/chat`, {
       method: 'POST',
       headers: {
@@ -266,9 +279,9 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       retryAfter: errorInfo.retryAfter
     })
     
-    // For auth errors, throw to show user
+    // For auth errors, return helpful message instead of throwing
     if (errorInfo.type === 'auth_error') {
-      throw new Error(errorInfo.message)
+      return errorInfo.message
     }
     
     // For other errors, fall back to mock
