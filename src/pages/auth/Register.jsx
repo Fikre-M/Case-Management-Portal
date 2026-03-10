@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 function Register() {
   const navigate = useNavigate()
   const { register, isAuthenticated, isLoading: authLoading } = useAuth()
+  const formRef = useRef(null)
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -156,7 +157,7 @@ function Register() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit}>
         {/* Name and Email Side by Side */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <AuthInput
@@ -308,10 +309,12 @@ function Register() {
             }
             setFormData(demoData)
             setAgreedToTerms(true)
-            // Auto-submit after filling demo credentials
+            // Auto-submit after form is updated and re-rendered
             setTimeout(() => {
-              handleSubmit({ preventDefault: () => {} })
-            }, 500)
+              if (formRef.current) {
+                formRef.current.requestSubmit()
+              }
+            }, 100)
           }}
         >
           <p className="text-xs text-blue-800 font-medium mb-1 flex items-center">

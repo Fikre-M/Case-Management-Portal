@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext'
 function Login() {
   const navigate = useNavigate()
   const { login, isAuthenticated, isLoading: authLoading } = useAuth()
+  const formRef = useRef(null)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -111,7 +112,7 @@ function Login() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit}>
         <AuthInput
           label="Email Address"
           type="email"
@@ -192,10 +193,12 @@ function Login() {
             password: 'password'
           }
           setFormData(demoData)
-          // Auto-submit after filling demo credentials
+          // Auto-submit after form is updated and re-rendered
           setTimeout(() => {
-            handleSubmit({ preventDefault: () => {} })
-          }, 500)
+            if (formRef.current) {
+              formRef.current.requestSubmit()
+            }
+          }, 100)
         }}
       >
         <p className="text-xs text-blue-800 font-medium mb-1 flex items-center">
