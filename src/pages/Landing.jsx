@@ -219,17 +219,12 @@ function Landing() {
               >
                 Start Free Trial
               </Link>
-              <button
-                onClick={() => {
-                  if (isClient) {
-                    // Navigate to login with demo credentials
-                    window.location.href = '/login?demo=true'
-                  }
-                }}
+              <Link
+                to="/demo"
                 className="px-8 py-4 bg-white/20 backdrop-blur text-white font-semibold rounded-xl border-2 border-white/30 hover:bg-white/30 transition-all duration-300"
               >
-                View Demo
-              </button>
+                Try Live Demo
+              </Link>
             </div>
           </div>
         </div>

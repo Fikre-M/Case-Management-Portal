@@ -7,6 +7,8 @@ import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import ForgotPassword from '../pages/auth/ForgotPassword'
 import Landing from '../pages/Landing'
+import Demo from '../pages/Demo'
+import DemoShowcase from '../pages/DemoShowcase'
 import AppointmentsList from '../pages/appointments/AppointmentsList'
 import AppointmentDetails from '../pages/appointments/AppointmentDetails'
 import NewAppointment from '../pages/appointments/NewAppointment'
@@ -34,6 +36,12 @@ function AppRoutes() {
       
       {/* Landing Page - Public */}
       <Route path="/landing" element={<Landing />} />
+      
+      {/* Demo Mode - Public */}
+      <Route path="/demo" element={<Demo />} />
+      
+      {/* Demo Showcase - Public */}
+      <Route path="/demo-showcase" element={<DemoShowcase />} />
       
       {/* Auth Routes */}
       <Route element={<AuthLayout />}>

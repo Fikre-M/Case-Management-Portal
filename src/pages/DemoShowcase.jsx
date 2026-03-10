@@ -75,7 +75,7 @@ function DemoShowcase() {
                   to="/landing"
                   className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
-                  Try Live Demo
+                  Try Live App
                 </Link>
                 <a
                   href="https://github.com/yourusername/ai-case-manager"
@@ -166,7 +166,7 @@ function DemoShowcase() {
                     to="/landing"
                     className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
                   >
-                    Experience This Feature
+                    Try Live App
                     <span className="ml-2">→</span>
                   </Link>
                 </div>
@@ -240,7 +240,7 @@ function DemoShowcase() {
                 to="/landing"
                 className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg"
               >
-                Launch Live Demo
+                Launch Live App
               </Link>
               <a
                 href="/DEMO_SHOWCASE.md"
