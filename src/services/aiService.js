@@ -20,7 +20,7 @@ function getAuthToken() {
 function isAuthenticated() {
   const userData = localStorage.getItem('ai_casemanager_current_user')
   if (!userData) {
-    console.warn('🔐 No user data found - user not logged in')
+    console.warn(' No user data found - user not logged in')
     return false
   }
   
@@ -32,7 +32,7 @@ function isAuthenticated() {
     const sessionTimeout = 24 * 60 * 60 * 1000 // 24 hours
     
     if (!loginTime || (now - loginTime) > sessionTimeout) {
-      console.warn('🔐 Session expired')
+      console.warn(' Session expired')
       localStorage.removeItem('ai_casemanager_current_user')
       return false
     }
@@ -224,7 +224,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   // Check if user is authenticated
   if (!isAuthenticated()) {
     // Return a helpful message instead of throwing error
-    return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
+    return " Please login to use AI features. Click the login button in the top right to get started with AI assistance."
   }
   
   // Check rate limit
@@ -240,7 +240,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   try {
     const userData = localStorage.getItem('ai_casemanager_current_user')
     if (!userData) {
-      console.log('❌ No user data found - this should not happen if auth passed')
+      console.log(' No user data found - this should not happen if auth passed')
       throw new Error('No user data found')
     }
 
@@ -259,7 +259,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       throw new Error('Failed to create authentication token')
     }
     
-    console.log('🔒 Using secure Netlify proxy for AI request')
+    console.log(' Using secure Netlify proxy for AI request')
     const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
       method: 'POST',
       headers: {
@@ -279,8 +279,19 @@ export async function sendMessage(message, conversationId = null, customSystemPr
 
     if (proxyResponse.ok) {
       const data = await proxyResponse.json()
-      console.log('✅ Secure proxy response received')
-      return data.choices[0]?.message?.content || 'No response received'
+      console.log(' Secure proxy response received:', data)
+      
+      // Check if this is a real AI response or demo fallback
+      if (data.choices && data.choices[0]?.message?.content) {
+        console.log(' Real AI response received')
+        return data.choices[0].message.content
+      } else if (data.error) {
+        console.error('AI service error:', data.error)
+        throw new Error(data.error)
+      } else {
+        console.warn('Unexpected response format:', data)
+        throw new Error('Invalid response format from AI service')
+      }
     }
 
     // If proxy fails, log error and fall back to mock
@@ -306,8 +317,10 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       return errorInfo.message
     }
     
-    // For other errors, fall back to mock
-    console.info('🔄 Falling back to mock responses due to proxy failure')
+    // For network or other errors, try to continue with demo but log clearly
+    console.warn(' Falling back to demo responses due to proxy failure')
+    console.warn(' This is a DEMO response - real AI service is unavailable')
+    console.warn(' To fix: Check GEMINI_API_KEY in Netlify environment variables')
   }
   
   // Fallback to mock responses
@@ -332,22 +345,22 @@ export function getSuggestedPrompts() {
 export function getQuickActions() {
   return [
     {
-      icon: '📋',
+      icon: '',
       label: 'Analyze Case',
       prompt: 'Help me analyze my current case and suggest next steps',
     },
     {
-      icon: '📅',
+      icon: '',
       label: 'Schedule Meeting',
       prompt: 'Help me schedule a client meeting',
     },
     {
-      icon: '✍️',
+      icon: '',
       label: 'Draft Document',
       prompt: 'Help me draft a legal document',
     },
     {
-      icon: '🔍',
+      icon: '',
       label: 'Legal Research',
       prompt: 'Help me research relevant case law',
     },
@@ -376,7 +389,7 @@ export function getServiceStatus() {
   return {
     provider: token ? 'Secure Backend' : 'Mock',
     available: token !== null,
-    model: token ? 'gpt-3.5-turbo (secure backend)' : 'mock-responses',
+    model: token ? 'gemini-1.5-flash (secure backend)' : 'mock-responses',
     enabled: true
   }
 }
@@ -542,5 +555,5 @@ export default {
   getConversations,
   getConversation,
   deleteConversation,
-  getUsageStatistics,
+  getUsageStatistics
 }
