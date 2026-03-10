@@ -7,7 +7,7 @@ const AI_ENABLED = import.meta.env.VITE_AI_ENABLED !== 'false'
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'
 
 // Get API key from environment (for local development only)
-const GEMINI_API_KEY = import.meta.env.VITE_AidFlow_API_KEY || ''
+const GEMINI_API_KEY = import.meta.env.AidFlow_API_KEY || ''
 
 // Rate limiting configuration
 const RATE_LIMIT_DELAY = 2000
@@ -176,7 +176,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     }
   } else {
     console.warn('⚠️ No valid Gemini API key found in environment')
-    console.warn('🔧 Set VITE_AidFlow_API_KEY in your .env file')
+    console.warn('🔧 Set AidFlow_API_KEY in your .env file')
   }
   
   // Fallback to mock responses
