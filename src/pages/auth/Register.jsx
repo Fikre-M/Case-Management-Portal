@@ -132,178 +132,167 @@ function Register() {
   const passwordStrength = getPasswordStrength();
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        {/* Logo/Brand */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-full mb-3">
-            <span className="text-2xl">🤖</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-          <p className="text-gray-600 mt-1 text-sm">
-            Start managing your appointments today
-          </p>
+    <div className="w-full">
+      {/* Logo/Brand */}
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-full mb-2">
+          <span className="text-xl">🤖</span>
         </div>
+        <h2 className="text-xl font-bold text-gray-900">Create Account</h2>
+        <p className="text-gray-600 text-xs">
+          Start managing your appointments today
+        </p>
+      </div>
 
-        {/* Alert */}
-        {alert && (
-          <div className="mb-4">
-            <Alert
-              type={alert.type}
-              message={alert.message}
-              onClose={() => setAlert(null)}
-            />
+      {/* Alert */}
+      {alert && (
+        <div className="mb-3">
+          <Alert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        </div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <AuthInput
+          label="Full Name"
+          type="text"
+          name="fullName"
+          placeholder="John Doe"
+          value={formData.fullName}
+          onChange={handleChange}
+          error={errors.fullName}
+          required
+          icon="👤"
+        />
+
+        <AuthInput
+          label="Email Address"
+          type="email"
+          name="email"
+          placeholder="your-email@example.com"
+          value={formData.email}
+          onChange={handleChange}
+          error={errors.email}
+          required
+          icon="📧"
+        />
+
+        <AuthInput
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="Create a strong password"
+          value={formData.password}
+          onChange={handleChange}
+          error={errors.password}
+          required
+          icon="🔒"
+        />
+
+        {/* Password Strength Indicator */}
+        {formData.password && (
+          <div className="mb-3">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-gray-600">Password Strength</span>
+              <span className={`text-xs font-medium ${
+                passwordStrength.strength <= 2 ? 'text-red-600' : 
+                passwordStrength.strength <= 3 ? 'text-yellow-600' : 'text-green-600'
+              }`}>
+                {passwordStrength.label}
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div 
+                className={`h-1.5 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
+              ></div>
+            </div>
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <AuthInput
-            label="Full Name"
-            type="text"
-            name="fullName"
-            placeholder="John Doe"
-            value={formData.fullName}
-            onChange={handleChange}
-            error={errors.fullName}
-            required
-            icon="👤"
-          />
+        <AuthInput
+          label="Confirm Password"
+          type="password"
+          name="confirmPassword"
+          placeholder="Re-enter your password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          error={errors.confirmPassword}
+          required
+          icon="🔒"
+        />
 
-          <AuthInput
-            label="Email Address"
-            type="email"
-            name="email"
-            placeholder="your-email@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            required
-            icon="📧"
-          />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <AuthInput
-              label="Password"
-              type="password"
-              name="password"
-              placeholder="Create password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              required
-              icon="🔒"
+        {/* Terms and Conditions */}
+        <div className="mb-3">
+          <label className="flex items-start">
+            <input
+              type="checkbox"
+              className="w-3 h-3 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-0.5"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
             />
-
-            <AuthInput
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              placeholder="Re-enter password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              required
-              icon="🔒"
-            />
-          </div>
-
-          {/* Password Strength Indicator */}
-          {formData.password && (
-            <div className="mb-4 -mt-2">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-600">
-                  Password strength:
-                </span>
-                <span
-                  className={`text-xs font-medium ${
-                    passwordStrength.strength <= 2
-                      ? "text-red-600"
-                      : passwordStrength.strength === 3
-                      ? "text-yellow-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {passwordStrength.label}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full transition-all ${passwordStrength.color}`}
-                  style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
-                ></div>
-              </div>
-            </div>
+            <span className="ml-2 text-xs text-gray-600">
+              I agree to the{" "}
+              <Link to="/terms" className="text-primary-600 hover:text-primary-700 font-medium">
+                Terms and Conditions
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-primary-600 hover:text-primary-700 font-medium">
+                Privacy Policy
+              </Link>
+            </span>
+          </label>
+          {errors.agreedToTerms && (
+            <p className="mt-1 text-xs text-red-600">{errors.agreedToTerms}</p>
           )}
+        </div>
 
-          {/* Terms and Conditions */}
-          <div className="mb-4">
-            <label className="flex items-start">
-              <input
-                type="checkbox"
-                checked={agreedToTerms}
-                onChange={(e) => {
-                  setAgreedToTerms(e.target.checked);
-                  if (errors.terms) {
-                    setErrors((prev) => ({ ...prev, terms: "" }));
-                  }
-                }}
-                className="w-4 h-4 mt-1 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <span className="ml-2 text-sm text-gray-600">
-                I agree to the{" "}
-                <Link to="/terms" className="text-primary-600 hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  to="/privacy"
-                  className="text-primary-600 hover:underline"
-                >
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-            {errors.terms && (
-              <p className="mt-1 text-sm text-red-600 flex items-center">
-                <span className="mr-1">⚠</span>
-                {errors.terms}
-              </p>
-            )}
-          </div>
+        <Button
+          type="submit"
+          className="w-full py-2 text-sm font-semibold mb-3"
+          disabled={isLoading || !agreedToTerms}
+        >
+          {isLoading ? "Creating Account..." : "Create Account"}
+        </Button>
+      </form>
 
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <Button
-              type="submit"
-              className="w-full sm:flex-1 py-2.5 text-base font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating Account..." : "Create Account"}
-            </Button>
-            <button
-              type="button"
-              className="w-full sm:flex-1 flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <span className="mr-2">🔵</span>
-              <span className="text-base font-medium text-gray-700">
-                Google
-              </span>
-            </button>
-          </div>
-        </form>
+      {/* Sign In Link */}
+      <p className="text-center text-xs text-gray-600 mb-3">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="text-primary-600 hover:text-primary-700 font-semibold"
+        >
+          Sign in here
+        </Link>
+      </p>
 
-        {/* Login Link */}
-        <p className="text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-primary-600 hover:text-primary-700 font-semibold"
-          >
-            Sign in
-          </Link>
-        </p>
+      {/* Divider */}
+      <div className="relative mb-3">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
       </div>
+
+      {/* Social Sign Up */}
+      <button
+        type="button"
+        className="w-full flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      >
+        <span className="mr-1 text-sm">🔵</span>
+        <span className="text-sm font-medium text-gray-700">
+          Sign up with Google
+        </span>
+      </button>
     </div>
   );
 }
+
 export default Register

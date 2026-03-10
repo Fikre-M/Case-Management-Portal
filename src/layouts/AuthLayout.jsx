@@ -6,19 +6,19 @@ function AuthLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4">
-      <div className="container mx-auto h-full flex items-center justify-center min-h-[calc(100vh-2rem)]">
+    <div className="h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4 overflow-hidden">
+      <div className="container mx-auto h-full flex items-center justify-center">
         {/* Form Card - Always visible */}
-        <div className="w-full max-w-lg">
-          <div className="bg-white rounded-2xl shadow-xl p-4">
-            <div className="space-y-3">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="space-y-4">
               <Outlet />
             </div>
           </div>
         </div>
 
         {/* Welcome Content - Hidden on mobile, shown on desktop right side */}
-        <div className="hidden md:block w-1/2 pl-12">
+        <div className="hidden lg:block w-1/2 pl-12">
           <div className="max-w-md">
             <h1 className="text-3xl font-bold text-white mb-3">
               Welcome to AI CaseManager

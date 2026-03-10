@@ -87,111 +87,109 @@ function Login() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white rounded-2xl shadow-xl p-8">
-        {/* Logo/Brand */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-full mb-3">
-            <span className="text-2xl">🤖</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">AI Case Manager</h2>
-          <p className="text-gray-600 mt-1 text-sm">
-            Sign in / create your account
-          </p>
+    <div className="w-full">
+      {/* Logo/Brand */}
+      <div className="text-center mb-4">
+        <div className="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-full mb-2">
+          <span className="text-xl">🤖</span>
         </div>
-
-        {/* Alert */}
-        {alert && (
-          <div className="mb-4">
-            <Alert
-              type={alert.type}
-              message={alert.message}
-              onClose={() => setAlert(null)}
-            />
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <AuthInput
-            label="Email Address"
-            type="email"
-            name="email"
-            placeholder="your-email@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            error={errors.email}
-            required
-            icon="📧"
-          />
-
-          <AuthInput
-            label="Password"
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-            error={errors.password}
-            required
-            icon="🔒"
-          />
-
-          <div className="flex items-center justify-between mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Forgot Password?
-            </Link>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 mb-4">
-            <Button
-              type="submit"
-              className="w-full sm:flex-1 py-2.5 text-base font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-            <button
-              type="button"
-              className="w-full sm:flex-1 flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <span className="mr-2">🔵</span>
-              <span className="text-base font-medium text-gray-700">
-                Google
-              </span>
-            </button>
-          </div>
-        </form>
-
-        {/* Sign Up Link */}
-        <p className="text-center text-sm text-gray-600 mb-4">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="text-primary-600 hover:text-primary-700 font-semibold"
-          >
-            Sign up for free
-          </Link>
+        <h2 className="text-xl font-bold text-gray-900">AI Case Manager</h2>
+        <p className="text-gray-600 text-xs">
+          Sign in / create your account
         </p>
+      </div>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-xs text-blue-800 font-medium mb-1">
-            Demo Credentials:
-          </p>
-          <p className="text-xs text-blue-700">Email: demo@example.com</p>
-          <p className="text-xs text-blue-700">Password: password</p>
+      {/* Alert */}
+      {alert && (
+        <div className="mb-3">
+          <Alert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
         </div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <AuthInput
+          label="Email Address"
+          type="email"
+          name="email"
+          placeholder="your-email@example.com"
+          value={formData.email}
+          onChange={handleChange}
+          error={errors.email}
+          required
+          icon="📧"
+        />
+
+        <AuthInput
+          label="Password"
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+          value={formData.password}
+          onChange={handleChange}
+          error={errors.password}
+          required
+          icon="🔒"
+        />
+
+        <div className="flex items-center justify-between mb-3">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              className="w-3 h-3 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+            />
+            <span className="ml-1 text-xs text-gray-600">Remember me</span>
+          </label>
+          <Link
+            to="/forgot-password"
+            className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <Button
+            type="submit"
+            className="w-full sm:flex-1 py-2 text-sm font-semibold"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing in..." : "Sign In"}
+          </Button>
+          <button
+            type="button"
+            className="w-full sm:flex-1 flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <span className="mr-1 text-sm">🔵</span>
+            <span className="text-sm font-medium text-gray-700">
+              Google
+            </span>
+          </button>
+        </div>
+      </form>
+
+      {/* Sign Up Link */}
+      <p className="text-center text-xs text-gray-600 mb-3">
+        Don't have an account?{" "}
+        <Link
+          to="/register"
+          className="text-primary-600 hover:text-primary-700 font-semibold"
+        >
+          Sign up for free
+        </Link>
+      </p>
+
+      {/* Demo Credentials */}
+      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <p className="text-xs text-blue-800 font-medium mb-1">
+          Demo Credentials:
+        </p>
+        <p className="text-xs text-blue-700">Email: demo@example.com</p>
+        <p className="text-xs text-blue-700">Password: password</p>
       </div>
     </div>
   );
