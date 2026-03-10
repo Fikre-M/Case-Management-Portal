@@ -77,11 +77,12 @@ const checkRateLimit = (userId) => {
 let genAI = null;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 
-if (geminiApiKey && geminiApiKey.startsWith('AIza')) {
+if (geminiApiKey && geminiApiKey.length > 10) {
   genAI = new GoogleGenerativeAI(geminiApiKey);
   console.log('✅ Gemini client initialized in ai-proxy');
 } else {
   console.log('⚠️ No valid Gemini API key found in ai-proxy');
+  console.log('GEMINI_API_KEY length:', geminiApiKey?.length || 'undefined');
 }
 
 // System prompt for legal AI assistant

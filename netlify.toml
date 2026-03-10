@@ -11,7 +11,7 @@
   esbuild = { format = "esm" }
 
   [functions.external]
-  external_node_modules = ["jsonwebtoken", "mongoose", "bcryptjs"]
+  external_node_modules = ["jsonwebtoken", "mongoose", "bcryptjs", "@google/generative-ai"]
 
 [[redirects]]
   from = "/api/auth/register"
