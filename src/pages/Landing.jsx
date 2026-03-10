@@ -5,11 +5,35 @@ import { motion } from 'framer-motion'
 function Landing() {
   const [isVisible, setIsVisible] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
 
   useEffect(() => {
     setIsClient(true)
     setIsVisible(true)
   }, [])
+
+  const handlePlayVideo = () => {
+    setIsPlaying(!isPlaying)
+    // Toggle video play/pause
+    const video = document.getElementById('demo-video')
+    if (video) {
+      if (isPlaying) {
+        video.pause()
+      } else {
+        video.play()
+      }
+    }
+  }
+
+  const toggleSound = () => {
+    setSoundEnabled(!soundEnabled)
+    // Toggle video volume
+    const video = document.getElementById('demo-video')
+    if (video) {
+      video.muted = !soundEnabled
+    }
+  }
 
   const features = [
     {
@@ -164,10 +188,30 @@ function Landing() {
             className="max-w-4xl mx-auto"
           >
             <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl aspect-video">
-              {/* Video Placeholder with Play Button */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-blue-600/20 flex items-center justify-center p-4">
+              {/* Actual Video Element */}
+              <video
+                id="demo-video"
+                className="w-full h-full object-cover"
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='24' fill='%236b7280' text-anchor='middle' dominant-baseline='middle'%3EAIDemo Video%3C/text%3E%3C/svg%3E"
+                muted={!soundEnabled}
+                playsInline
+                onClick={handlePlayVideo}
+              >
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              
+              {/* Video Overlay Controls */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-blue-600/20 flex items-center justify-center p-4 pointer-events-none">
                 <div className="text-center text-white max-w-md mx-auto">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 cursor-pointer hover:bg-white/30 transition-all duration-300 hover:scale-110">
+                  <div 
+                    onClick={handlePlayVideo}
+                    className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 cursor-pointer hover:bg-white/30 transition-all duration-300 hover:scale-110 pointer-events-auto"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handlePlayVideo()}
+                  >
                     <svg className="w-6 h-6 sm:w-8 sm:h-8 ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                     </svg>
@@ -183,15 +227,18 @@ function Landing() {
               </div>
               
               {/* Thumbnail overlay effect */}
-              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
               
               {/* Video controls hint */}
-              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex justify-between items-center">
+              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex justify-between items-center pointer-events-none">
                 <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur">
-                  ▶️ Click to play
+                  {isPlaying ? '⏸️ Playing' : '▶️ Click to play'}
                 </div>
-                <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur">
-                  🔊 Sound on
+                <div 
+                  onClick={toggleSound}
+                  className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur cursor-pointer hover:bg-black/70 transition-all pointer-events-auto"
+                >
+                  {soundEnabled ? '🔊 Sound on' : '🔇 Sound off'}
                 </div>
               </div>
             </div>
