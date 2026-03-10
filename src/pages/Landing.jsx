@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 function Landing() {
   const [isVisible, setIsVisible] = useState(false)
@@ -64,36 +65,59 @@ function Landing() {
               </div>
               
               {/* Main Title */}
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                <span className="bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent">
-                  AI Case Manager
+              <motion.h1 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight"
+              >
+                <span className="bg-gradient-to-r from-primary-600 via-blue-600 to-primary-600 bg-clip-text text-transparent bg-size-200 animate-gradient">
+                  AI-Powered Case Management
                 </span>
-              </h1>
+                <br />
+                <span className="text-3xl md:text-4xl text-gray-700 font-semibold mt-4 block">
+                  for Nonprofits
+                </span>
+              </motion.h1>
               
               {/* Subtitle */}
-              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Transform your case management with intelligent automation. 
-                Streamline appointments, organize cases, and deliver exceptional results with AI-powered insights.
-              </p>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed"
+              >
+                Transform your nonprofit's impact with intelligent case management. 
+                Streamline client services, automate administrative tasks, and focus on what matters most—
+                <span className="font-semibold text-primary-600"> your mission</span>.
+              </motion.p>
               
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link
-                to="/register"
-                className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
               >
-                Get Started Free
-              </Link>
-              <Link
-                to="/login"
-                className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300"
-              >
-                Sign In
-              </Link>
-            </div>
+                <Link
+                  to="/register"
+                  className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-lg"
+                >
+                  Start Free Today
+                </Link>
+                <Link
+                  to="/demo"
+                  className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300 shadow-md hover:shadow-lg text-lg"
+                >
+                  Watch Demo
+                </Link>
+              </motion.div>
             
             {/* Quick Demo - Interactive */}
-            <div 
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
               className="inline-flex items-center gap-2 text-sm text-gray-500 bg-white/80 px-4 py-2 rounded-full backdrop-blur cursor-pointer hover:bg-white hover:shadow-md transition-all duration-300"
               onClick={() => {
                 if (isClient) {
@@ -102,9 +126,9 @@ function Landing() {
                 }
               }}
             >
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               <span>Try interactive demo - No registration required</span>
-            </div>
+            </motion.div>
             </div>
           </div>
         </div>
@@ -112,6 +136,95 @@ function Landing() {
         {/* Decorative Elements */}
         <div className="absolute top-20 left-10 w-20 h-20 bg-primary-200/20 rounded-full blur-xl"></div>
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-blue-200/20 rounded-full blur-xl"></div>
+      </section>
+
+      {/* Demo Video Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              See It in Action
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Watch how AI Case Manager transforms nonprofit operations in just 2 minutes
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl aspect-video">
+              {/* Video Placeholder with Play Button */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-blue-600/20 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="w-20 h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-6 cursor-pointer hover:bg-white/30 transition-all duration-300 hover:scale-110">
+                    <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-2">Product Demo</h3>
+                  <p className="text-white/80 mb-6">Click to watch the full demonstration</p>
+                  <div className="flex items-center justify-center gap-4 text-sm text-white/60">
+                    <span>2:45</span>
+                    <span>•</span>
+                    <span>HD Quality</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Thumbnail overlay effect */}
+              <div className="absolute inset-0 bg-black/10"></div>
+              
+              {/* Video controls hint */}
+              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+                <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur">
+                  ▶️ Click to play
+                </div>
+                <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur">
+                  🔊 Sound on
+                </div>
+              </div>
+            </div>
+            
+            {/* Video Description */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="mt-8 text-center"
+            >
+              <p className="text-gray-600 mb-6">
+                Learn how nonprofits like yours are saving 10+ hours per week with AI-powered automation, 
+                intelligent case tracking, and streamlined client management.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  to="/demo"
+                  className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  Try Live Demo
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-6 py-3 bg-white text-primary-600 font-semibold rounded-lg border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300"
+                >
+                  Start Free Trial
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* Stats Section */}
@@ -146,12 +259,17 @@ function Landing() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div
+              <motion.div
                 key={index}
-                className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
-                  isClient && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-                }`}
-                style={{ transitionDelay: isClient ? `${index * 100}ms` : '0ms' }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: index * 0.1, 
+                  ease: "easeOut" 
+                }}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mb-6">
                   <span className="text-3xl">{feature.icon}</span>
@@ -162,7 +280,7 @@ function Landing() {
                 <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
