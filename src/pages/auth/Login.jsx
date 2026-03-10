@@ -110,9 +110,13 @@ function Login() {
     <div className="w-full">
       {/* Logo/Brand */}
       <div className="text-center mb-4">
-        <div className="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-full mb-2">
+        <Link 
+          to="/landing"
+          className="inline-flex items-center justify-center w-10 h-10 bg-primary-100 rounded-full mb-2 hover:bg-primary-200 transition-colors"
+          title="Back to Landing Page"
+        >
           <span className="text-xl">🤖</span>
-        </div>
+        </Link>
         <h2 className="text-xl font-bold text-gray-900">AI Case Manager</h2>
         <p className="text-gray-600 text-xs">
           Sign in / create your account
@@ -200,17 +204,6 @@ function Login() {
           className="text-primary-600 hover:text-primary-700 font-semibold"
         >
           Sign up for free
-        </Link>
-      </p>
-
-      {/* Back to Landing */}
-      <p className="text-center text-xs text-gray-500 mb-3">
-        <Link
-          to="/landing"
-          className="text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center"
-        >
-          <span className="mr-1">←</span>
-          Back to Landing Page
         </Link>
       </p>
 
