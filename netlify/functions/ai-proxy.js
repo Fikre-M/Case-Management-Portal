@@ -75,14 +75,14 @@ const checkRateLimit = (userId) => {
 
 // Initialize Gemini client
 let genAI = null;
-const geminiApiKey = process.env.GEMINI_API_KEY;
+const geminiApiKey = process.env.AidFlow_API_KEY;
 
 if (geminiApiKey && geminiApiKey.length > 10) {
   genAI = new GoogleGenerativeAI(geminiApiKey);
   console.log('✅ Gemini client initialized in ai-proxy');
 } else {
-  console.log('⚠️ No valid Gemini API key found in ai-proxy');
-  console.log('GEMINI_API_KEY length:', geminiApiKey?.length || 'undefined');
+  console.log('⚠️ No valid AidFlow_API_KEY found in ai-proxy');
+  console.log('AidFlow_API_KEY length:', geminiApiKey?.length || 'undefined');
 }
 
 // System prompt for legal AI assistant

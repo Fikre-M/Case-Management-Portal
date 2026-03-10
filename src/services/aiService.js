@@ -320,7 +320,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     // For network or other errors, try to continue with demo but log clearly
     console.warn(' Falling back to demo responses due to proxy failure')
     console.warn(' This is a DEMO response - real AI service is unavailable')
-    console.warn(' To fix: Check GEMINI_API_KEY in Netlify environment variables')
+    console.warn(' To fix: Check AidFlow_API_KEY in Netlify environment variables')
   }
   
   // Fallback to mock responses
