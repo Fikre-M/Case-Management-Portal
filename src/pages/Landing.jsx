@@ -238,44 +238,56 @@ function Landing() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🤖</span>
-                </div>
-                <span className="font-bold text-lg">AI Case Manager</span>
+          <div className="space-y-8">
+            {/* Logo section - centered at top */}
+            <div className="flex justify-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center">
+                <span className="text-3xl">🤖</span>
               </div>
-              <p className="text-gray-400 text-sm">
-                Empowering professionals with intelligent case management solutions.
-              </p>
             </div>
             
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link to="/demo" className="hover:text-white transition-colors">Demo</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link to="/status" className="hover:text-white transition-colors">Status</Link></li>
-              </ul>
+            {/* Brand info and 3 columns side by side */}
+            <div className="space-y-6 md:space-y-8">
+              {/* Brand info */}
+              <div>
+                <h3 className="font-bold text-lg md:text-xl mb-3">AI Case Manager</h3>
+                <p className="text-gray-400 text-sm md:text-base">
+                  Empowering professionals with intelligent case management solutions.
+                </p>
+              </div>
+              
+              {/* Product, Company, Support - 3 columns side by side */}
+              <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8">
+                {/* Product */}
+                <div>
+                  <h4 className="font-semibold mb-4 text-sm md:text-base">Product</h4>
+                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
+                    <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
+                    <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                    <li><Link to="/demo" className="hover:text-white transition-colors">Demo</Link></li>
+                  </ul>
+                </div>
+                
+                {/* Company */}
+                <div>
+                  <h4 className="font-semibold mb-4 text-sm md:text-base">Company</h4>
+                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
+                    <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+                    <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                    <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+                  </ul>
+                </div>
+                
+                {/* Support */}
+                <div>
+                  <h4 className="font-semibold mb-4 text-sm md:text-base">Support</h4>
+                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
+                    <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+                    <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+                    <li><Link to="/status" className="hover:text-white transition-colors">Status</Link></li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
           
