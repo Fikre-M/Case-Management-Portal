@@ -11,19 +11,37 @@ let lastRequestTime = 0
 let requestCount = 0
 const MAX_REQUESTS_PER_MINUTE = 20
 
-// Get auth token from localStorage
+// Get auth token from localStorage (matching AuthContext)
 function getAuthToken() {
-  return localStorage.getItem('authToken')
+  return localStorage.getItem('ai_casemanager_current_user')
 }
 
 // Check if user is authenticated
 function isAuthenticated() {
-  const token = getAuthToken()
-  if (!token) {
-    console.warn('🔐 No authentication token found - user not logged in')
+  const userData = localStorage.getItem('ai_casemanager_current_user')
+  if (!userData) {
+    console.warn('🔐 No user data found - user not logged in')
     return false
   }
-  return true
+  
+  // Check if session is still valid (24 hours)
+  try {
+    const parsedUser = JSON.parse(userData)
+    const loginTime = parsedUser.loginTime
+    const now = Date.now()
+    const sessionTimeout = 24 * 60 * 60 * 1000 // 24 hours
+    
+    if (!loginTime || (now - loginTime) > sessionTimeout) {
+      console.warn('🔐 Session expired')
+      localStorage.removeItem('ai_casemanager_current_user')
+      return false
+    }
+    
+    return true
+  } catch (error) {
+    console.error('Error parsing user data for auth check:', error)
+    return false
+  }
 }
 
 // System prompt for the AI assistant
@@ -220,9 +238,28 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   
   // Try secure backend API first
   try {
-    const token = getAuthToken()
+    const userData = localStorage.getItem('ai_casemanager_current_user')
+    if (!userData) {
+      console.log('❌ No user data found - this should not happen if auth passed')
+      throw new Error('No user data found')
+    }
 
-    // Try new AI proxy first (with Gemini)
+    let token
+    try {
+      const parsedUser = JSON.parse(userData)
+      // Create a simple token for backend compatibility
+      token = btoa(JSON.stringify({
+        userId: parsedUser.id,
+        email: parsedUser.email,
+        name: parsedUser.name,
+        loginTime: parsedUser.loginTime
+      }))
+    } catch (error) {
+      console.error('Error parsing user data for token:', error)
+      throw new Error('Failed to create authentication token')
+    }
+    
+    console.log('🎫 Generated token:', token ? 'Present' : 'None')
     const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
       method: 'POST',
       headers: {
