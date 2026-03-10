@@ -8,6 +8,7 @@ import ErrorBoundary from './components/common/ErrorBoundary'
 import GlobalErrorDisplay from './components/common/GlobalErrorDisplay'
 import PerformanceMonitor from './components/common/PerformanceMonitor'
 import AuthDebugger from './components/common/AuthDebugger'
+import DemoBanner from './components/common/DemoBanner'
 import AppRoutes from './routes/AppRoutes'
 import { useWebVitals } from './hooks/useWebVitals'
 import { useEffect } from 'react'
@@ -55,6 +56,9 @@ function App() {
           <AuthProvider>
             <ThemeProvider>
               <AppProvider>
+                {/* Demo Banner for public deployments */}
+                <DemoBanner />
+                
                 {/* AIProvider temporarily disabled to fix freezing */}
                 {/* <AIProvider> */}
                   <AppRoutes />
