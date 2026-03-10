@@ -249,7 +249,7 @@ function Landing() {
             {/* Brand info and 3 columns side by side */}
             <div className="space-y-6 md:space-y-8">
               {/* Brand info */}
-              <div>
+              <div className="text-center">
                 <h3 className="font-bold text-lg md:text-xl mb-3">AI Case Manager</h3>
                 <p className="text-gray-400 text-sm md:text-base">
                   Empowering professionals with intelligent case management solutions.
@@ -259,7 +259,7 @@ function Landing() {
               {/* Product, Company, Support - 3 columns side by side */}
               <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8">
                 {/* Product */}
-                <div>
+                <div className="text-center">
                   <h4 className="font-semibold mb-4 text-sm md:text-base">Product</h4>
                   <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
                     <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
@@ -269,7 +269,7 @@ function Landing() {
                 </div>
                 
                 {/* Company */}
-                <div>
+                <div className="text-center">
                   <h4 className="font-semibold mb-4 text-sm md:text-base">Company</h4>
                   <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
                     <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
@@ -279,7 +279,7 @@ function Landing() {
                 </div>
                 
                 {/* Support */}
-                <div>
+                <div className="text-center">
                   <h4 className="font-semibold mb-4 text-sm md:text-base">Support</h4>
                   <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
                     <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
