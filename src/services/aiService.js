@@ -1,5 +1,5 @@
-// AI Service - Integrates with secure backend API
-// Replaces direct OpenAI browser integration with secure backend calls
+// AI Service - Integrates with secure Netlify Functions
+// All AI calls are proxied through secure backend functions
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
@@ -236,7 +236,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   // Update rate limit tracking
   updateRateLimit()
   
-  // Try secure backend API first
+  // Try secure Netlify proxy first (primary method)
   try {
     const userData = localStorage.getItem('ai_casemanager_current_user')
     if (!userData) {
@@ -259,7 +259,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       throw new Error('Failed to create authentication token')
     }
     
-    console.log('🎫 Generated token:', token ? 'Present' : 'None')
+    console.log('🔒 Using secure Netlify proxy for AI request')
     const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
       method: 'POST',
       headers: {
@@ -279,32 +279,17 @@ export async function sendMessage(message, conversationId = null, customSystemPr
 
     if (proxyResponse.ok) {
       const data = await proxyResponse.json()
+      console.log('✅ Secure proxy response received')
       return data.choices[0]?.message?.content || 'No response received'
     }
 
-    // If proxy fails, try to simple backend endpoint
-    const response = await fetch(`${API_BASE_URL}/ai/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        message,
-        conversationId
-      })
-    })
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || `HTTP ${response.status}`)
-    }
-
-    const data = await response.json()
-    return data.response
+    // If proxy fails, log error and fall back to mock
+    const errorData = await proxyResponse.json().catch(() => ({}))
+    console.error('Proxy error:', errorData)
+    throw new Error(errorData.error || `Proxy error ${proxyResponse.status}`)
     
   } catch (error) {
-    console.error('Backend API error:', error)
+    console.error('Secure proxy failed:', error)
     
     // Get user-friendly error message
     const errorInfo = getErrorMessage(error)
@@ -322,7 +307,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     }
     
     // For other errors, fall back to mock
-    console.info('Falling back to mock responses')
+    console.info('🔄 Falling back to mock responses due to proxy failure')
   }
   
   // Fallback to mock responses
