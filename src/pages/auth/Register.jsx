@@ -17,6 +17,8 @@ function Register() {
   })
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
+  const [alert, setAlert] = useState(null)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -33,8 +35,6 @@ function Register() {
       </div>
     )
   }
-  const [alert, setAlert] = useState(null);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -157,41 +157,57 @@ function Register() {
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
-        <AuthInput
-          label="Full Name"
-          type="text"
-          name="fullName"
-          placeholder="John Doe"
-          value={formData.fullName}
-          onChange={handleChange}
-          error={errors.fullName}
-          required
-          icon="👤"
-        />
+        {/* Name and Email Side by Side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <AuthInput
+            label="Full Name"
+            type="text"
+            name="fullName"
+            placeholder="John Doe"
+            value={formData.fullName}
+            onChange={handleChange}
+            error={errors.fullName}
+            required
+            icon="👤"
+          />
+          <AuthInput
+            label="Email Address"
+            type="email"
+            name="email"
+            placeholder="your-email@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            error={errors.email}
+            required
+            icon="📧"
+          />
+        </div>
 
-        <AuthInput
-          label="Email Address"
-          type="email"
-          name="email"
-          placeholder="your-email@example.com"
-          value={formData.email}
-          onChange={handleChange}
-          error={errors.email}
-          required
-          icon="📧"
-        />
-
-        <AuthInput
-          label="Password"
-          type="password"
-          name="password"
-          placeholder="Create a strong password"
-          value={formData.password}
-          onChange={handleChange}
-          error={errors.password}
-          required
-          icon="🔒"
-        />
+        {/* Password and Confirm Password Side by Side */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+          <AuthInput
+            label="Password"
+            type="password"
+            name="password"
+            placeholder="Create password"
+            value={formData.password}
+            onChange={handleChange}
+            error={errors.password}
+            required
+            icon="🔒"
+          />
+          <AuthInput
+            label="Confirm Password"
+            type="password"
+            name="confirmPassword"
+            placeholder="Re-enter password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={errors.confirmPassword}
+            required
+            icon="🔒"
+          />
+        </div>
 
         {/* Password Strength Indicator - Compact */}
         {formData.password && (
@@ -213,18 +229,6 @@ function Register() {
             </div>
           </div>
         )}
-
-        <AuthInput
-          label="Confirm Password"
-          type="password"
-          name="confirmPassword"
-          placeholder="Re-enter your password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          error={errors.confirmPassword}
-          required
-          icon="🔒"
-        />
 
         {/* Terms and Conditions - Compact */}
         <div className="mb-2">
