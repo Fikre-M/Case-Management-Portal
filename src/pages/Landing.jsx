@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react'
 
 function Landing() {
   const [isVisible, setIsVisible] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    setIsClient(true)
     setIsVisible(true)
   }, [])
 
@@ -55,7 +57,7 @@ function Landing() {
         <div className="absolute inset-0 bg-gradient-to-r from-primary-600/10 to-blue-600/10"></div>
         <div className="relative container mx-auto px-6 py-20">
           <div className="text-center">
-            <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <div className={`transform transition-all duration-1000 ${isClient && isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
               {/* Logo */}
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl mb-8 shadow-lg">
                 <span className="text-4xl">🤖</span>
@@ -94,11 +96,13 @@ function Landing() {
             <div 
               className="inline-flex items-center gap-2 text-sm text-gray-500 bg-white/80 px-4 py-2 rounded-full backdrop-blur cursor-pointer hover:bg-white hover:shadow-md transition-all duration-300"
               onClick={() => {
-                // Navigate to login with demo credentials
-                window.location.href = '/login?demo=true'
+                if (isClient) {
+                  // Navigate to login with demo credentials
+                  window.location.href = '/login?demo=true'
+                }
               }}
             >
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               <span>Try interactive demo - No registration required</span>
             </div>
             </div>
@@ -145,9 +149,9 @@ function Landing() {
               <div
                 key={index}
                 className={`bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 ${
-                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                  isClient && isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
+                style={{ transitionDelay: isClient ? `${index * 100}ms` : '0ms' }}
               >
                 <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center mb-6">
                   <span className="text-3xl">{feature.icon}</span>
@@ -217,8 +221,10 @@ function Landing() {
               </Link>
               <button
                 onClick={() => {
-                  // Navigate to login with demo credentials
-                  window.location.href = '/login?demo=true'
+                  if (isClient) {
+                    // Navigate to login with demo credentials
+                    window.location.href = '/login?demo=true'
+                  }
                 }}
                 className="px-8 py-4 bg-white/20 backdrop-blur text-white font-semibold rounded-xl border-2 border-white/30 hover:bg-white/30 transition-all duration-300"
               >

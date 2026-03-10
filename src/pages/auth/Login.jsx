@@ -19,24 +19,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [alert, setAlert] = useState(null)
 
-  // Check for demo parameter and auto-fill
-  useEffect(() => {
-    const isDemo = searchParams.get('demo')
-    if (isDemo === 'true') {
-      const demoData = {
-        email: 'demo@example.com',
-        password: 'password'
-      }
-      setFormData(demoData)
-      // Auto-submit after form is updated
-      setTimeout(() => {
-        if (formRef.current) {
-          formRef.current.requestSubmit()
-        }
-      }, 100)
-    }
-  }, [searchParams])
-
+  
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
