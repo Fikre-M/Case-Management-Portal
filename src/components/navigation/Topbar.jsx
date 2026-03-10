@@ -320,7 +320,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
       logout(); // Call the logout function from AuthContext
-      navigate("/login", { replace: true });
+      navigate("/landing", { replace: true });
     }
     setShowProfile(false);
   };

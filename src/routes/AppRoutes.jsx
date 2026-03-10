@@ -29,6 +29,9 @@ import NotFound from '../pages/NotFound'
 function AppRoutes() {
   return (
     <Routes>
+      {/* Root Route - Redirect to Landing */}
+      <Route path="/" element={<Navigate to="/landing" replace />} />
+      
       {/* Landing Page - Public */}
       <Route path="/landing" element={<Landing />} />
       
@@ -42,7 +45,6 @@ function AppRoutes() {
       {/* Main App Routes */}
       <Route element={<MainLayout />}>
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           
           {/* Appointments */}
