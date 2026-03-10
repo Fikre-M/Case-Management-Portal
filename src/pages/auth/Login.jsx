@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthInput from '../../components/forms/AuthInput'
 import Button from '../../components/common/Button'
 import Alert from '../../components/common/Alert'
@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 
 function Login() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login, isAuthenticated, isLoading: authLoading } = useAuth()
   const formRef = useRef(null)
   const [formData, setFormData] = useState({
@@ -17,6 +18,24 @@ function Login() {
   const [errors, setErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [alert, setAlert] = useState(null)
+
+  // Check for demo parameter and auto-fill
+  useEffect(() => {
+    const isDemo = searchParams.get('demo')
+    if (isDemo === 'true') {
+      const demoData = {
+        email: 'demo@example.com',
+        password: 'password'
+      }
+      setFormData(demoData)
+      // Auto-submit after form is updated
+      setTimeout(() => {
+        if (formRef.current) {
+          formRef.current.requestSubmit()
+        }
+      }, 100)
+    }
+  }, [searchParams])
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -181,6 +200,17 @@ function Login() {
           className="text-primary-600 hover:text-primary-700 font-semibold"
         >
           Sign up for free
+        </Link>
+      </p>
+
+      {/* Back to Landing */}
+      <p className="text-center text-xs text-gray-500 mb-3">
+        <Link
+          to="/landing"
+          className="text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center"
+        >
+          <span className="mr-1">←</span>
+          Back to Landing Page
         </Link>
       </p>
 

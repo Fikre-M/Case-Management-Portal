@@ -275,6 +275,17 @@ function Register() {
         </Link>
       </p>
 
+      {/* Back to Landing */}
+      <p className="text-center text-xs text-gray-500 mb-2">
+        <Link
+          to="/landing"
+          className="text-primary-600 hover:text-primary-700 font-medium flex items-center justify-center"
+        >
+          <span className="mr-1">←</span>
+          Back to Landing Page
+        </Link>
+      </p>
+
       {/* Divider - Compact */}
       <div className="relative mb-2">
         <div className="absolute inset-0 flex items-center">

@@ -76,25 +76,31 @@ function Landing() {
               
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <Link
-                  to="/register"
-                  className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  Get Started Free
-                </Link>
-                <Link
-                  to="/login"
-                  className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300"
-                >
-                  Sign In
-                </Link>
-              </div>
-              
-              {/* Quick Demo */}
-              <div className="inline-flex items-center gap-2 text-sm text-gray-500 bg-white/80 px-4 py-2 rounded-full backdrop-blur">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span>Try our interactive demo - No registration required</span>
-              </div>
+              <Link
+                to="/register"
+                className="px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Get Started Free
+              </Link>
+              <Link
+                to="/login"
+                className="px-8 py-4 bg-white text-primary-600 font-semibold rounded-xl border-2 border-primary-200 hover:border-primary-300 hover:bg-primary-50 transition-all duration-300"
+              >
+                Sign In
+              </Link>
+            </div>
+            
+            {/* Quick Demo - Interactive */}
+            <div 
+              className="inline-flex items-center gap-2 text-sm text-gray-500 bg-white/80 px-4 py-2 rounded-full backdrop-blur cursor-pointer hover:bg-white hover:shadow-md transition-all duration-300"
+              onClick={() => {
+                // Navigate to login with demo credentials
+                window.location.href = '/login?demo=true'
+              }}
+            >
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span>Try interactive demo - No registration required</span>
+            </div>
             </div>
           </div>
         </div>
@@ -209,12 +215,15 @@ function Landing() {
               >
                 Start Free Trial
               </Link>
-              <Link
-                to="/login"
+              <button
+                onClick={() => {
+                  // Navigate to login with demo credentials
+                  window.location.href = '/login?demo=true'
+                }}
                 className="px-8 py-4 bg-white/20 backdrop-blur text-white font-semibold rounded-xl border-2 border-white/30 hover:bg-white/30 transition-all duration-300"
               >
                 View Demo
-              </Link>
+              </button>
             </div>
           </div>
         </div>
