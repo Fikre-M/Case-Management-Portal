@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-03-10T17:35:12.191Z",
+  "duration": "30s",
+  "status": "SUCCESS",
+  "errors": [],
+  "warnings": [
+    "Failed: Component tests - Command failed: npm run test:components\n\u001b[31mNo test files found, exiting with code 1\n\u001b[39m\n\u001b[2mfilter: \u001b[22m\u001b[33msrc/components/**/__tests__/*.test.{js,jsx}\u001b[39m\n\u001b[2minclude: \u001b[22m\u001b[33m**/*.{test,spec}.?(c|m)[jt]s?(x)\u001b[39m\n\u001b[2mexclude:  \u001b[22m\u001b[33m**/node_modules/**\u001b[2m, \u001b[22m**/.git/**\u001b[39m\n\n",
+    "Failed: Code linting - Command failed: npm run lint",
+    "Screenshot generation failed"
+  ],
+  "build": {
+    "output": "dist/",
+    "size": 5545113,
+    "files": 18
+  },
+  "deployment": {
+    "url": "https://aidflow.netlify.app/",
+    "preview": "http://localhost:4173"
+  },
+  "features": [
+    "React 19.2.4",
+    "AI Assistant Integration",
+    "Responsive Design",
+    "Performance Optimized",
+    "Mobile Ready"
+  ]
+}

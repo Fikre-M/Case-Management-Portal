@@ -44,7 +44,11 @@
     "build:analyze": "npm run build && npx vite-bundle-analyzer",
     "serve": "npm run build && npm run preview",
     "deploy:vercel": "npm run build && vercel --prod",
-    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist"
+    "deploy:netlify": "npm run build && netlify deploy --prod --dir=dist",
+    "demo:build": "node scripts/demo-deployment.cjs",
+    "demo:screenshots": "node scripts/generate-demo-screenshots.cjs",
+    "demo:verify": "npm run build && npm run test:components && npm run demo:screenshots",
+    "demo:deploy": "npm run demo:verify && npm run deploy:netlify"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
