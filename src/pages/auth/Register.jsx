@@ -193,11 +193,11 @@ function Register() {
           icon="🔒"
         />
 
-        {/* Password Strength Indicator */}
+        {/* Password Strength Indicator - Compact */}
         {formData.password && (
-          <div className="mb-3">
+          <div className="mb-2">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-gray-600">Password Strength</span>
+              <span className="text-xs text-gray-600">Strength</span>
               <span className={`text-xs font-medium ${
                 passwordStrength.strength <= 2 ? 'text-red-600' : 
                 passwordStrength.strength <= 3 ? 'text-yellow-600' : 'text-green-600'
@@ -205,9 +205,9 @@ function Register() {
                 {passwordStrength.label}
               </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
+            <div className="w-full bg-gray-200 rounded-full h-1">
               <div 
-                className={`h-1.5 rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                className={`h-1 rounded-full transition-all duration-300 ${passwordStrength.color}`}
                 style={{ width: `${(passwordStrength.strength / 5) * 100}%` }}
               ></div>
             </div>
@@ -226,8 +226,8 @@ function Register() {
           icon="🔒"
         />
 
-        {/* Terms and Conditions */}
-        <div className="mb-3">
+        {/* Terms and Conditions - Compact */}
+        <div className="mb-2">
           <label className="flex items-start">
             <input
               type="checkbox"
@@ -236,13 +236,12 @@ function Register() {
               onChange={(e) => setAgreedToTerms(e.target.checked)}
             />
             <span className="ml-2 text-xs text-gray-600">
-              I agree to the{" "}
+              I agree to{" "}
               <Link to="/terms" className="text-primary-600 hover:text-primary-700 font-medium">
-                Terms and Conditions
-              </Link>{" "}
-              and{" "}
+                Terms
+              </Link>{" & "}
               <Link to="/privacy" className="text-primary-600 hover:text-primary-700 font-medium">
-                Privacy Policy
+                Privacy
               </Link>
             </span>
           </label>
@@ -253,42 +252,42 @@ function Register() {
 
         <Button
           type="submit"
-          className="w-full py-2 text-sm font-semibold mb-3"
+          className="w-full py-2 text-sm font-semibold mb-2"
           disabled={isLoading || !agreedToTerms}
         >
-          {isLoading ? "Creating Account..." : "Create Account"}
+          {isLoading ? "Creating..." : "Create Account"}
         </Button>
       </form>
 
       {/* Sign In Link */}
-      <p className="text-center text-xs text-gray-600 mb-3">
-        Already have an account?{" "}
+      <p className="text-center text-xs text-gray-600 mb-2">
+        Have an account?{" "}
         <Link
           to="/login"
           className="text-primary-600 hover:text-primary-700 font-semibold"
         >
-          Sign in here
+          Sign in
         </Link>
       </p>
 
-      {/* Divider */}
-      <div className="relative mb-3">
+      {/* Divider - Compact */}
+      <div className="relative mb-2">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+          <span className="px-2 bg-white text-gray-500">Or</span>
         </div>
       </div>
 
-      {/* Social Sign Up */}
+      {/* Social Sign Up - Compact */}
       <button
         type="button"
         className="w-full flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
       >
         <span className="mr-1 text-sm">🔵</span>
         <span className="text-sm font-medium text-gray-700">
-          Sign up with Google
+          Google
         </span>
       </button>
     </div>

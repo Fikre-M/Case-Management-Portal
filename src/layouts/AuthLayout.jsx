@@ -8,9 +8,9 @@ function AuthLayout() {
   return (
     <div className="h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4 overflow-hidden">
       <div className="container mx-auto h-full flex items-center justify-center">
-        {/* Form Card - Always visible */}
+        {/* Form Card - Book-like container */}
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl p-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6 transition-all duration-500 ease-in-out">
             <div className="space-y-4">
               <Outlet />
             </div>
