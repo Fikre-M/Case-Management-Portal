@@ -101,17 +101,26 @@ function updateRateLimit() {
 // Main function to send message and get response
 export async function sendMessage(message, conversationId = null, customSystemPrompt = null) {
   console.log('🤖 AI Service called with message:', message)
-  console.log('🔧 AI_ENABLED:', AI_ENABLED, 'USE_MOCK_DATA:', USE_MOCK_DATA)
-  console.log('🔑 API Key available:', !!GEMINI_API_KEY, 'Length:', GEMINI_API_KEY?.length || 0)
+  console.log('🔧 Raw environment variables:')
+  console.log('  - VITE_AI_ENABLED:', import.meta.env.VITE_AI_ENABLED)
+  console.log('  - VITE_USE_MOCK_DATA:', import.meta.env.VITE_USE_MOCK_DATA)
+  console.log('  - AidFlow_API_KEY length:', import.meta.env.AidFlow_API_KEY?.length || 0)
+  
+  console.log('🔧 Processed configuration:')
+  console.log('  - AI_ENABLED:', AI_ENABLED)
+  console.log('  - USE_MOCK_DATA:', USE_MOCK_DATA)
+  console.log('  - API Key available:', !!GEMINI_API_KEY, 'Length:', GEMINI_API_KEY?.length || 0)
   
   // Check if AI is enabled
   if (!AI_ENABLED) {
+    console.log('❌ AI is disabled (VITE_AI_ENABLED=false)')
     await delay(500 + Math.random() * 1000)
     return getRandomResponse('default')
   }
   
   // Check if user is authenticated
   if (!isAuthenticated()) {
+    console.log('❌ User not authenticated')
     return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
   }
   
@@ -129,6 +138,8 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     await delay(500 + Math.random() * 1000)
     return getRandomResponse('default')
   }
+  
+  console.log('✅ Passed all checks, attempting real AI call')
   
   // Try direct Gemini API call for local development
   if (GEMINI_API_KEY && GEMINI_API_KEY.length > 10) {
