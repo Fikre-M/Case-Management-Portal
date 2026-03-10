@@ -285,15 +285,42 @@ function Register() {
       </div>
 
       {/* Social Sign Up - Compact */}
-      <button
-        type="button"
-        className="w-full flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-      >
-        <span className="mr-1 text-sm">🔵</span>
-        <span className="text-sm font-medium text-gray-700">
-          Google
-        </span>
-      </button>
+      <div className="space-y-2">
+        <button
+          type="button"
+          className="w-full flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <span className="mr-1 text-sm">🔵</span>
+          <span className="text-sm font-medium text-gray-700">
+            Google
+          </span>
+        </button>
+        
+        {/* Quick Demo Option */}
+        <div 
+          className="p-3 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
+          onClick={() => {
+            const demoData = {
+              fullName: 'Demo User',
+              email: 'demo@example.com',
+              password: 'password',
+              confirmPassword: 'password'
+            }
+            setFormData(demoData)
+            setAgreedToTerms(true)
+            // Auto-submit after filling demo credentials
+            setTimeout(() => {
+              handleSubmit({ preventDefault: () => {} })
+            }, 500)
+          }}
+        >
+          <p className="text-xs text-blue-800 font-medium mb-1 flex items-center">
+            <span className="mr-1">⚡</span>
+            Quick Demo Account (Click to create & login)
+          </p>
+          <p className="text-xs text-blue-700">Auto-fills demo data and creates account</p>
+        </div>
+      </div>
     </div>
   );
 }
