@@ -164,17 +164,61 @@ The AI system works in two modes:
 - ✅ Instant responses
 - ✅ Perfect for testing/demo
 
-#### **📸 AI Features Screenshots**
+#### **📸 Live Demo Screenshots**
 
-<!-- Add screenshots here -->
-```
-🖼️ Screenshots to add:
-1. AI Assistant Sidebar with chat interface
-2. Smart Suggestions on dashboard
-3. Conversation History panel
-4. AI Settings and statistics
-5. Context-aware responses in action
-```
+### **🤖 AI Assistant in Action**
+![AI Chat Interface](./public/demo-screenshots/ai-chat-in-action.svg)
+*AI-powered chat interface providing intelligent case assistance and context-aware responses*
+
+### **📊 Dashboard Metrics**
+![Dashboard Metrics](./public/demo-screenshots/dashboard-metrics.svg)
+*Real-time dashboard with animated metrics, interactive charts, and performance indicators*
+
+### **🌙 Dark Mode Theme**
+![Dark Mode Dashboard](./public/demo-screenshots/dark-mode-dashboard.svg)
+*Professional dark mode theme with carefully crafted contrast and accessibility*
+
+### **� Case Management**
+![Case Management](./public/demo-screenshots/case-management.png)
+*Comprehensive case tracking with status indicators and progress visualization*
+
+### **📅 Appointment Scheduling**
+![Appointment Scheduling](./public/demo-screenshots/appointment-scheduling.png)
+*Interactive calendar interface with drag-and-drop scheduling capabilities*
+
+### **📱 Mobile Responsive**
+![Mobile View](./public/demo-screenshots/mobile-responsive.png)
+*Fully responsive design optimized for mobile devices with touch-friendly interactions*
+
+### **🎯 Enhanced Landing Page**
+![Landing Hero](./public/demo-screenshots/landing-hero.png)
+*Modern landing page with nonprofit-focused messaging and Framer Motion animations*
+
+### **💡 AI Smart Suggestions**
+![AI Suggestions](./public/demo-screenshots/ai-suggestions.png)
+*Context-aware AI suggestions that analyze your work and recommend actions*
+
+---
+
+### **🎨 Visual Excellence Features**
+
+- **🎭 Framer Motion Animations** - Smooth, professional transitions throughout
+- **🌗 Dark/Light Mode** - Complete theme system with system preference detection
+- **📱 Responsive Design** - Mobile-first approach with flawless cross-device experience
+- **🎯 Interactive Elements** - Hover effects, micro-interactions, and loading states
+- **📊 Data Visualization** - Beautiful charts with smooth animations and real-time updates
+- **🔐 Security Features** - Demo banner and secure proxy implementation
+
+---
+
+### **🚀 Key Features Demonstrated**
+
+1. **AI-Powered Assistance** - Real-time chat with intelligent responses
+2. **Professional Dashboard** - Comprehensive metrics and analytics
+3. **Modern UI/UX** - Cutting-edge design with accessibility focus
+4. **Mobile Optimization** - Perfect experience on all devices
+5. **Theme System** - Beautiful dark and light mode variants
+6. **Performance Optimization** - Smooth animations and fast loading
 
 #### **🚀 AI Features in Action**
 

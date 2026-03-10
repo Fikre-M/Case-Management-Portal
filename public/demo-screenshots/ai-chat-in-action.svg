@@ -1,0 +1,9 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f3f4f6"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="#6b7280" text-anchor="middle" dominant-baseline="middle">
+    AI Assistant Chat Interface
+  </text>
+  <rect x="100" y="100" width="600" height="400" fill="#ffffff" stroke="#e5e7eb" stroke-width="2" rx="8"/>
+  <circle cx="150" cy="150" r="20" fill="#3b82f6"/>
+  <text x="200" y="160" font-family="Arial, sans-serif" font-size="14" fill="#374151">AI Assistant</text>
+</svg>

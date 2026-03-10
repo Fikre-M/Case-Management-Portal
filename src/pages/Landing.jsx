@@ -165,16 +165,16 @@ function Landing() {
           >
             <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl aspect-video">
               {/* Video Placeholder with Play Button */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-blue-600/20 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="w-20 h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-6 cursor-pointer hover:bg-white/30 transition-all duration-300 hover:scale-110">
-                    <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 to-blue-600/20 flex items-center justify-center p-4">
+                <div className="text-center text-white max-w-md mx-auto">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 cursor-pointer hover:bg-white/30 transition-all duration-300 hover:scale-110">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8 ml-1" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-semibold mb-2">Product Demo</h3>
-                  <p className="text-white/80 mb-6">Click to watch the full demonstration</p>
-                  <div className="flex items-center justify-center gap-4 text-sm text-white/60">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2">Product Demo</h3>
+                  <p className="text-white/80 text-sm sm:text-base mb-4 sm:mb-6">Click to watch the full demonstration</p>
+                  <div className="flex items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-white/60">
                     <span>2:45</span>
                     <span>•</span>
                     <span>HD Quality</span>
@@ -186,7 +186,7 @@ function Landing() {
               <div className="absolute inset-0 bg-black/10"></div>
               
               {/* Video controls hint */}
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
+              <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4 flex justify-between items-center">
                 <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-full backdrop-blur">
                   ▶️ Click to play
                 </div>
