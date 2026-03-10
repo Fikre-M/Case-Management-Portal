@@ -6,6 +6,7 @@ import Dashboard from '../pages/dashboard/Dashboard'
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import ForgotPassword from '../pages/auth/ForgotPassword'
+import Landing from '../pages/Landing'
 import AppointmentsList from '../pages/appointments/AppointmentsList'
 import AppointmentDetails from '../pages/appointments/AppointmentDetails'
 import NewAppointment from '../pages/appointments/NewAppointment'
@@ -28,6 +29,9 @@ import NotFound from '../pages/NotFound'
 function AppRoutes() {
   return (
     <Routes>
+      {/* Landing Page - Public */}
+      <Route path="/landing" element={<Landing />} />
+      
       {/* Auth Routes */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
