@@ -185,7 +185,7 @@ function getErrorMessage(error) {
 }
 
 // Main function to send message and get response
-export async function sendMessage(message, conversationId = null) {
+export async function sendMessage(message, conversationId = null, customSystemPrompt = null) {
   // Check if AI is enabled
   if (!AI_ENABLED) {
     await delay(500 + Math.random() * 1000)
@@ -209,6 +209,30 @@ export async function sendMessage(message, conversationId = null) {
       throw new Error('No authentication token found')
     }
 
+    // Try the new AI proxy first (with OpenAI)
+    const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        messages: [
+          ...(customSystemPrompt ? [{ role: 'system', content: customSystemPrompt }] : []),
+          { role: 'user', content: message }
+        ],
+        model: 'gemini-1.5-flash',
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    })
+
+    if (proxyResponse.ok) {
+      const data = await proxyResponse.json()
+      return data.choices[0]?.message?.content || 'No response received'
+    }
+
+    // If proxy fails, try the simple backend endpoint
     const response = await fetch(`${API_BASE_URL}/ai/chat`, {
       method: 'POST',
       headers: {

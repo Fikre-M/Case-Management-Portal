@@ -191,7 +191,7 @@ Please provide helpful, actionable advice based on this context. Focus on practi
       const systemPrompt = buildSystemPrompt(context)
       
       // Send message with custom system prompt if OpenAI is available
-      const response = await sendMessage(content, systemPrompt)
+      const response = await sendMessage(content, null, systemPrompt)
       
       const assistantMessage = {
         id: Date.now() + 1,
