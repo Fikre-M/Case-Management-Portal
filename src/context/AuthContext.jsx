@@ -18,7 +18,18 @@ async function apiLogin(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
-  const data = await res.json()
+
+  // Guard against empty body (e.g. 404 from missing function)
+  const text = await res.text()
+  if (!text) throw new TypeError('Empty response — API not reachable')
+
+  let data
+  try {
+    data = JSON.parse(text)
+  } catch {
+    throw new TypeError('Non-JSON response — API not reachable')
+  }
+
   if (!res.ok) throw new Error(data.error || 'Login failed')
   return data // { token, user }
 }
@@ -29,7 +40,17 @@ async function apiRegister(name, email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, email, password }),
   })
-  const data = await res.json()
+
+  const text = await res.text()
+  if (!text) throw new TypeError('Empty response — API not reachable')
+
+  let data
+  try {
+    data = JSON.parse(text)
+  } catch {
+    throw new TypeError('Non-JSON response — API not reachable')
+  }
+
   if (!res.ok) throw new Error(data.error || 'Registration failed')
   return data // { token, user }
 }
@@ -130,8 +151,9 @@ export function AuthProvider({ children }) {
         // Try real API first (works on Netlify or with Netlify CLI locally)
         result = await apiLogin(email, password)
       } catch (apiError) {
-        // If the endpoint isn't reachable (local dev without CLI), fall back to demo mode
-        if (apiError instanceof TypeError && apiError.message.includes('fetch')) {
+        // Fall back to demo mode if the API isn't reachable
+        // (local dev without Netlify CLI, or function not deployed yet)
+        if (apiError instanceof TypeError) {
           result = demoLogin(email, password)
         } else {
           throw apiError
@@ -154,8 +176,7 @@ export function AuthProvider({ children }) {
       try {
         result = await apiRegister(userData.fullName || userData.name, userData.email, userData.password)
       } catch (apiError) {
-        if (apiError instanceof TypeError && apiError.message.includes('fetch')) {
-          // Demo fallback — registration not supported without the API
+        if (apiError instanceof TypeError) {
           return { success: false, message: 'Registration requires the Netlify dev server. Use demo@example.com / password to log in.' }
         }
         throw apiError

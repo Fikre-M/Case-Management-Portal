@@ -17,16 +17,18 @@ const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function mockApiSuccess(data) {
+  const body = JSON.stringify(data)
   global.fetch = vi.fn().mockResolvedValue({
     ok: true,
-    json: async () => data,
+    text: async () => body,
   })
 }
 
-function mockApiError(message, status = 401) {
+function mockApiError(message, _status = 401) {
+  const body = JSON.stringify({ error: message })
   global.fetch = vi.fn().mockResolvedValue({
     ok: false,
-    json: async () => ({ error: message }),
+    text: async () => body,
   })
 }
 
