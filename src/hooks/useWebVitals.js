@@ -41,6 +41,8 @@ export function useWebVitals() {
    * @param {Object} metric - The metric object from web-vitals library
    */
   const reportVital = (metric) => {
+    if (!metric || !metric.name) return
+
     setVitals(prev => ({
       ...prev,
       [metric.name]: {
@@ -107,14 +109,14 @@ export function useWebVitals() {
    * Calculates overall performance score
    */
   const isGoodPerformance = () => {
-    const metrics = Object.values(vitals).filter(v => v !== null)
-    if (metrics.length === 0) return true // No data yet
+    const entries = Object.entries(vitals).filter(([, v]) => v !== null)
+    if (entries.length === 0) return true // No data yet
     
-    const goodMetrics = metrics.filter(metric => 
-      getStatus(metric.name, metric.value) === 'good'
+    const goodMetrics = entries.filter(([name, metric]) => 
+      getStatus(name, metric.value) === 'good'
     )
     
-    return goodMetrics.length / metrics.length >= 0.8 // 80% of metrics should be good
+    return goodMetrics.length / entries.length >= 0.8 // 80% of metrics should be good
   }
 
   /**
