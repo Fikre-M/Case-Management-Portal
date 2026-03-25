@@ -1,5 +1,7 @@
 # AI-Powered Case Management Dashboard
 
+**Live demo:** [aidflow-casemgt.netlify.app](https://aidflow-casemgt.netlify.app/landing)
+
 A case management system for legal professionals built with React 19 and a Gemini-powered AI assistant. Designed as a portfolio project demonstrating modern frontend architecture, AI integration, and production-aware patterns.
 
 **Demo credentials:** `demo@example.com` / `password`
