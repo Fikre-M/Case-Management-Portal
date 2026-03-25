@@ -40,6 +40,7 @@ export function usePerformance() {
   const measureFPS = useCallback(() => {
     let frames = 0;
     let lastTime = performance.now();
+    let rafId = null;
 
     function countFrames() {
       frames++;
@@ -55,10 +56,15 @@ export function usePerformance() {
         lastTime = currentTime;
       }
 
-      requestAnimationFrame(countFrames);
+      rafId = requestAnimationFrame(countFrames);
     }
 
-    requestAnimationFrame(countFrames);
+    rafId = requestAnimationFrame(countFrames);
+
+    // Return cancel function
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // useEffect(() => {
@@ -79,15 +85,18 @@ export function usePerformance() {
     // ...
   }, [measureFPS, measureMemoryUsage]); // deps recreate → infinite
 
-  // CORRECT - runs once
+  // CORRECT - runs once, cleans up RAF on unmount, cleans up RAF on unmount
   useEffect(() => {
     const loadTime =
       performance.timing.loadEventEnd - performance.timing.navigationStart;
     setMetrics((prev) => ({ ...prev, loadTime }));
-    measureFPS();
+    const cancelFPS = measureFPS();
     const memoryInterval = setInterval(measureMemoryUsage, 5000);
 
-    return () => clearInterval(memoryInterval);
+    return () => {
+      cancelFPS?.();
+      clearInterval(memoryInterval);
+    };
   }, []); // empty deps!
 
   return {

@@ -16,12 +16,6 @@ let lastRequestTime = 0
 let requestCount = 0
 const MAX_REQUESTS_PER_MINUTE = 20
 
-console.log('🔧 AI Service Environment:')
-console.log('  - IS_NETLIFY:', IS_NETLIFY)
-console.log('  - AI_ENABLED:', AI_ENABLED)
-console.log('  - USE_MOCK_DATA:', USE_MOCK_DATA)
-console.log('  - LOCAL_API_KEY length:', LOCAL_API_KEY?.length || 0)
-
 // Authentication
 function isAuthenticated() {
   const userData = localStorage.getItem('ai_casemanager_current_user')

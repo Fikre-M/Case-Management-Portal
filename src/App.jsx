@@ -59,14 +59,13 @@ function App() {
                 {/* Demo Banner for public deployments */}
                 <DemoBanner />
                 
-                {/* AIProvider temporarily disabled to fix freezing */}
-                {/* <AIProvider> */}
+                <AIProvider>
                   <AppRoutes />
                   <GlobalErrorDisplay />
-                  {/* PerformanceMonitor and AuthDebugger disabled - causing performance issues */}
-                  {/* <PerformanceMonitor /> */}
-                  {/* <AuthDebugger /> */}
-                {/* </AIProvider> */}
+                  {/* Dev-only tools */}
+                  <PerformanceMonitor />
+                  <AuthDebugger />
+                </AIProvider>
               </AppProvider>
             </ThemeProvider>
           </AuthProvider>
