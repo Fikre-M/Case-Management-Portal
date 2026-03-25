@@ -84,28 +84,19 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setAlert(null);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const result = register(formData);
-      setIsLoading(false);
+    const result = await register(formData);
+    setIsLoading(false);
 
-      if (result.success) {
-        setAlert({
-          type: "success",
-          message: "Account created successfully! Redirecting...",
-        });
-        setTimeout(() => navigate("/dashboard"), 1500);
-      } else {
-        setAlert({ type: "error", message: result.message });
-      }
-    }, 1500);
+    if (result.success) {
+      navigate("/dashboard", { replace: true });
+    } else {
+      setAlert({ type: "error", message: result.message });
+    }
   };
 
   const getPasswordStrength = () => {

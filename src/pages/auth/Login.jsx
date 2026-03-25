@@ -65,28 +65,19 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setAlert(null);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const result = login(formData.email, formData.password);
-      setIsLoading(false);
+    const result = await login(formData.email, formData.password);
+    setIsLoading(false);
 
-      if (result.success) {
-        setAlert({
-          type: "success",
-          message: "Login successful! Redirecting...",
-        });
-        setTimeout(() => navigate("/dashboard"), 1500);
-      } else {
-        setAlert({ type: "error", message: result.message });
-      }
-    }, 1000);
+    if (result.success) {
+      navigate("/dashboard", { replace: true });
+    } else {
+      setAlert({ type: "error", message: result.message });
+    }
   };
 
   return (

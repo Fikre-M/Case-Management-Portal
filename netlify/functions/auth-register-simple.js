@@ -1,86 +1,68 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
 
-// In-memory storage for fallback
-const users = [];
+// Shared in-memory store (same instance as login within one function container)
+const registeredUsers = new Map();
 
-// Helper function to handle responses
-const handleResponse = (statusCode, body) => {
-  return {
-    statusCode,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  };
-};
+const handleResponse = (statusCode, body) => ({
+  statusCode,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(body),
+});
 
-// Register handler
-export const handler = async (event, context) => {
-  // Handle CORS preflight
-  if (event.httpMethod === "OPTIONS") {
-    return handleResponse(200, {});
-  }
-
-  if (event.httpMethod !== "POST") {
-    return handleResponse(405, { error: "Method not allowed" });
-  }
+export const handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") return handleResponse(200, {});
+  if (event.httpMethod !== "POST") return handleResponse(405, { error: "Method not allowed" });
 
   try {
-    const { username, email, password } = JSON.parse(event.body);
+    const { name, email, password } = JSON.parse(event.body || "{}");
 
-    // Validate input
-    if (!username || !email || !password) {
-      return handleResponse(400, { error: "All fields are required" });
+    if (!name || !email || !password) {
+      return handleResponse(400, { error: "Name, email, and password are required" });
     }
 
-    // Check if user exists
-    const existingUser = users.find((u) => u.email === email);
-    if (existingUser) {
-      return handleResponse(400, { error: "User already exists" });
+    if (password.length < 8) {
+      return handleResponse(400, { error: "Password must be at least 8 characters" });
     }
 
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const key = email.toLowerCase();
 
-    // Create user
+    if (key === "demo@example.com" || registeredUsers.has(key)) {
+      return handleResponse(409, { error: "An account with this email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const user = {
-      id: Date.now().toString(),
-      username,
-      email,
+      id: `user-${Date.now()}`,
+      name,
+      email: key,
       password: hashedPassword,
       role: "user",
       createdAt: new Date().toISOString(),
     };
 
-    users.push(user);
+    registeredUsers.set(key, user);
 
-    // Generate JWT
     const token = jwt.sign(
-      { userId: user.id, username: user.username },
+      { userId: user.id, email: user.email, name: user.name, role: user.role },
       JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "24h" }
     );
 
     return handleResponse(201, {
-      message: "User created successfully",
       token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Register error:", error);
     return handleResponse(500, { error: "Registration failed" });
   }
 };

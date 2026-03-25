@@ -159,7 +159,7 @@ npm run deploy:vercel    # Build + deploy to Vercel
 
 ## Security notice
 
-**Authentication** — the demo uses client-side localStorage auth with plain-text passwords. This is intentional for a no-backend demo. Do not use this in production. A real app needs server-side auth, hashed passwords (bcrypt/argon2), and secure session cookies.
+**Authentication** — login and registration call real Netlify serverless functions (`/api/auth/login`, `/api/auth/register`) that use bcrypt password hashing and JWT tokens. The demo user (`demo@example.com` / `password`) is seeded with a pre-hashed password in the function. When running locally without Netlify CLI, the app falls back to a client-side demo mode automatically.
 
 **AI API key** — in local dev the Gemini key is read from `VITE_*` env vars, which means it's visible in the browser bundle. The Netlify proxy exists specifically to avoid this in production — the key lives in Netlify environment variables, never in the frontend bundle.
 
