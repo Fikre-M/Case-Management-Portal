@@ -51,6 +51,7 @@ import { Outlet } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import Sidebar from "../components/navigation/Sidebar";
 import Topbar from "../components/navigation/Topbar";
+import Footer from "../components/navigation/Footer";
 import AIAssistant from "../components/ai/AIAssistant";
 import AIAssistantToggle from "../components/ai/AIAssistantToggle";
 
@@ -96,6 +97,8 @@ function MainLayout() {
           <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8">
             <Outlet />
           </main>
+
+          <Footer />
         </div>
 
         {/* Mobile Overlay */}
