@@ -2,6 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
+  const handleMobileNavClick = () => {
+    // Close mobile sidebar when navigation link is clicked
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
+  };
   const location = useLocation();
   const { user } = useAuth();
 
@@ -175,12 +181,13 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={onClose}
+                onClick={handleMobileNavClick}
                 className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
                   isActive(item.path)
                     ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
+                title={item.label}
               >
                 <span className="text-lg mr-3">{item.icon}</span>
                 <span>{item.label}</span>
