@@ -1,7 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function Sidebar({ isOpen, onClose, collapsed = false }) {
   const location = useLocation();
+  const { user } = useAuth();
 
   const menuItems = [
     { path: "/dashboard", label: "Dashboard", icon: "📊" },
@@ -18,9 +20,16 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
     return location.pathname === path;
   };
 
-  // Static user data
-  const user = { name: "User Name", email: "user@example.com" };
-  const userInitials = "UN";
+  const getUserInitials = () => {
+    if (!user?.name) return "U";
+    return user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+  const userInitials = getUserInitials();
 
   return (
     <>
@@ -72,12 +81,12 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
               {userInitials}
             </div>
             {!collapsed && (
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                  AI CaseManager
-                </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Smart Management
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {user?.name || "User"}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {user?.email || ""}
                 </p>
               </div>
             )}
@@ -120,14 +129,14 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
             className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">
-              FM
+              {userInitials}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                User Name
+                {user?.name || "User"}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                user@example.com
+                {user?.email || ""}
               </p>
             </div>
           </Link>
