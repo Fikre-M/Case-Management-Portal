@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { memo, useMemo } from 'react'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
 import Loading from '../../components/common/Loading'
@@ -16,11 +17,11 @@ function Dashboard() {
     casesLoading,
   } = useApp()
 
-  // Get data from context
-  const appointmentStats = getAppointmentStats()
-  const caseStats = getCaseStats()
-  const recentAppointments = getUpcomingAppointments(4)
-  const activeCases = getActiveCases().slice(0, 3)
+  // Memoize computed values to prevent unnecessary recalculations
+  const appointmentStats = useMemo(() => getAppointmentStats(), [getAppointmentStats])
+  const caseStats = useMemo(() => getCaseStats(), [getCaseStats])
+  const recentAppointments = useMemo(() => getUpcomingAppointments(4), [getUpcomingAppointments])
+  const activeCases = useMemo(() => getActiveCases().slice(0, 3), [getActiveCases])
 
   // Stats with real data
   const stats = [
@@ -281,4 +282,4 @@ function Dashboard() {
   )
 }
 
-export default Dashboard
+export default memo(Dashboard)

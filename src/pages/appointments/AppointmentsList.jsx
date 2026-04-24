@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo, useMemo } from 'react'
 import { TOAST_DURATION } from '../../config/constants'
 import { Link, useSearchParams } from 'react-router-dom'
 import Button from '../../components/common/Button'
@@ -104,13 +104,15 @@ function AppointmentsList() {
     )
   }
 
-  // Filter appointments
-  const filteredAppointments = appointments.filter(apt => {
-    const matchesStatus = filterStatus === 'all' || apt.status === filterStatus
-    const matchesSearch = apt.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         apt.title.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+  // Memoize filtered appointments to prevent unnecessary recalculations
+  const filteredAppointments = useMemo(() => {
+    return appointments.filter(apt => {
+      const matchesStatus = filterStatus === 'all' || apt.status === filterStatus
+      const matchesSearch = apt.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           apt.title.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesStatus && matchesSearch
+    })
+  }, [appointments, filterStatus, searchQuery])
 
   const handleEdit = (appointment) => {
     setEditingAppointment(appointment)
@@ -156,12 +158,13 @@ function AppointmentsList() {
     }
   }
 
-  const stats = {
+  // Memoize stats to prevent unnecessary recalculations
+  const stats = useMemo(() => ({
     total: appointments.length,
     confirmed: appointments.filter(a => a.status === 'confirmed').length,
     pending: appointments.filter(a => a.status === 'pending').length,
     today: appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length,
-  }
+  }), [appointments])
 
   return (
     <div className="space-y-6">
@@ -376,4 +379,4 @@ function AppointmentsList() {
   )
 }
 
-export default AppointmentsList
+export default memo(AppointmentsList)

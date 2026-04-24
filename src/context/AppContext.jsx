@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, memo } from 'react'
 import PropTypes from 'prop-types'
 import { appointmentService } from '../services/appointmentService'
 import { caseService } from '../services/caseService'
@@ -61,7 +61,7 @@ function validateAiMessage(message) {
     throw new Error('AI message content must be a non-empty string')
 }
 
-export function AppProvider({ children }) {
+export const AppProvider = memo(function AppProvider({ children }) {
   const { addError } = useError()
   // Appointments State
   const [appointments, setAppointments] = useState([])
@@ -86,7 +86,7 @@ export function AppProvider({ children }) {
   })
 
   // Load appointments using service layer
-  const loadAppointments = async () => {
+  const loadAppointments = useCallback(async () => {
     try {
       setAppointmentsLoading(true)
       setAppointmentsError(null)
@@ -99,10 +99,10 @@ export function AppProvider({ children }) {
     } finally {
       setAppointmentsLoading(false)
     }
-  }
+  }, [addError])
 
   // Load cases using service layer
-  const loadCases = async () => {
+  const loadCases = useCallback(async () => {
     try {
       setCasesLoading(true)
       setCasesError(null)
@@ -115,7 +115,7 @@ export function AppProvider({ children }) {
     } finally {
       setCasesLoading(false)
     }
-  }
+  }, [addError])
 
   // Initialize data on mount
   useEffect(() => {
@@ -136,19 +136,31 @@ export function AppProvider({ children }) {
   const retryLoadAppointments = loadAppointments
   const retryLoadCases = loadCases
 
-  /**
-   * Retrieves an appointment by its ID
-   * @param {number|string} id - The appointment ID to search for
-   * @returns {Object|undefined} The appointment object if found, undefined otherwise
-   * @example
-   * const appointment = getAppointmentById(123)
-   * if (appointment) {
-   *   console.log(appointment.title)
-   * }
-   */
-  const getAppointmentById = (id) => {
+  // Memoize filter functions to prevent unnecessary recalculations
+  const getAppointmentById = useCallback((id) => {
     return appointments.find(apt => apt.id === parseInt(id))
-  }
+  }, [appointments])
+
+  const getAppointmentsByStatus = useCallback((status) => {
+    return appointments.filter(apt => apt.status === status)
+  }, [appointments])
+
+  const getAppointmentsByDate = useCallback((date) => {
+    return appointments.filter(apt => apt.date === date)
+  }, [appointments])
+
+  const getTodayAppointments = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0]
+    return getAppointmentsByDate(today)
+  }, [getAppointmentsByDate])
+
+  const getUpcomingAppointments = useCallback((limit = UI.UPCOMING_APPOINTMENTS_LIMIT) => {
+    const today = new Date().toISOString().split('T')[0]
+    return appointments
+      .filter(apt => apt.date >= today)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, limit)
+  }, [appointments])
 
   /**
    * Creates a new appointment
@@ -224,50 +236,30 @@ export function AppProvider({ children }) {
     }
   }
 
-  /**
-   * Filters appointments by status
-   * @param {string} status - The status to filter by ('scheduled', 'confirmed', 'completed', 'cancelled')
-   * @returns {Array<Object>} Array of appointments matching the status
-   */
-  const getAppointmentsByStatus = (status) => {
-    return appointments.filter(apt => apt.status === status)
-  }
 
-  /**
-   * Filters appointments by date
-   * @param {string} date - The date to filter by (YYYY-MM-DD format)
-   * @returns {Array<Object>} Array of appointments on the specified date
-   */
-  const getAppointmentsByDate = (date) => {
-    return appointments.filter(apt => apt.date === date)
-  }
-
-  /**
-   * Gets all appointments scheduled for today
-   * @returns {Array<Object>} Array of today's appointments
-   */
-  const getTodayAppointments = () => {
-    const today = new Date().toISOString().split('T')[0]
-    return getAppointmentsByDate(today)
-  }
-
-  /**
-   * Gets upcoming appointments sorted by date
-   * @param {number} [limit=5] - Maximum number of appointments to return
-   * @returns {Array<Object>} Array of upcoming appointments, sorted by date
-   */
-  const getUpcomingAppointments = (limit = UI.UPCOMING_APPOINTMENTS_LIMIT) => {
-    const today = new Date().toISOString().split('T')[0]
-    return appointments
-      .filter(apt => apt.date >= today)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(0, limit)
-  }
 
   // Case CRUD Operations
-  const getCaseById = (id) => {
+  const getCaseById = useCallback((id) => {
     return cases.find(c => c.id === parseInt(id))
-  }
+  }, [cases])
+
+  const getCasesByStatus = useCallback((status) => {
+    return cases.filter(c => c.status === status)
+  }, [cases])
+
+  const getCasesByPriority = useCallback((priority) => {
+    return cases.filter(c => c.priority === priority)
+  }, [cases])
+
+  const getActiveCases = useCallback(() => {
+    return getCasesByStatus('active')
+  }, [getCasesByStatus])
+
+  const getRecentCases = useCallback((limit = UI.RECENT_CASES_LIMIT) => {
+    return cases
+      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
+      .slice(0, limit)
+  }, [cases])
 
   const createCase = async (caseData) => {
     try {
@@ -307,38 +299,19 @@ export function AppProvider({ children }) {
     }
   }
 
-  const getCasesByStatus = (status) => {
-    return cases.filter(c => c.status === status)
-  }
-
-  const getCasesByPriority = (priority) => {
-    return cases.filter(c => c.priority === priority)
-  }
-
-  const getActiveCases = () => {
-    return getCasesByStatus('active')
-  }
-
-  const getRecentCases = (limit = UI.RECENT_CASES_LIMIT) => {
-    return cases
-      .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
-      .slice(0, limit)
-  }
-
-  // AI Assistant Functions
-  const addAiMessage = (message) => {
+  const addAiMessage = useCallback((message) => {
     validateAiMessage(message)
     setAiChatHistory(prev => [...prev, { ...message, id: Date.now() + Math.random() }])
-  }
+  }, [])
 
-  const clearAiChatHistory = () => {
+  const clearAiChatHistory = useCallback(() => {
     setAiChatHistory([])
-  }
+  }, [])
 
-  const getAiChatHistory = () => {
+  const getAiChatHistory = useCallback(() => {
     return aiChatHistory
-  }
-  const getAppointmentStats = () => {
+  }, [aiChatHistory])
+  const getAppointmentStats = useCallback(() => {
     return {
       total: appointments.length,
       confirmed: appointments.filter(a => a.status === 'confirmed').length,
@@ -346,9 +319,9 @@ export function AppProvider({ children }) {
       cancelled: appointments.filter(a => a.status === 'cancelled').length,
       today: getTodayAppointments().length,
     }
-  }
+  }, [appointments])
 
-  const getCaseStats = () => {
+  const getCaseStats = useCallback(() => {
     return {
       total: cases.length,
       active: cases.filter(c => c.status === 'active').length,
@@ -356,9 +329,9 @@ export function AppProvider({ children }) {
       closed: cases.filter(c => c.status === 'closed').length,
       onHold: cases.filter(c => c.status === 'on-hold').length,
     }
-  }
+  }, [cases])
 
-  const value = {
+  const value = useMemo(() => ({
     // Appointments
     appointments,
     appointmentsLoading,
@@ -394,10 +367,46 @@ export function AppProvider({ children }) {
     addAiMessage,
     clearAiChatHistory,
     getAiChatHistory,
-  }
+  }), [
+    // Appointments dependencies
+    appointments,
+    appointmentsLoading,
+    appointmentsError,
+    retryLoadAppointments,
+    getAppointmentById,
+    createAppointment,
+    updateAppointment,
+    deleteAppointment,
+    getAppointmentsByStatus,
+    getAppointmentsByDate,
+    getTodayAppointments,
+    getUpcomingAppointments,
+    getAppointmentStats,
+    
+    // Cases dependencies
+    cases,
+    casesLoading,
+    casesError,
+    retryLoadCases,
+    getCaseById,
+    createCase,
+    updateCase,
+    deleteCase,
+    getCasesByStatus,
+    getCasesByPriority,
+    getActiveCases,
+    getRecentCases,
+    getCaseStats,
+    
+    // AI Assistant dependencies
+    aiChatHistory,
+    addAiMessage,
+    clearAiChatHistory,
+    getAiChatHistory,
+  ])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
-}
+})
 
 AppProvider.propTypes = {
   children: PropTypes.node.isRequired,
