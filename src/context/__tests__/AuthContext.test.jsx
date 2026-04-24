@@ -2,6 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { AuthProvider, useAuth } from '../AuthContext'
 
+// AuthProvider now calls useError — provide a minimal mock
+vi.mock('../../context/ErrorContext', () => ({
+  useError: () => ({ addError: vi.fn() }),
+}))
+
 // localStorage is already mocked globally in setup.js
 // We need a working implementation for these tests
 const store = {}

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { registerReporter } from '../services/errorReporter'
 
 const ErrorContext = createContext()
 
@@ -77,6 +78,11 @@ export function ErrorProvider({ children }) {
       }
       return null
     }
+  }, [addError])
+
+  // Register the reporter so pure-JS services can push errors here
+  useEffect(() => {
+    registerReporter(addError)
   }, [addError])
 
   const value = {

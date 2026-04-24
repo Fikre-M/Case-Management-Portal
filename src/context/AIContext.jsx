@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { getServiceStatus } from '../services/aiService'
+import { useError } from './ErrorContext'
 
 const AIContext = createContext()
 
@@ -16,6 +17,7 @@ const AIContext = createContext()
  * @returns {JSX.Element} AI context provider
  */
 export function AIProvider({ children }) {
+  const { addError } = useError()
   // AI Assistant State
   const [isAssistantOpen, setIsAssistantOpen] = useState(false)
   const [currentContext, setCurrentContext] = useState(null)
@@ -26,7 +28,7 @@ export function AIProvider({ children }) {
       const saved = localStorage.getItem('aiConversations')
       return saved ? JSON.parse(saved) : []
     } catch (error) {
-      console.warn('Failed to load AI conversations:', error)
+      addError(error, { context: 'AI Conversations', type: 'warning', duration: 4000 })
       return []
     }
   })
@@ -64,7 +66,7 @@ export function AIProvider({ children }) {
       try {
         localStorage.setItem('aiConversations', JSON.stringify(conversations))
       } catch (error) {
-        console.warn('Failed to save AI conversations:', error)
+        addError(error, { context: 'AI Conversations', type: 'warning', duration: 4000 })
       }
     }
   }, [conversations, settings.saveHistory])

@@ -1,5 +1,6 @@
 // Local AI Service - For development testing only
 // Uses direct Gemini API calls instead of Netlify proxy
+import { reportError } from './errorReporter'
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
@@ -173,7 +174,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
           console.log('🤖 Real Gemini AI response received')
           return data.candidates[0].content.parts[0].text
         } else {
-          console.warn('Unexpected Gemini response format:', data)
+        console.warn('Unexpected Gemini response format:', data)
           throw new Error('Invalid response format from Gemini API')
         }
       } else {
@@ -183,8 +184,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       }
       
     } catch (error) {
-      console.error('Direct Gemini API call failed:', error)
-      console.warn('🔄 Falling back to demo responses')
+      reportError(error, { context: 'AI Service (Local)', type: 'warning', duration: 4000, autoClose: true })
     }
   } else {
     console.warn('⚠️ No valid Gemini API key found in environment')

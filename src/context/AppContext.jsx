@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { appointmentService } from '../services/appointmentService'
 import { caseService } from '../services/caseService'
+import { useError } from './ErrorContext'
 
 const AppContext = createContext()
 
@@ -60,6 +61,7 @@ function validateAiMessage(message) {
 }
 
 export function AppProvider({ children }) {
+  const { addError } = useError()
   // Appointments State
   const [appointments, setAppointments] = useState([])
   const [appointmentsLoading, setAppointmentsLoading] = useState(true)
@@ -90,8 +92,9 @@ export function AppProvider({ children }) {
       const data = await appointmentService.getAll()
       setAppointments(data)
     } catch (error) {
-      console.error('Failed to load appointments:', error)
-      setAppointmentsError(error.message || 'Failed to load appointments')
+      const msg = error.message || 'Failed to load appointments'
+      addError(error, { context: 'Appointments', type: 'error' })
+      setAppointmentsError(msg)
     } finally {
       setAppointmentsLoading(false)
     }
@@ -105,8 +108,9 @@ export function AppProvider({ children }) {
       const data = await caseService.getAll()
       setCases(data)
     } catch (error) {
-      console.error('Failed to load cases:', error)
-      setCasesError(error.message || 'Failed to load cases')
+      const msg = error.message || 'Failed to load cases'
+      addError(error, { context: 'Cases', type: 'error' })
+      setCasesError(msg)
     } finally {
       setCasesLoading(false)
     }
@@ -175,7 +179,7 @@ export function AppProvider({ children }) {
       setAppointments(prev => [...prev, newAppointment])
       return newAppointment
     } catch (error) {
-      console.error('Failed to create appointment:', error)
+      addError(error, { context: 'Create Appointment', type: 'error' })
       throw new Error(error.message || 'Failed to create appointment')
     }
   }
@@ -197,7 +201,7 @@ export function AppProvider({ children }) {
       )
       return updatedAppointment
     } catch (error) {
-      console.error('Failed to update appointment:', error)
+      addError(error, { context: 'Update Appointment', type: 'error' })
       throw new Error(error.message || 'Failed to update appointment')
     }
   }
@@ -214,7 +218,7 @@ export function AppProvider({ children }) {
       await appointmentService.delete(id)
       setAppointments(prev => prev.filter(apt => apt.id !== parseInt(id)))
     } catch (error) {
-      console.error('Failed to delete appointment:', error)
+      addError(error, { context: 'Delete Appointment', type: 'error' })
       throw new Error(error.message || 'Failed to delete appointment')
     }
   }
@@ -271,7 +275,7 @@ export function AppProvider({ children }) {
       setCases(prev => [...prev, newCase])  
       return newCase
     } catch (error) {
-      console.error('Failed to create case:', error)
+      addError(error, { context: 'Create Case', type: 'error' })
       throw new Error(error.message || 'Failed to create case')
     }
   }
@@ -286,7 +290,7 @@ export function AppProvider({ children }) {
       )
       return updatedCase
     } catch (error) {
-      console.error('Failed to update case:', error)
+      addError(error, { context: 'Update Case', type: 'error' })
       throw new Error(error.message || 'Failed to update case')
     }
   }
@@ -297,7 +301,7 @@ export function AppProvider({ children }) {
       await caseService.delete(id)
       setCases(prev => prev.filter(c => c.id !== parseInt(id)))
     } catch (error) {
-      console.error('Failed to delete case:', error)
+      addError(error, { context: 'Delete Case', type: 'error' })
       throw new Error(error.message || 'Failed to delete case')
     }
   }

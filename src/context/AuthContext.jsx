@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useError } from './ErrorContext'
 
 const AuthContext = createContext()
 
@@ -101,6 +102,7 @@ function clearSession() {
 // ---------------------------------------------------------------------------
 
 export function AuthProvider({ children }) {
+  const { addError } = useError()
   const [user, setUser] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -171,6 +173,11 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true)
       return { success: true, user: session }
     } catch (error) {
+      // Credential errors are expected — return them as messages, not global toasts
+      // Unexpected errors (server 5xx, parse failures) go to global error display
+      if (!(error.message?.includes('credentials') || error.message?.includes('Login failed'))) {
+        addError(error, { context: 'Authentication', type: 'error', autoClose: true })
+      }
       return { success: false, message: error.message || 'Login failed' }
     }
   }
@@ -193,6 +200,9 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true)
       return { success: true, user: session }
     } catch (error) {
+      if (!(error.message?.includes('already exists') || error.message?.includes('Registration failed'))) {
+        addError(error, { context: 'Registration', type: 'error', autoClose: true })
+      }
       return { success: false, message: error.message || 'Registration failed' }
     }
   }

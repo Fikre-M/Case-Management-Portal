@@ -1,5 +1,6 @@
 // Universal AI Service - Works in both local and Netlify environments
 // Automatically detects environment and uses appropriate method
+import { reportError } from './errorReporter'
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
@@ -218,8 +219,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     }
     
   } catch (error) {
-    console.error('❌ AI service failed:', error)
-    console.warn('🔄 Falling back to demo responses')
+    reportError(error, { context: 'AI Service', type: 'warning', duration: 4000, autoClose: true })
   }
   
   // Final fallback

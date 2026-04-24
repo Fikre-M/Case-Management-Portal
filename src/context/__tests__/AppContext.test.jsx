@@ -22,6 +22,12 @@ vi.mock('../../services/caseService', () => ({
   },
 }))
 
+// AppProvider now calls useError — provide a minimal ErrorProvider wrapper
+vi.mock('../../context/ErrorContext', () => ({
+  useError: () => ({ addError: vi.fn() }),
+  ErrorProvider: ({ children }) => children,
+}))
+
 import { appointmentService } from '../../services/appointmentService'
 import { caseService } from '../../services/caseService'
 
