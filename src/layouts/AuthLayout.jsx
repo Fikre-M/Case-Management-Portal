@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import Footer from "../components/navigation/Footer";
 
 function AuthLayout() {
   const handleGoogleLogin = () => {
@@ -6,8 +7,8 @@ function AuthLayout() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4 overflow-hidden">
-      <div className="container mx-auto h-full flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 p-4 overflow-hidden flex flex-col">
+      <div className="flex-1 container mx-auto flex items-center justify-center">
         {/* Form Card - Book-like container */}
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl p-6 transition-all duration-500 ease-in-out">
@@ -57,6 +58,9 @@ function AuthLayout() {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

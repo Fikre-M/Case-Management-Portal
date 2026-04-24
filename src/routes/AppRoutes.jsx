@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import MainLayout from '../layouts/MainLayout'
 import AuthLayout from '../layouts/AuthLayout'
+import PublicLayout from '../layouts/PublicLayout'
 import ProtectedRoute from '../components/common/ProtectedRoute'
 import Loading from '../components/common/Loading'
 
@@ -39,14 +40,13 @@ function AppRoutes() {
         {/* Root Route - Redirect to Landing */}
         <Route path="/" element={<Navigate to="/landing" replace />} />
         
-        {/* Landing Page - Public */}
-        <Route path="/landing" element={<Landing />} />
-        
-        {/* Demo Mode - Public */}
-        <Route path="/demo" element={<Demo />} />
-        
-        {/* Demo Showcase - Public */}
-        <Route path="/demo-showcase" element={<DemoShowcase />} />
+        {/* Public Routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/demo" element={<Demo />} />
+          <Route path="/demo-showcase" element={<DemoShowcase />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
         
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>
@@ -96,9 +96,6 @@ function AppRoutes() {
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
-
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   )
