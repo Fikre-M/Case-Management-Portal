@@ -87,13 +87,13 @@ function AppointmentCard({ appointment, onEdit, onDelete, onStatusChange }) {
         <div className="flex space-x-2">
           <button
             onClick={() => onEdit(appointment)}
-            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+            className="text-sm text-primary-600 dark:text-primary-400 hover:underline mr-3 px-3 py-1 touch-manipulation-adjustment"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(appointment.id)}
-            className="text-sm text-red-600 dark:text-red-400 hover:underline"
+            className="text-sm text-red-600 dark:text-red-400 hover:underline px-3 py-1 touch-manipulation-adjustment"
           >
             Delete
           </button>
