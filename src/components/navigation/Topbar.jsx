@@ -282,6 +282,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const darkMode = theme === "dark";
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
@@ -290,6 +291,28 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
   const profileRef = useRef(null);
   const newMenuRef = useRef(null);
   const notificationsRef = useRef(null);
+  const searchRef = useRef(null);
+
+  const searchSections = [
+    { label: "Appointments", path: "/appointments", icon: "📅" },
+    { label: "Cases", path: "/cases", icon: "📋" },
+    { label: "Clients", path: "/clients", icon: "👥" },
+  ];
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    // Navigate to appointments as default search target with query param
+    navigate(`/appointments?q=${encodeURIComponent(searchQuery.trim())}`);
+    setSearchQuery("");
+    setShowSearch(false);
+  };
+
+  const handleSearchNav = (path) => {
+    navigate(`${path}?q=${encodeURIComponent(searchQuery.trim())}`);
+    setSearchQuery("");
+    setShowSearch(false);
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -308,6 +331,10 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
         !notificationsRef.current.contains(event.target)
       ) {
         setShowNotifications(false);
+      }
+      // Close Search dropdown
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearch(false);
       }
     };
 
@@ -390,17 +417,49 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
           </button>
 
           {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md">
-            <div className="relative w-full">
+          <div className="hidden md:flex flex-1 max-w-md" ref={searchRef}>
+            <form onSubmit={handleSearch} className="relative w-full">
               <input
                 type="search"
                 placeholder="Search appointments, cases, clients..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearch(e.target.value.trim().length > 0);
+                }}
+                onFocus={() => searchQuery.trim() && setShowSearch(true)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
               <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-            </div>
+
+              {/* Search suggestions dropdown */}
+              {showSearch && searchQuery.trim() && (
+                <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                  <p className="px-4 pt-3 pb-1 text-xs text-gray-500 dark:text-gray-400">
+                    Search "{searchQuery}" in:
+                  </p>
+                  {searchSections.map((s) => (
+                    <button
+                      key={s.path}
+                      type="button"
+                      onClick={() => handleSearchNav(s.path)}
+                      className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <span className="mr-3">{s.icon}</span>
+                      {s.label}
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-2.5">
+                    <button
+                      type="submit"
+                      className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
+                    >
+                      Press Enter to search appointments
+                    </button>
+                  </div>
+                </div>
+              )}
+            </form>
           </div>
         </div>
 
@@ -627,7 +686,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
       {/* Mobile Search Bar */}
       <div className="md:hidden px-4 pb-3">
-        <div className="relative">
+        <form onSubmit={handleSearch} className="relative">
           <input
             type="search"
             placeholder="Search..."
@@ -636,7 +695,7 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
           <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-        </div>
+        </form>
       </div>
     </header>
   );

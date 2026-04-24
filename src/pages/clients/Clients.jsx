@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
 import Badge from '../../components/common/Badge'
@@ -15,6 +16,8 @@ import ToastContainer from '../../components/common/ToastContainer'
 function Clients() {
   const { toasts, success, removeToast } = useToast()
   const { error: globalError, handleError, clearError } = useErrorHandler()
+  const [searchParams] = useSearchParams()
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -201,7 +204,21 @@ function Clients() {
 
       {/* Clients List */}
       <Card>
-        {clients.length > 0 ? (
+        {/* Search */}
+        <div className="mb-4">
+          <input
+            type="search"
+            placeholder="Search by name, email or company..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full md:max-w-sm pl-4 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          />
+        </div>
+        {clients.filter(c =>
+          c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.company.toLowerCase().includes(searchQuery.toLowerCase())
+        ).length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-900">
@@ -251,7 +268,11 @@ function Clients() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {clients.map((client) => (
+                {clients.filter(c =>
+                  c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  c.company.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((client) => (
                   <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -303,10 +324,10 @@ function Clients() {
         ) : (
           <EmptyState
             icon="👥"
-            title="No clients yet"
-            description="Start building your client base by adding your first client."
-            actionLabel="Add First Client"
-            onAction={() => setShowModal(true)}
+            title={searchQuery ? `No clients matching "${searchQuery}"` : "No clients yet"}
+            description={searchQuery ? "Try a different search term." : "Start building your client base by adding your first client."}
+            actionLabel={searchQuery ? undefined : "Add First Client"}
+            onAction={searchQuery ? undefined : () => setShowModal(true)}
           />
         )}
       </Card>

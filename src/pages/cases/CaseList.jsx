@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
@@ -20,10 +20,12 @@ function CaseList() {
     deleteCase,
   } = useApp()
 
+  const [searchParams] = useSearchParams()
+
   // Local state for UI
   const [viewMode, setViewMode] = useState('grid')
   const [filterStatus, setFilterStatus] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingCase, setEditingCase] = useState(null)
   const [alert, setAlert] = useState(null)
