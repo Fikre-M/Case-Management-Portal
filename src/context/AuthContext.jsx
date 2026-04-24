@@ -15,7 +15,10 @@ const API_BASE = '/api/auth'
 async function apiLogin(email, password) {
   const res = await fetch(`${API_BASE}/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
     body: JSON.stringify({ email, password }),
   })
 
@@ -37,7 +40,10 @@ async function apiLogin(email, password) {
 async function apiRegister(name, email, password) {
   const res = await fetch(`${API_BASE}/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
     body: JSON.stringify({ name, email, password }),
   })
 

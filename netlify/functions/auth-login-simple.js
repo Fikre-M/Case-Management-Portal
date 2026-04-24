@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { validateCsrf, corsHeaders } from "./utils/csrf.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
 
@@ -20,26 +21,29 @@ const DEMO_USER = {
 // In-memory store for registered users (persists within a function instance)
 const registeredUsers = new Map();
 
-const handleResponse = (statusCode, body) => ({
+const handleResponse = (statusCode, body, requestOrigin = '') => ({
   statusCode,
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json",
-  },
+  headers: corsHeaders(requestOrigin),
   body: JSON.stringify(body),
 });
 
 export const handler = async (event) => {
-  if (event.httpMethod === "OPTIONS") return handleResponse(200, {});
-  if (event.httpMethod !== "POST") return handleResponse(405, { error: "Method not allowed" });
+  const requestOrigin = event.headers['origin'] || event.headers['Origin'] || ''
+
+  if (event.httpMethod === "OPTIONS") return handleResponse(200, {}, requestOrigin);
+  if (event.httpMethod !== "POST") return handleResponse(405, { error: "Method not allowed" }, requestOrigin);
+
+  const csrf = validateCsrf(event.headers)
+  if (!csrf.ok) {
+    console.warn("CSRF validation failed (login):", csrf.error)
+    return handleResponse(403, { error: csrf.error }, requestOrigin)
+  }
 
   try {
     const { email, password } = JSON.parse(event.body || "{}");
 
     if (!email || !password) {
-      return handleResponse(400, { error: "Email and password are required" });
+      return handleResponse(400, { error: "Email and password are required" }, requestOrigin);
     }
 
     // Look up user — demo user first, then registered users
@@ -49,12 +53,12 @@ export const handler = async (event) => {
         : registeredUsers.get(email.toLowerCase());
 
     if (!user) {
-      return handleResponse(401, { error: "Invalid credentials" });
+      return handleResponse(401, { error: "Invalid credentials" }, requestOrigin);
     }
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return handleResponse(401, { error: "Invalid credentials" });
+      return handleResponse(401, { error: "Invalid credentials" }, requestOrigin);
     }
 
     const token = jwt.sign(
@@ -66,10 +70,10 @@ export const handler = async (event) => {
     return handleResponse(200, {
       token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
-    });
+    }, requestOrigin);
   } catch (error) {
     console.error("Login error:", error);
-    return handleResponse(500, { error: "Login failed" });
+    return handleResponse(500, { error: "Login failed" }, requestOrigin);
   }
 };
 
