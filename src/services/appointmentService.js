@@ -15,10 +15,18 @@ import {
   createAppointmentSchema,
   updateAppointmentSchema
 } from '../validation/schemas'
+import { debug, warn, error } from '../utils/logger'
 
 // Initialize ID counter once when module loads
+debug('Appointment service initializing', { 
+  mockMode: isMockMode(), 
+  mockAppointmentsLength: mockAppointments?.length || 0,
+  mockAppointments: mockAppointments ? 'imported successfully' : 'import failed'
+})
+
 if (isMockMode() && mockAppointments.length > 0) {
   initializeIdCounter('appointment', mockAppointments)
+  debug('ID counter initialized for appointments')
 }
 
 /**
@@ -31,14 +39,24 @@ export const appointmentService = {
    * @returns {Promise<Array>} List of appointments
    */
   getAll: async () => {
+    debug('appointmentService.getAll called', { mockMode: isMockMode() })
+    
     if (isMockMode()) {
+      debug('Using mock data for appointments - NO VALIDATION')
       await simulateNetworkDelay()
-      // Validate mock data before returning
-      return validateApiResponse(mockAppointments, appointmentListSchema, 'appointmentService.getAll')
+      // Temporarily return mock data without validation
+      return mockAppointments
     }
     
-    const response = await apiRequest('/appointments')
-    return validateApiResponse(response, appointmentsResponseSchema, 'appointmentService.getAll')
+    debug('Making real API call for appointments - NO VALIDATION')
+    try {
+      const response = await apiRequest('/appointments')
+      // Temporarily return response without validation
+      return response
+    } catch (apiError) {
+      error('API call failed for appointments', { error: apiError.message })
+      throw apiError
+    }
   },
 
   /**

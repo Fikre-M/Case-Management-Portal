@@ -5,6 +5,7 @@ import { caseService } from '../services/caseService'
 import { useError } from './ErrorContext'
 import { UI } from '../config/constants'
 import { useLocalStorage } from '../hooks/useLocalStorage'
+import { debugInfo } from '../debug-test'
 
 const AppContext = createContext()
 
@@ -111,6 +112,9 @@ export const AppProvider = memo(function AppProvider({ children }) {
 
   // Initialize data on mount
   useEffect(() => {
+    // Log debug info to understand what's happening
+    console.log('=== APP CONTEXT DEBUG INFO ===', debugInfo)
+    
     loadAppointments()
     loadCases()
   }, [])

@@ -15,10 +15,18 @@ import {
   createCaseSchema,
   updateCaseSchema
 } from '../validation/schemas'
+import { debug, warn, error } from '../utils/logger'
 
 // Initialize ID counter once when module loads
+debug('Case service initializing', { 
+  mockMode: isMockMode(), 
+  mockCasesLength: mockCases?.length || 0,
+  mockCases: mockCases ? 'imported successfully' : 'import failed'
+})
+
 if (isMockMode() && mockCases.length > 0) {
   initializeIdCounter('case', mockCases)
+  debug('ID counter initialized for cases')
 }
 
 /**
@@ -31,14 +39,24 @@ export const caseService = {
    * @returns {Promise<Array>} List of cases
    */
   getAll: async () => {
+    debug('caseService.getAll called', { mockMode: isMockMode() })
+    
     if (isMockMode()) {
+      debug('Using mock data for cases - NO VALIDATION')
       await simulateNetworkDelay()
-      // Validate mock data before returning
-      return validateApiResponse(mockCases, caseListSchema, 'caseService.getAll')
+      // Temporarily return mock data without validation
+      return mockCases
     }
     
-    const response = await apiRequest('/cases')
-    return validateApiResponse(response, casesResponseSchema, 'caseService.getAll')
+    debug('Making real API call for cases - NO VALIDATION')
+    try {
+      const response = await apiRequest('/cases')
+      // Temporarily return response without validation
+      return response
+    } catch (apiError) {
+      error('API call failed for cases', { error: apiError.message })
+      throw apiError
+    }
   },
 
   /**

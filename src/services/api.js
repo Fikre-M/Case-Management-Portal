@@ -1,6 +1,14 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false' // Default to true for demo
-import { api as apiLogger } from '../utils/logger'
+// Temporarily force mock mode to test
+const USE_MOCK_DATA = true // import.meta.env.VITE_USE_MOCK_DATA !== 'false' // Default to true for demo
+import { api as apiLogger, debug } from '../utils/logger'
+
+// Log mock mode configuration at startup
+debug('API Service initialized', { 
+  USE_MOCK_DATA, 
+  API_BASE_URL,
+  VITE_USE_MOCK_DATA: import.meta.env.VITE_USE_MOCK_DATA
+})
 
 /**
  * Generic API request handler with error handling and cancellation support.
