@@ -18,20 +18,23 @@ export function ErrorProvider({ children }) {
    * @param {Object} options - Additional error options
    */
   const addError = useCallback((error, options = {}) => {
+    const isValidationError = error.name === 'ValidationError'
+    
     const errorObj = {
       id: Date.now() + Math.random(),
       message: typeof error === 'string' ? error : error.message,
-      type: options.type || 'error',
+      type: isValidationError ? 'validation' : (options.type || 'error'),
       timestamp: new Date().toISOString(),
       context: options.context || null,
       dismissible: options.dismissible !== false,
-      autoClose: options.autoClose !== false,
-      duration: options.duration || TOAST_DURATION.DEFAULT,
+      autoClose: isValidationError ? false : (options.autoClose !== false), // Validation errors don't auto-close
+      duration: options.duration || (isValidationError ? TOAST_DURATION.LONG : TOAST_DURATION.DEFAULT),
+      originalError: error, // Store original error for debugging
     }
 
     setErrors(prev => [...prev, errorObj])
 
-    // Auto-remove error after duration
+    // Auto-remove error after duration (only if autoClose is true)
     if (errorObj.autoClose) {
       setTimeout(() => {
         setErrors(prev => prev.filter(err => err.id !== errorObj.id))
@@ -40,7 +43,7 @@ export function ErrorProvider({ children }) {
 
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('Global Error:', error, options)
+      console.error(`${isValidationError ? 'Validation' : 'Global'} Error:`, error, options)
     }
 
     return errorObj.id
@@ -81,6 +84,25 @@ export function ErrorProvider({ children }) {
     }
   }, [addError])
 
+  /**
+   * Handle validation errors specifically
+   * @param {Error} error - Validation error
+   * @param {Object} options - Error handling options
+   */
+  const handleValidationError = useCallback((error, options = {}) => {
+    if (error.name !== 'ValidationError') {
+      // If it's not a validation error, handle it as a regular error
+      return addError(error, options)
+    }
+
+    return addError(error, {
+      type: 'validation',
+      autoClose: false,
+      duration: TOAST_DURATION.LONG,
+      ...options
+    })
+  }, [addError])
+
   // Register the reporter so pure-JS services can push errors here
   useEffect(() => {
     registerReporter(addError)
@@ -92,6 +114,7 @@ export function ErrorProvider({ children }) {
     removeError,
     clearErrors,
     handleAsync,
+    handleValidationError,
   }
 
   return (

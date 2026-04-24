@@ -1,6 +1,20 @@
 import apiRequest, { simulateNetworkDelay, isMockMode } from './api'
 import mockAppointments from './mockAppointments'
 import { generateId, initializeIdCounter } from '../utils/idGenerator'
+import { 
+  validateApiResponse, 
+  validateApiRequest, 
+  withValidation,
+  ValidationError 
+} from '../validation/validationMiddleware'
+import { 
+  appointmentSchema, 
+  appointmentListSchema,
+  appointmentsResponseSchema,
+  appointmentResponseSchema,
+  createAppointmentSchema,
+  updateAppointmentSchema
+} from '../validation/schemas'
 
 // Initialize ID counter once when module loads
 if (isMockMode() && mockAppointments.length > 0) {
@@ -19,9 +33,12 @@ export const appointmentService = {
   getAll: async () => {
     if (isMockMode()) {
       await simulateNetworkDelay()
-      return mockAppointments
+      // Validate mock data before returning
+      return validateApiResponse(mockAppointments, appointmentListSchema, 'appointmentService.getAll')
     }
-    return apiRequest('/appointments')
+    
+    const response = await apiRequest('/appointments')
+    return validateApiResponse(response, appointmentsResponseSchema, 'appointmentService.getAll')
   },
 
   /**
@@ -36,9 +53,12 @@ export const appointmentService = {
       if (!appointment) {
         throw new Error(`Appointment with ID ${id} not found`)
       }
-      return appointment
+      // Validate single appointment
+      return validateApiResponse(appointment, appointmentSchema, 'appointmentService.getById')
     }
-    return apiRequest(`/appointments/${id}`)
+    
+    const response = await apiRequest(`/appointments/${id}`)
+    return validateApiResponse(response, appointmentResponseSchema, 'appointmentService.getById')
   },
 
   /**
@@ -47,21 +67,27 @@ export const appointmentService = {
    * @returns {Promise<Object>} Created appointment
    */
   create: async (data) => {
+    // Validate request data before sending
+    const validatedData = validateApiRequest(data, createAppointmentSchema, 'appointmentService.create')
+    
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const newAppointment = {
         id: generateId('appointment'), // O(1) instead of O(n)
-        ...data,
+        ...validatedData,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
       mockAppointments.push(newAppointment)
-      return newAppointment
+      // Validate created appointment
+      return validateApiResponse(newAppointment, appointmentSchema, 'appointmentService.create')
     }
-    return apiRequest('/appointments', {
+    
+    const response = await apiRequest('/appointments', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(validatedData),
     })
+    return validateApiResponse(response, appointmentResponseSchema, 'appointmentService.create')
   },
 
   /**
@@ -71,6 +97,9 @@ export const appointmentService = {
    * @returns {Promise<Object>} Updated appointment
    */
   update: async (id, data) => {
+    // Validate request data before sending
+    const validatedData = validateApiRequest(data, updateAppointmentSchema, 'appointmentService.update')
+    
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const index = mockAppointments.findIndex(apt => apt.id === parseInt(id))
@@ -79,21 +108,24 @@ export const appointmentService = {
       }
       mockAppointments[index] = {
         ...mockAppointments[index],
-        ...data,
+        ...validatedData,
         updatedAt: new Date().toISOString(),
       }
-      return mockAppointments[index]
+      // Validate updated appointment
+      return validateApiResponse(mockAppointments[index], appointmentSchema, 'appointmentService.update')
     }
-    return apiRequest(`/appointments/${id}`, {
+    
+    const response = await apiRequest(`/appointments/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(validatedData),
     })
+    return validateApiResponse(response, appointmentResponseSchema, 'appointmentService.update')
   },
 
   /**
    * Delete appointment
    * @param {number|string} id - Appointment ID
-   * @returns {Promise<void>}
+   * @returns {Promise<Object>} Deletion response
    */
   delete: async (id) => {
     if (isMockMode()) {
@@ -103,10 +135,12 @@ export const appointmentService = {
         throw new Error(`Appointment with ID ${id} not found`)
       }
       mockAppointments.splice(index, 1)
-      return { success: true }
+      return validateApiResponse({ success: true }, appointmentResponseSchema, 'appointmentService.delete')
     }
-    return apiRequest(`/appointments/${id}`, {
+    
+    const response = await apiRequest(`/appointments/${id}`, {
       method: 'DELETE',
     })
+    return validateApiResponse(response, appointmentResponseSchema, 'appointmentService.delete')
   },
 }

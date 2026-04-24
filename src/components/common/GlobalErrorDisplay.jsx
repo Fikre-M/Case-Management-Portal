@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useError } from '../../context/ErrorContext'
 import Alert from './Alert'
+import ValidationErrorDisplay from './ValidationErrorDisplay'
 
 /**
  * Global Error Display Component
@@ -25,21 +26,28 @@ function GlobalErrorDisplay() {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="pointer-events-auto"
           >
-            <Alert
-              type={error.type}
-              message={
-                <div>
-                  <div className="font-medium">{error.message}</div>
-                  {error.context && (
-                    <div className="text-xs mt-1 opacity-75">
-                      Context: {error.context}
-                    </div>
-                  )}
-                </div>
-              }
-              onClose={error.dismissible ? () => removeError(error.id) : null}
-              autoClose={false} // We handle auto-close in ErrorContext
-            />
+            {error.type === 'validation' ? (
+              <ValidationErrorDisplay
+                error={error.originalError}
+                onDismiss={error.dismissible ? () => removeError(error.id) : null}
+              />
+            ) : (
+              <Alert
+                type={error.type}
+                message={
+                  <div>
+                    <div className="font-medium">{error.message}</div>
+                    {error.context && (
+                      <div className="text-xs mt-1 opacity-75">
+                        Context: {error.context}
+                      </div>
+                    )}
+                  </div>
+                }
+                onClose={error.dismissible ? () => removeError(error.id) : null}
+                autoClose={false} // We handle auto-close in ErrorContext
+              />
+            )}
           </motion.div>
         ))}
       </AnimatePresence>

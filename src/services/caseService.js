@@ -1,6 +1,20 @@
 import apiRequest, { simulateNetworkDelay, isMockMode } from './api'
 import mockCases from './mockCases'
 import { generateId, initializeIdCounter } from '../utils/idGenerator'
+import { 
+  validateApiResponse, 
+  validateApiRequest, 
+  withValidation,
+  ValidationError 
+} from '../validation/validationMiddleware'
+import { 
+  caseSchema, 
+  caseListSchema,
+  casesResponseSchema,
+  caseResponseSchema,
+  createCaseSchema,
+  updateCaseSchema
+} from '../validation/schemas'
 
 // Initialize ID counter once when module loads
 if (isMockMode() && mockCases.length > 0) {
@@ -19,9 +33,12 @@ export const caseService = {
   getAll: async () => {
     if (isMockMode()) {
       await simulateNetworkDelay()
-      return mockCases
+      // Validate mock data before returning
+      return validateApiResponse(mockCases, caseListSchema, 'caseService.getAll')
     }
-    return apiRequest('/cases')
+    
+    const response = await apiRequest('/cases')
+    return validateApiResponse(response, casesResponseSchema, 'caseService.getAll')
   },
 
   /**
@@ -36,9 +53,12 @@ export const caseService = {
       if (!caseItem) {
         throw new Error(`Case with ID ${id} not found`)
       }
-      return caseItem
+      // Validate single case
+      return validateApiResponse(caseItem, caseSchema, 'caseService.getById')
     }
-    return apiRequest(`/cases/${id}`)
+    
+    const response = await apiRequest(`/cases/${id}`)
+    return validateApiResponse(response, caseResponseSchema, 'caseService.getById')
   },
 
   /**
@@ -47,12 +67,15 @@ export const caseService = {
    * @returns {Promise<Object>} Created case
    */
   create: async (data) => {
+    // Validate request data before sending
+    const validatedData = validateApiRequest(data, createCaseSchema, 'caseService.create')
+    
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const newCase = {
         id: generateId('case'), // O(1) instead of O(n)
         caseNumber: `CASE-2024-${String(mockCases.length + 1).padStart(3, '0')}`,
-        ...data,
+        ...validatedData,
         openedDate: new Date().toISOString().split('T')[0],
         lastUpdated: new Date().toISOString().split('T')[0],
         timeline: [
@@ -66,12 +89,15 @@ export const caseService = {
         notes: [],
       }
       mockCases.push(newCase)
-      return newCase
+      // Validate created case
+      return validateApiResponse(newCase, caseSchema, 'caseService.create')
     }
-    return apiRequest('/cases', {
+    
+    const response = await apiRequest('/cases', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(validatedData),
     })
+    return validateApiResponse(response, caseResponseSchema, 'caseService.create')
   },
 
   /**
@@ -81,6 +107,9 @@ export const caseService = {
    * @returns {Promise<Object>} Updated case
    */
   update: async (id, data) => {
+    // Validate request data before sending
+    const validatedData = validateApiRequest(data, updateCaseSchema, 'caseService.update')
+    
     if (isMockMode()) {
       await simulateNetworkDelay(400)
       const index = mockCases.findIndex(c => c.id === parseInt(id))
@@ -89,21 +118,24 @@ export const caseService = {
       }
       mockCases[index] = {
         ...mockCases[index],
-        ...data,
+        ...validatedData,
         lastUpdated: new Date().toISOString().split('T')[0],
       }
-      return mockCases[index]
+      // Validate updated case
+      return validateApiResponse(mockCases[index], caseSchema, 'caseService.update')
     }
-    return apiRequest(`/cases/${id}`, {
+    
+    const response = await apiRequest(`/cases/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(validatedData),
     })
+    return validateApiResponse(response, caseResponseSchema, 'caseService.update')
   },
 
   /**
    * Delete case
    * @param {number|string} id - Case ID
-   * @returns {Promise<void>}
+   * @returns {Promise<Object>} Deletion response
    */
   delete: async (id) => {
     if (isMockMode()) {
@@ -113,10 +145,12 @@ export const caseService = {
         throw new Error(`Case with ID ${id} not found`)
       }
       mockCases.splice(index, 1)
-      return { success: true }
+      return validateApiResponse({ success: true }, caseResponseSchema, 'caseService.delete')
     }
-    return apiRequest(`/cases/${id}`, {
+    
+    const response = await apiRequest(`/cases/${id}`, {
       method: 'DELETE',
     })
+    return validateApiResponse(response, caseResponseSchema, 'caseService.delete')
   },
 }
