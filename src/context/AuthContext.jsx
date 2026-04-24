@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useError } from './ErrorContext'
 
@@ -13,7 +13,7 @@ const SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 hours
 
 const API_BASE = '/api/auth'
 
-async function apiLogin(email, password) {
+async function apiLogin(email, password, signal) {
   const res = await fetch(`${API_BASE}/login`, {
     method: 'POST',
     headers: {
@@ -21,6 +21,7 @@ async function apiLogin(email, password) {
       'X-Requested-With': 'XMLHttpRequest',
     },
     body: JSON.stringify({ email, password }),
+    signal,
   })
 
   // Guard against empty body (e.g. 404 from missing function)
@@ -38,7 +39,7 @@ async function apiLogin(email, password) {
   return data // { token, user }
 }
 
-async function apiRegister(name, email, password) {
+async function apiRegister(name, email, password, signal) {
   const res = await fetch(`${API_BASE}/register`, {
     method: 'POST',
     headers: {
@@ -46,6 +47,7 @@ async function apiRegister(name, email, password) {
       'X-Requested-With': 'XMLHttpRequest',
     },
     body: JSON.stringify({ name, email, password }),
+    signal,
   })
 
   const text = await res.text()
@@ -106,6 +108,11 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  // Track in-flight auth requests so we can cancel them on unmount
+  const abortRef = useRef(null)
+
+  // Abort any pending request when the provider unmounts
+  useEffect(() => () => abortRef.current?.abort(), [])
 
   // Restore session on mount
   useEffect(() => {
@@ -152,15 +159,16 @@ export function AuthProvider({ children }) {
   // ---------------------------------------------------------------------------
 
   const login = async (email, password) => {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+    const { signal } = abortRef.current
     try {
       let result
 
       try {
-        // Try real API first (works on Netlify or with Netlify CLI locally)
-        result = await apiLogin(email, password)
+        result = await apiLogin(email, password, signal)
       } catch (apiError) {
-        // Fall back to demo mode if the API isn't reachable
-        // (local dev without Netlify CLI, or function not deployed yet)
+        if (apiError.name === 'AbortError') return { success: false, message: 'Request cancelled' }
         if (apiError instanceof TypeError) {
           result = demoLogin(email, password)
         } else {
@@ -173,8 +181,7 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true)
       return { success: true, user: session }
     } catch (error) {
-      // Credential errors are expected — return them as messages, not global toasts
-      // Unexpected errors (server 5xx, parse failures) go to global error display
+      if (error.name === 'AbortError') return { success: false, message: 'Request cancelled' }
       if (!(error.message?.includes('credentials') || error.message?.includes('Login failed'))) {
         addError(error, { context: 'Authentication', type: 'error', autoClose: true })
       }
@@ -183,12 +190,16 @@ export function AuthProvider({ children }) {
   }
 
   const register = async (userData) => {
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+    const { signal } = abortRef.current
     try {
       let result
 
       try {
-        result = await apiRegister(userData.fullName || userData.name, userData.email, userData.password)
+        result = await apiRegister(userData.fullName || userData.name, userData.email, userData.password, signal)
       } catch (apiError) {
+        if (apiError.name === 'AbortError') return { success: false, message: 'Request cancelled' }
         if (apiError instanceof TypeError) {
           return { success: false, message: 'Registration requires the Netlify dev server. Use demo@example.com / password to log in.' }
         }
@@ -200,6 +211,7 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true)
       return { success: true, user: session }
     } catch (error) {
+      if (error.name === 'AbortError') return { success: false, message: 'Request cancelled' }
       if (!(error.message?.includes('already exists') || error.message?.includes('Registration failed'))) {
         addError(error, { context: 'Registration', type: 'error', autoClose: true })
       }

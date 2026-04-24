@@ -47,14 +47,13 @@ export function isAuthenticated() {
 }
 
 // Register new user
-export async function register(username, email, password) {
+export async function register(username, email, password, signal) {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, email, password })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password }),
+      signal,
     })
 
     if (!response.ok) {
@@ -73,23 +72,19 @@ export async function register(username, email, password) {
       token: data.token
     }
   } catch (error) {
+    if (error.name === 'AbortError') return { success: false, error: 'Request cancelled' }
     console.error('Registration error:', error)
-    return {
-      success: false,
-      error: error.message
-    }
+    return { success: false, error: error.message }
   }
 }
 
-// Login user
-export async function login(email, password) {
+export async function login(email, password, signal) {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      signal,
     })
 
     if (!response.ok) {
@@ -108,11 +103,9 @@ export async function login(email, password) {
       token: data.token
     }
   } catch (error) {
+    if (error.name === 'AbortError') return { success: false, error: 'Request cancelled' }
     console.error('Login error:', error)
-    return {
-      success: false,
-      error: error.message
-    }
+    return { success: false, error: error.message }
   }
 }
 

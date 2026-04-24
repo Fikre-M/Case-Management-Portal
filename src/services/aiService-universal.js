@@ -91,23 +91,21 @@ function updateRateLimit() {
 }
 
 // Direct Gemini API call (for local development)
-async function callDirectGeminiAPI(message) {
+async function callDirectGeminiAPI(message, signal) {
   if (!LOCAL_API_KEY || LOCAL_API_KEY.length < 10) {
     throw new Error('No valid API key available')
   }
-  
+
   console.log('🔒 Using direct Gemini API call')
-  
+
   const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${LOCAL_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: message }] }],
-      generationConfig: {
-        maxOutputTokens: 1000,
-        temperature: 0.7,
-      }
-    })
+      generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+    }),
+    signal,
   })
 
   if (!response.ok) {
@@ -126,30 +124,28 @@ async function callDirectGeminiAPI(message) {
 }
 
 // Netlify proxy call (for production)
-async function callNetlifyProxy(message) {
+async function callNetlifyProxy(message, signal) {
   const userData = localStorage.getItem('ai_casemanager_current_user')
-  if (!userData) {
-    throw new Error('No user data found')
-  }
+  if (!userData) throw new Error('No user data found')
 
   const parsedUser = JSON.parse(userData)
-  // Use the real JWT stored at login — never hand-craft a bearer token
   const token = parsedUser.token || localStorage.getItem('ai_casemanager_token') || ''
-  
+
   console.log('🔒 Using Netlify proxy for AI request')
-  
+
   const proxyResponse = await fetch(`${API_BASE_URL}/ai/proxy`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
       messages: [{ role: 'user', content: message }],
       model: 'gemini-1.5-flash',
       max_tokens: 1000,
-      temperature: 0.7
-    })
+      temperature: 0.7,
+    }),
+    signal,
   })
 
   if (!proxyResponse.ok) {
@@ -168,62 +164,40 @@ async function callNetlifyProxy(message) {
 }
 
 // Main AI function
-export async function sendMessage(message, conversationId = null, customSystemPrompt = null) {
+export async function sendMessage(message, conversationId = null, customSystemPrompt = null, signal = null) {
   console.log('🤖 AI Service called with:', message)
-  
-  // Check if AI is enabled
+
   if (!AI_ENABLED) {
-    console.log('❌ AI is disabled')
     await delay(500 + Math.random() * 1000)
     return getRandomResponse('default')
   }
-  
-  // Check authentication
+
   if (!isAuthenticated()) {
-    console.log('❌ User not authenticated')
     return "🔐 Please login to use AI features. Click the login button in the top right to get started."
   }
-  
-  // Check rate limit
+
   const waitTime = checkRateLimit()
-  if (waitTime > 0) {
-    await delay(waitTime)
-  }
+  if (waitTime > 0) await delay(waitTime)
   updateRateLimit()
-  
-  // Force mock data if explicitly enabled
+
   if (USE_MOCK_DATA) {
-    console.log('🎭 Using mock responses (USE_MOCK_DATA=true)')
     await delay(500 + Math.random() * 1000)
     return getRandomResponse('default')
   }
-  
-  console.log('✅ Attempting real AI response')
-  
+
   try {
-    // Try local API first (development)
     if (!IS_NETLIFY && LOCAL_API_KEY) {
-      return await callDirectGeminiAPI(message)
+      return await callDirectGeminiAPI(message, signal)
     }
-    
-    // Try Netlify proxy (production)
     if (IS_NETLIFY) {
-      return await callNetlifyProxy(message)
+      return await callNetlifyProxy(message, signal)
     }
-    
-    // Fallback for local development without API key
-    if (!IS_NETLIFY && !LOCAL_API_KEY) {
-      console.warn('⚠️ No API key available for local development')
-      console.warn('🔧 Set VITE_AidFlow_API_KEY in your .env file')
-      throw new Error('No API key available')
-    }
-    
+    throw new Error('No API key available')
   } catch (error) {
+    if (error.name === 'AbortError') throw error // propagate cancellation
     reportError(error, { context: 'AI Service', type: 'warning', duration: 4000, autoClose: true })
   }
-  
-  // Final fallback
-  console.log('🎭 Using demo fallback responses')
+
   await delay(500 + Math.random() * 1000)
   return getRandomResponse('default')
 }

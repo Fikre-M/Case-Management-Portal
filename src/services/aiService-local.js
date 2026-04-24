@@ -101,7 +101,7 @@ export function updateRateLimit() {
 }
 
 // Main function to send message and get response
-export async function sendMessage(message, conversationId = null, customSystemPrompt = null) {
+export async function sendMessage(message, conversationId = null, customSystemPrompt = null, signal = null) {
   console.log('🤖 AI Service called with message:', message)
   console.log('🔧 Raw environment variables:')
   console.log('  - VITE_AI_ENABLED:', import.meta.env.VITE_AI_ENABLED)
@@ -150,20 +150,12 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: message
-            }]
-          }],
-          generationConfig: {
-            maxOutputTokens: 1000,
-            temperature: 0.7,
-          }
-        })
+          contents: [{ parts: [{ text: message }] }],
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+        }),
+        signal,
       })
 
       if (response.ok) {
@@ -184,6 +176,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       }
       
     } catch (error) {
+      if (error.name === 'AbortError') throw error // propagate cancellation
       reportError(error, { context: 'AI Service (Local)', type: 'warning', duration: 4000, autoClose: true })
     }
   } else {
