@@ -37,7 +37,7 @@ export const caseSchema = z.object({
   title: z.string().min(1).max(200),
   ...clientInfo,
   type: z.enum(['employment', 'contract', 'family', 'personal-injury', 'property', 'other']),
-  status: z.enum(['active', 'pending', 'closed', 'archived']),
+  status: z.enum(['active', 'pending', 'closed', 'on-hold']),
   priority: z.enum(['low', 'medium', 'high']),
   assignedTo: z.string().min(1).max(100),
   openedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
