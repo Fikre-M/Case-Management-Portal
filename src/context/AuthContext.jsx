@@ -198,10 +198,24 @@ export function AuthProvider({ children }) {
   }
 
   const extendSession = () => {
-    if (isAuthenticated && user) {
-      const updated = { ...user, loginTime: Date.now() }
-      setUser(updated)
+    if (!isAuthenticated || !user) return
+
+    try {
+      // Read the current persisted session as the source of truth to avoid
+      // overwriting a token that was written by another tab or a concurrent
+      // update while this closure captured a stale `user` snapshot.
+      const raw = localStorage.getItem(CURRENT_USER_KEY)
+      const persisted = raw ? JSON.parse(raw) : null
+
+      // Use persisted data when available so we never lose a fresher token.
+      const base = persisted ?? user
+      const updated = { ...base, loginTime: Date.now() }
+
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updated))
+      setUser(updated)
+    } catch {
+      // If storage is unavailable just update in-memory state.
+      setUser((prev) => (prev ? { ...prev, loginTime: Date.now() } : prev))
     }
   }
 
