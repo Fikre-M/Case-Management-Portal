@@ -17,16 +17,28 @@ export function removeAuthToken() {
   localStorage.removeItem('authToken')
 }
 
+// Decode a JWT payload segment (base64url → JSON) without verifying signature.
+// Verification is done server-side; this is only used for reading exp/userId client-side.
+function decodePayload(token) {
+  try {
+    const part = token.split('.')[1]
+    if (!part) return null
+    const padded = part.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - part.length % 4) % 4)
+    return JSON.parse(atob(padded))
+  } catch {
+    return null
+  }
+}
+
 // Check if user is authenticated
 export function isAuthenticated() {
   const token = getAuthToken()
   if (!token) return false
   
   try {
-    // Simple JWT token validation (check expiration)
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    const now = Date.now() / 1000
-    return payload.exp > now
+    const payload = decodePayload(token)
+    if (!payload) { removeAuthToken(); return false }
+    return payload.exp > Date.now() / 1000
   } catch (error) {
     console.error('Invalid token format:', error)
     removeAuthToken()
@@ -116,7 +128,8 @@ export function getCurrentUser() {
   if (!token) return null
   
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
+    const payload = decodePayload(token)
+    if (!payload) return null
     return {
       id: payload.userId,
       username: payload.username

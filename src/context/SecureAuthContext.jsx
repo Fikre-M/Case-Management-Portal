@@ -96,8 +96,8 @@ export function SecureAuthProvider({ children }) {
         initializeSecureUsers()
         
         const storedToken = localStorage.getItem(TOKEN_KEY)
-        if (storedToken && !isTokenExpired(storedToken)) {
-          const userData = getUserFromToken(storedToken)
+        if (storedToken && !await isTokenExpired(storedToken)) {
+          const userData = await getUserFromToken(storedToken)
           if (userData) {
             setUser(userData)
             setIsAuthenticated(true)
@@ -172,7 +172,7 @@ export function SecureAuthProvider({ children }) {
         role: newUser.role
       }
 
-      const jwtToken = createMockJWT(tokenPayload, { expiresIn: '24h' })
+      const jwtToken = await createMockJWT(tokenPayload, { expiresIn: '24h' })
       
       // Store token and update state
       localStorage.setItem(TOKEN_KEY, jwtToken)
@@ -224,7 +224,7 @@ export function SecureAuthProvider({ children }) {
         role: foundUser.role
       }
 
-      const jwtToken = createMockJWT(tokenPayload, { expiresIn: '24h' })
+      const jwtToken = await createMockJWT(tokenPayload, { expiresIn: '24h' })
       
       // Store token and update state
       localStorage.setItem(TOKEN_KEY, jwtToken)
@@ -262,7 +262,7 @@ export function SecureAuthProvider({ children }) {
     try {
       if (!token) return false
 
-      const newToken = refreshMockJWT(token)
+      const newToken = await refreshMockJWT(token)
       if (newToken) {
         localStorage.setItem(TOKEN_KEY, newToken)
         setToken(newToken)
@@ -293,10 +293,10 @@ export function SecureAuthProvider({ children }) {
   /**
    * Get current token info
    */
-  const getTokenInfo = () => {
+  const getTokenInfo = async () => {
     if (!token) return null
     
-    const payload = verifyMockJWT(token)
+    const payload = await verifyMockJWT(token)
     return payload ? {
       isValid: true,
       expiresAt: new Date(payload.exp * 1000),
@@ -309,22 +309,26 @@ export function SecureAuthProvider({ children }) {
   useEffect(() => {
     if (!token || !isAuthenticated) return
 
-    const tokenInfo = getTokenInfo()
-    if (!tokenInfo) return
+    let interval
 
-    // Refresh token when it has less than 1 hour remaining
-    const oneHour = 60 * 60 * 1000
-    if (tokenInfo.timeUntilExpiry < oneHour && tokenInfo.timeUntilExpiry > 0) {
-      refreshToken()
+    const checkToken = async () => {
+      const tokenInfo = await getTokenInfo()
+      if (!tokenInfo) return
+
+      const oneHour = 60 * 60 * 1000
+      if (tokenInfo.timeUntilExpiry < oneHour && tokenInfo.timeUntilExpiry > 0) {
+        refreshToken()
+      }
     }
 
-    // Set up interval to check token expiration
-    const interval = setInterval(() => {
-      const currentTokenInfo = getTokenInfo()
+    checkToken()
+
+    interval = setInterval(async () => {
+      const currentTokenInfo = await getTokenInfo()
       if (!currentTokenInfo || currentTokenInfo.timeUntilExpiry <= 0) {
         logout()
       }
-    }, 60000) // Check every minute
+    }, 60000)
 
     return () => clearInterval(interval)
   }, [token, isAuthenticated])

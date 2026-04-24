@@ -132,12 +132,8 @@ async function callNetlifyProxy(message) {
   }
 
   const parsedUser = JSON.parse(userData)
-  const token = btoa(JSON.stringify({
-    userId: parsedUser.id,
-    email: parsedUser.email,
-    name: parsedUser.name,
-    loginTime: parsedUser.loginTime
-  }))
+  // Use the real JWT stored at login — never hand-craft a bearer token
+  const token = parsedUser.token || localStorage.getItem('ai_casemanager_token') || ''
   
   console.log('🔒 Using Netlify proxy for AI request')
   
