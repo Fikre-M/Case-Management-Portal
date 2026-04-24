@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { validateCsrf, corsHeaders } from "./utils/csrf.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-in-production";
+const JWT_EXPIRY  = "24h";
 
 // Pre-hashed password for "password" (bcrypt, 12 rounds)
 // Generated with: bcrypt.hashSync('password', 12)
@@ -64,7 +65,7 @@ export const handler = async (event) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email, name: user.name, role: user.role },
       JWT_SECRET,
-      { expiresIn: "24h" }
+      { expiresIn: JWT_EXPIRY }
     );
 
     return handleResponse(200, {

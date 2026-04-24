@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
+import { TOAST_DURATION } from '../../config/constants'
 
 const icons = {
   success: '✅',
@@ -20,7 +21,7 @@ function Toast({ toast, onClose }) {
     if (toast.autoClose !== false) {
       const timer = setTimeout(() => {
         onClose(toast.id)
-      }, toast.duration || 5000)
+      }, toast.duration || TOAST_DURATION.DEFAULT)
       
       return () => clearTimeout(timer)
     }

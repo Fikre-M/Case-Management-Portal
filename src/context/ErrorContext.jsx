@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { registerReporter } from '../services/errorReporter'
+import { TOAST_DURATION } from '../config/constants'
 
 const ErrorContext = createContext()
 
@@ -25,7 +26,7 @@ export function ErrorProvider({ children }) {
       context: options.context || null,
       dismissible: options.dismissible !== false,
       autoClose: options.autoClose !== false,
-      duration: options.duration || 5000,
+      duration: options.duration || TOAST_DURATION.DEFAULT,
     }
 
     setErrors(prev => [...prev, errorObj])

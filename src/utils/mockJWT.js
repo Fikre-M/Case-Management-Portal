@@ -1,16 +1,7 @@
 /**
  * JWT Implementation using Web Crypto API (HMAC-SHA256)
- *
- * Tokens are signed with a per-session secret derived from a stored key so
- * they cannot be forged by simply base64-encoding an arbitrary payload.
- *
- * The secret is persisted in localStorage so tokens survive page reloads
- * within the same browser, but are invalid in any other context.
- *
- * Still client-side only — for production use server-side signing.
  */
-
-const SECRET_KEY = 'ai_casemanager_jwt_secret'
+import { SECURITY, STORAGE_KEYS } from '../config/constants'
 
 // ---------------------------------------------------------------------------
 // Crypto helpers
@@ -18,11 +9,11 @@ const SECRET_KEY = 'ai_casemanager_jwt_secret'
 
 /** Get or create a stable HMAC-SHA256 CryptoKey for this browser session. */
 async function getSigningKey() {
-  let secret = localStorage.getItem(SECRET_KEY)
+  let secret = localStorage.getItem(STORAGE_KEYS.JWT_SECRET)
   if (!secret) {
-    const bytes = crypto.getRandomValues(new Uint8Array(32))
+    const bytes = crypto.getRandomValues(new Uint8Array(SECURITY.RANDOM_BYTES))
     secret = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
-    localStorage.setItem(SECRET_KEY, secret)
+    localStorage.setItem(STORAGE_KEYS.JWT_SECRET, secret)
   }
 
   const keyMaterial = new TextEncoder().encode(secret)

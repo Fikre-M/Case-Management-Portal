@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TOAST_DURATION } from '../../config/constants'
 import { Link, useSearchParams } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import Card from '../../components/common/Card'
@@ -145,14 +146,14 @@ function CaseList() {
     if (window.confirm('Are you sure you want to delete this case?')) {
       deleteCase(id)
       setAlert({ type: 'success', message: 'Case deleted successfully' })
-      setTimeout(() => setAlert(null), 3000)
+      setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
     }
   }
 
   const handleStatusChange = (id, newStatus) => {
     updateCase(id, { status: newStatus })
     setAlert({ type: 'success', message: 'Case status updated' })
-    setTimeout(() => setAlert(null), 3000)
+    setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
   }
 
   const handleFormSubmit = (formData) => {
@@ -165,7 +166,7 @@ function CaseList() {
     }
     setShowEditModal(false)
     setEditingCase(null)
-    setTimeout(() => setAlert(null), 3000)
+    setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
   }
 
   const getStatusVariant = (status) => {

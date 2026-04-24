@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { TOAST_DURATION } from '../config/constants'
 
 let toastId = 0
 
@@ -10,7 +11,7 @@ export function useToast() {
     const newToast = {
       id,
       type: 'info',
-      duration: 5000,
+      duration: TOAST_DURATION.DEFAULT,
       ...toast
     }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { TOAST_DURATION } from '../../config/constants'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Card from '../../components/common/Card'
 import Badge from '../../components/common/Badge'
@@ -62,7 +63,7 @@ function CaseDetails() {
   const handleStatusChange = (newStatus) => {
     setCaseData({ ...caseData, status: newStatus })
     setAlert({ type: 'success', message: `Case status updated to ${newStatus}` })
-    setTimeout(() => setAlert(null), 3000)
+    setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
   }
 
   const handleDelete = () => {

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import PropTypes from 'prop-types'
 import { getServiceStatus } from '../services/aiService'
 import { useError } from './ErrorContext'
+import { UI, TOAST_DURATION, STORAGE_KEYS } from '../config/constants'
 
 const AIContext = createContext()
 
@@ -25,10 +26,10 @@ export function AIProvider({ children }) {
   // Conversations State
   const [conversations, setConversations] = useState(() => {
     try {
-      const saved = localStorage.getItem('aiConversations')
+      const saved = localStorage.getItem(STORAGE_KEYS.AI_CONVERSATIONS)
       return saved ? JSON.parse(saved) : []
     } catch (error) {
-      addError(error, { context: 'AI Conversations', type: 'warning', duration: 4000 })
+      addError(error, { context: 'AI Conversations', type: 'warning', duration: TOAST_DURATION.LONG })
       return []
     }
   })
@@ -42,7 +43,7 @@ export function AIProvider({ children }) {
   // Settings
   const [settings, setSettings] = useState(() => {
     try {
-      const saved = localStorage.getItem('aiSettings')
+      const saved = localStorage.getItem(STORAGE_KEYS.AI_SETTINGS)
       return saved ? JSON.parse(saved) : {
         autoSuggestions: true,
         saveHistory: true,
@@ -50,7 +51,7 @@ export function AIProvider({ children }) {
         maxHistoryItems: 50,
       }
     } catch (error) {
-      console.warn('Failed to load AI settings:', error)
+      addError(error, { context: 'AI Settings', type: 'warning', duration: TOAST_DURATION.LONG })
       return {
         autoSuggestions: true,
         saveHistory: true,
@@ -64,9 +65,9 @@ export function AIProvider({ children }) {
   useEffect(() => {
     if (settings.saveHistory) {
       try {
-        localStorage.setItem('aiConversations', JSON.stringify(conversations))
+        localStorage.setItem(STORAGE_KEYS.AI_CONVERSATIONS, JSON.stringify(conversations))
       } catch (error) {
-        addError(error, { context: 'AI Conversations', type: 'warning', duration: 4000 })
+        addError(error, { context: 'AI Conversations', type: 'warning', duration: TOAST_DURATION.LONG })
       }
     }
   }, [conversations, settings.saveHistory])
@@ -74,7 +75,7 @@ export function AIProvider({ children }) {
   // Save settings to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('aiSettings', JSON.stringify(settings))
+        localStorage.setItem(STORAGE_KEYS.AI_SETTINGS, JSON.stringify(settings))
     } catch (error) {
       console.warn('Failed to save AI settings:', error)
     }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { SECURITY, STORAGE_KEYS } from '../config/constants'
 import { 
   createMockJWT, 
   verifyMockJWT, 
@@ -11,9 +12,8 @@ import {
 
 const SecureAuthContext = createContext()
 
-// Secure storage keys
-const TOKEN_KEY = 'ai_casemanager_token'
-const USERS_KEY = 'ai_casemanager_users_secure'
+const TOKEN_KEY = STORAGE_KEYS.TOKEN
+const USERS_KEY = STORAGE_KEYS.SECURE_USERS
 
 /**
  * 🔒 IMPROVED DEMO AUTHENTICATION CONTEXT
@@ -315,8 +315,7 @@ export function SecureAuthProvider({ children }) {
       const tokenInfo = await getTokenInfo()
       if (!tokenInfo) return
 
-      const oneHour = 60 * 60 * 1000
-      if (tokenInfo.timeUntilExpiry < oneHour && tokenInfo.timeUntilExpiry > 0) {
+      if (tokenInfo.timeUntilExpiry < SECURITY.TOKEN_REFRESH_THRESHOLD_MS && tokenInfo.timeUntilExpiry > 0) {
         refreshToken()
       }
     }
@@ -328,7 +327,7 @@ export function SecureAuthProvider({ children }) {
       if (!currentTokenInfo || currentTokenInfo.timeUntilExpiry <= 0) {
         logout()
       }
-    }, 60000)
+    }, SECURITY.TOKEN_CHECK_INTERVAL_MS)
 
     return () => clearInterval(interval)
   }, [token, isAuthenticated])

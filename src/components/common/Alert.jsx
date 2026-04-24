@@ -1,12 +1,13 @@
 import { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
+import { TOAST_DURATION } from '../../config/constants'
 
-function Alert({ 
-  type = 'info', 
-  message, 
+function Alert({
+  type = 'info',
+  message,
   onClose,
   autoClose = false,
-  autoCloseDelay = 5000,
+  autoCloseDelay = TOAST_DURATION.DEFAULT,
   className = ''
 }) {
   const alertRef = useRef(null)

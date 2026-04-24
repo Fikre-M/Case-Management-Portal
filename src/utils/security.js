@@ -1,9 +1,10 @@
 /**
  * Security Utilities for Input Sanitization and XSS Prevention
- * 
+ *
  * Provides client-side security utilities for demo purposes.
  * In production, always validate and sanitize on the server side as well.
  */
+import { RATE_LIMIT, UI } from '../config/constants'
 
 /**
  * HTML entity encoding map
@@ -229,7 +230,7 @@ export const CSP = {
  * Rate limiting utilities (client-side demo)
  */
 export class RateLimiter {
-  constructor(maxAttempts = 5, windowMs = 15 * 60 * 1000) {
+  constructor(maxAttempts = RATE_LIMIT.LOGIN_MAX_ATTEMPTS, windowMs = RATE_LIMIT.LOGIN_WINDOW_MS) {
     this.maxAttempts = maxAttempts
     this.windowMs = windowMs
     this.attempts = new Map()
@@ -341,9 +342,9 @@ export class SecurityAudit {
       console.log('🔒 Security Event:', event)
     }
     
-    // Keep only last 100 events in memory
-    if (this.events.length > 100) {
-      this.events = this.events.slice(-100)
+    // Keep only last UI.AUDIT_LOG_MAX_EVENTS events in memory
+    if (this.events.length > UI.AUDIT_LOG_MAX_EVENTS) {
+      this.events = this.events.slice(-UI.AUDIT_LOG_MAX_EVENTS)
     }
   }
   
@@ -361,4 +362,4 @@ export class SecurityAudit {
 export const securityAudit = new SecurityAudit()
 
 // Global rate limiter for login attempts
-export const loginRateLimiter = new RateLimiter(5, 15 * 60 * 1000) // 5 attempts per 15 minutes
+export const loginRateLimiter = new RateLimiter(RATE_LIMIT.LOGIN_MAX_ATTEMPTS, RATE_LIMIT.LOGIN_WINDOW_MS)

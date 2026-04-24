@@ -1,21 +1,22 @@
 // Universal AI Service - Works in both local and Netlify environments
 // Automatically detects environment and uses appropriate method
 import { reportError } from './errorReporter'
+import { RATE_LIMIT, SESSION_TIMEOUT_MS, AI, TOAST_DURATION } from '../config/constants'
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
-const AI_ENABLED = import.meta.env.VITE_AI_ENABLED !== 'false'
+const AI_ENABLED   = import.meta.env.VITE_AI_ENABLED !== 'false'
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'
 
-// API Keys - Try multiple sources
+// API Keys
 const LOCAL_API_KEY = import.meta.env.VITE_AidFlow_API_KEY || import.meta.env.AidFlow_API_KEY || ''
-const IS_NETLIFY = import.meta.env.MODE === 'production' || window.location.hostname.includes('netlify.app')
+const IS_NETLIFY    = import.meta.env.MODE === 'production' || window.location.hostname.includes('netlify.app')
 
 // Rate limiting
-const RATE_LIMIT_DELAY = 2000
-let lastRequestTime = 0
-let requestCount = 0
-const MAX_REQUESTS_PER_MINUTE = 20
+const RATE_LIMIT_DELAY        = RATE_LIMIT.DELAY_MS
+let lastRequestTime           = 0
+let requestCount              = 0
+const MAX_REQUESTS_PER_MINUTE = RATE_LIMIT.MAX_PER_WINDOW
 
 // Authentication
 function isAuthenticated() {
@@ -29,7 +30,7 @@ function isAuthenticated() {
     const parsedUser = JSON.parse(userData)
     const loginTime = parsedUser.loginTime
     const now = Date.now()
-    const sessionTimeout = 24 * 60 * 60 * 1000 // 24 hours
+    const sessionTimeout = SESSION_TIMEOUT_MS
     
     if (!loginTime || (now - loginTime) > sessionTimeout) {
       console.warn('🔐 Session expired')
@@ -69,7 +70,7 @@ function checkRateLimit() {
   const now = Date.now()
   const timeSinceLastRequest = now - lastRequestTime
   
-  if (timeSinceLastRequest > 60000) {
+  if (timeSinceLastRequest > RATE_LIMIT.WINDOW_MS) {
     requestCount = 0
     lastRequestTime = now
   }
@@ -103,7 +104,7 @@ async function callDirectGeminiAPI(message, signal) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ parts: [{ text: message }] }],
-      generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+      generationConfig: { maxOutputTokens: AI.MAX_OUTPUT_TOKENS, temperature: AI.TEMPERATURE },
     }),
     signal,
   })
@@ -141,9 +142,9 @@ async function callNetlifyProxy(message, signal) {
     },
     body: JSON.stringify({
       messages: [{ role: 'user', content: message }],
-      model: 'gemini-1.5-flash',
-      max_tokens: 1000,
-      temperature: 0.7,
+      model: AI.MODEL,
+      max_tokens: AI.MAX_OUTPUT_TOKENS,
+      temperature: AI.TEMPERATURE,
     }),
     signal,
   })
@@ -168,7 +169,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   console.log('🤖 AI Service called with:', message)
 
   if (!AI_ENABLED) {
-    await delay(500 + Math.random() * 1000)
+    await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
     return getRandomResponse('default')
   }
 
@@ -181,7 +182,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   updateRateLimit()
 
   if (USE_MOCK_DATA) {
-    await delay(500 + Math.random() * 1000)
+    await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
     return getRandomResponse('default')
   }
 
@@ -195,10 +196,10 @@ export async function sendMessage(message, conversationId = null, customSystemPr
     throw new Error('No API key available')
   } catch (error) {
     if (error.name === 'AbortError') throw error // propagate cancellation
-    reportError(error, { context: 'AI Service', type: 'warning', duration: 4000, autoClose: true })
+    reportError(error, { context: 'AI Service', type: 'warning', duration: TOAST_DURATION.LONG, autoClose: true })
   }
 
-  await delay(500 + Math.random() * 1000)
+  await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
   return getRandomResponse('default')
 }
 

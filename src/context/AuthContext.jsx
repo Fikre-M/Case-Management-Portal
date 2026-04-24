@@ -4,8 +4,10 @@ import { useError } from './ErrorContext'
 
 const AuthContext = createContext()
 
-const CURRENT_USER_KEY = 'ai_casemanager_current_user'
-const SESSION_TIMEOUT = 24 * 60 * 60 * 1000 // 24 hours
+import { SESSION_TIMEOUT_MS, STORAGE_KEYS } from '../config/constants'
+
+const CURRENT_USER_KEY = STORAGE_KEYS.CURRENT_USER
+const SESSION_TIMEOUT  = SESSION_TIMEOUT_MS
 
 // ---------------------------------------------------------------------------
 // API helpers

@@ -10,11 +10,13 @@ const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true'
 // Get API key from environment (for local development only)
 const GEMINI_API_KEY = import.meta.env.AidFlow_API_KEY || ''
 
+import { RATE_LIMIT, SESSION_TIMEOUT_MS, AI, STORAGE_KEYS, TOAST_DURATION } from '../config/constants'
+
 // Rate limiting configuration
-const RATE_LIMIT_DELAY = 2000
-let lastRequestTime = 0
-let requestCount = 0
-const MAX_REQUESTS_PER_MINUTE = 20
+const RATE_LIMIT_DELAY       = RATE_LIMIT.DELAY_MS
+let lastRequestTime          = 0
+let requestCount             = 0
+const MAX_REQUESTS_PER_MINUTE = RATE_LIMIT.MAX_PER_WINDOW
 
 // Get auth token from localStorage
 function getAuthToken() {
@@ -33,7 +35,7 @@ function isAuthenticated() {
     const parsedUser = JSON.parse(userData)
     const loginTime = parsedUser.loginTime
     const now = Date.now()
-    const sessionTimeout = 24 * 60 * 60 * 1000 // 24 hours
+    const sessionTimeout = SESSION_TIMEOUT_MS
     
     if (!loginTime || (now - loginTime) > sessionTimeout) {
       console.warn('🔐 Session expired')
@@ -77,7 +79,7 @@ function checkRateLimit() {
   const now = Date.now()
   const timeSinceLastRequest = now - lastRequestTime
   
-  if (timeSinceLastRequest > 60000) {
+  if (timeSinceLastRequest > RATE_LIMIT.WINDOW_MS) {
     requestCount = 0
     lastRequestTime = now
   }
@@ -116,12 +118,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   // Check if AI is enabled
   if (!AI_ENABLED) {
     console.log('❌ AI is disabled (VITE_AI_ENABLED=false)')
-    await delay(500 + Math.random() * 1000)
-    return getRandomResponse('default')
-  }
-  
-  // Check if user is authenticated
-  if (!isAuthenticated()) {
+    await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
     console.log('❌ User not authenticated')
     return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
   }
@@ -137,7 +134,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   // If mock data is enabled, return mock responses
   if (USE_MOCK_DATA) {
     console.log('🎭 Using mock responses (USE_MOCK_DATA=true)')
-    await delay(500 + Math.random() * 1000)
+    await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
     return getRandomResponse('default')
   }
   
@@ -153,7 +150,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: message }] }],
-          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 },
+          generationConfig: { maxOutputTokens: AI.MAX_OUTPUT_TOKENS, temperature: AI.TEMPERATURE },
         }),
         signal,
       })
@@ -177,7 +174,7 @@ export async function sendMessage(message, conversationId = null, customSystemPr
       
     } catch (error) {
       if (error.name === 'AbortError') throw error // propagate cancellation
-      reportError(error, { context: 'AI Service (Local)', type: 'warning', duration: 4000, autoClose: true })
+      reportError(error, { context: 'AI Service (Local)', type: 'warning', duration: TOAST_DURATION.LONG, autoClose: true })
     }
   } else {
     console.warn('⚠️ No valid Gemini API key found in environment')
@@ -186,11 +183,9 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   
   // Fallback to mock responses
   console.log('🎭 Using demo fallback responses')
-  await delay(500 + Math.random() * 1000)
+  await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
   return getRandomResponse('default')
 }
-
-// Get suggested prompts
 export function getSuggestedPrompts() {
   return [
     "Help me analyze a case",

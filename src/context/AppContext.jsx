@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { appointmentService } from '../services/appointmentService'
 import { caseService } from '../services/caseService'
 import { useError } from './ErrorContext'
+import { UI } from '../config/constants'
 
 const AppContext = createContext()
 
@@ -255,7 +256,7 @@ export function AppProvider({ children }) {
    * @param {number} [limit=5] - Maximum number of appointments to return
    * @returns {Array<Object>} Array of upcoming appointments, sorted by date
    */
-  const getUpcomingAppointments = (limit = 5) => {
+  const getUpcomingAppointments = (limit = UI.UPCOMING_APPOINTMENTS_LIMIT) => {
     const today = new Date().toISOString().split('T')[0]
     return appointments
       .filter(apt => apt.date >= today)
@@ -318,7 +319,7 @@ export function AppProvider({ children }) {
     return getCasesByStatus('active')
   }
 
-  const getRecentCases = (limit = 5) => {
+  const getRecentCases = (limit = UI.RECENT_CASES_LIMIT) => {
     return cases
       .sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
       .slice(0, limit)

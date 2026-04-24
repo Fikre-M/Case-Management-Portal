@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TOAST_DURATION } from '../../config/constants'
 import { Link, useSearchParams } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import Card from '../../components/common/Card'
@@ -120,14 +121,14 @@ function AppointmentsList() {
     if (window.confirm('Are you sure you want to delete this appointment?')) {
       deleteAppointment(id)
       setAlert({ type: 'success', message: 'Appointment deleted successfully' })
-      setTimeout(() => setAlert(null), 3000)
+      setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
     }
   }
 
   const handleStatusChange = (id, newStatus) => {
     updateAppointment(id, { status: newStatus })
     setAlert({ type: 'success', message: 'Appointment status updated' })
-    setTimeout(() => setAlert(null), 3000)
+    setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
   }
 
   const handleFormSubmit = (formData) => {
@@ -142,7 +143,7 @@ function AppointmentsList() {
     }
     setShowEditModal(false)
     setEditingAppointment(null)
-    setTimeout(() => setAlert(null), 3000)
+    setTimeout(() => setAlert(null), TOAST_DURATION.SHORT)
   }
 
   const getStatusVariant = (status) => {
