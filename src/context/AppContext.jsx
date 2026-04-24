@@ -5,6 +5,60 @@ import { caseService } from '../services/caseService'
 
 const AppContext = createContext()
 
+// ---------------------------------------------------------------------------
+// Input validators — throw on bad input so state is never corrupted
+// ---------------------------------------------------------------------------
+
+const VALID_APPOINTMENT_STATUSES = ['scheduled', 'confirmed', 'completed', 'cancelled', 'pending']
+const VALID_CASE_STATUSES = ['active', 'pending', 'closed', 'on-hold']
+const VALID_CASE_PRIORITIES = ['low', 'medium', 'high', 'urgent']
+const VALID_AI_ROLES = ['user', 'assistant', 'system']
+
+function validateId(id) {
+  const parsed = parseInt(id)
+  if (!id || isNaN(parsed) || parsed <= 0) throw new Error(`Invalid ID: ${id}`)
+  return parsed
+}
+
+function validateAppointmentData(data, requireAll = true) {
+  if (!data || typeof data !== 'object' || Array.isArray(data))
+    throw new Error('Appointment data must be a non-null object')
+  if (requireAll) {
+    if (!data.title?.trim()) throw new Error('Appointment title is required')
+    if (!data.clientName?.trim()) throw new Error('Appointment clientName is required')
+    if (!data.date || !/^\d{4}-\d{2}-\d{2}$/.test(data.date)) throw new Error('Appointment date must be YYYY-MM-DD')
+    if (!data.time || !/^\d{2}:\d{2}$/.test(data.time)) throw new Error('Appointment time must be HH:MM')
+  }
+  if (data.status !== undefined && !VALID_APPOINTMENT_STATUSES.includes(data.status))
+    throw new Error(`Invalid appointment status: ${data.status}`)
+  if (data.date !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(data.date))
+    throw new Error('Appointment date must be YYYY-MM-DD')
+  if (data.time !== undefined && !/^\d{2}:\d{2}$/.test(data.time))
+    throw new Error('Appointment time must be HH:MM')
+}
+
+function validateCaseData(data, requireAll = true) {
+  if (!data || typeof data !== 'object' || Array.isArray(data))
+    throw new Error('Case data must be a non-null object')
+  if (requireAll) {
+    if (!data.title?.trim()) throw new Error('Case title is required')
+    if (!data.clientName?.trim()) throw new Error('Case clientName is required')
+  }
+  if (data.status !== undefined && !VALID_CASE_STATUSES.includes(data.status))
+    throw new Error(`Invalid case status: ${data.status}`)
+  if (data.priority !== undefined && !VALID_CASE_PRIORITIES.includes(data.priority))
+    throw new Error(`Invalid case priority: ${data.priority}`)
+}
+
+function validateAiMessage(message) {
+  if (!message || typeof message !== 'object' || Array.isArray(message))
+    throw new Error('AI message must be a non-null object')
+  if (!message.role || !VALID_AI_ROLES.includes(message.role))
+    throw new Error(`Invalid AI message role: ${message.role}`)
+  if (typeof message.content !== 'string' || !message.content.trim())
+    throw new Error('AI message content must be a non-empty string')
+}
+
 export function AppProvider({ children }) {
   // Appointments State
   const [appointments, setAppointments] = useState([])
@@ -116,6 +170,7 @@ export function AppProvider({ children }) {
    */
   const createAppointment = async (appointmentData) => {
     try {
+      validateAppointmentData(appointmentData)
       const newAppointment = await appointmentService.create(appointmentData)
       setAppointments(prev => [...prev, newAppointment])
       return newAppointment
@@ -134,6 +189,8 @@ export function AppProvider({ children }) {
    */
   const updateAppointment = async (id, appointmentData) => {
     try {
+      validateId(id)
+      validateAppointmentData(appointmentData, false)
       const updatedAppointment = await appointmentService.update(id, appointmentData)
       setAppointments(prev =>
         prev.map(apt => apt.id === parseInt(id) ? updatedAppointment : apt)
@@ -153,6 +210,7 @@ export function AppProvider({ children }) {
    */
   const deleteAppointment = async (id) => {
     try {
+      validateId(id)
       await appointmentService.delete(id)
       setAppointments(prev => prev.filter(apt => apt.id !== parseInt(id)))
     } catch (error) {
@@ -208,6 +266,7 @@ export function AppProvider({ children }) {
 
   const createCase = async (caseData) => {
     try {
+      validateCaseData(caseData)
       const newCase = await caseService.create(caseData)
       setCases(prev => [...prev, newCase])  
       return newCase
@@ -219,6 +278,8 @@ export function AppProvider({ children }) {
 
   const updateCase = async (id, caseData) => {
     try {
+      validateId(id)
+      validateCaseData(caseData, false)
       const updatedCase = await caseService.update(id, caseData)
       setCases(prev =>
         prev.map(c => c.id === parseInt(id) ? updatedCase : c)
@@ -232,6 +293,7 @@ export function AppProvider({ children }) {
 
   const deleteCase = async (id) => {
     try {
+      validateId(id)
       await caseService.delete(id)
       setCases(prev => prev.filter(c => c.id !== parseInt(id)))
     } catch (error) {
@@ -260,6 +322,7 @@ export function AppProvider({ children }) {
 
   // AI Assistant Functions
   const addAiMessage = (message) => {
+    validateAiMessage(message)
     setAiChatHistory(prev => [...prev, { ...message, id: Date.now() + Math.random() }])
   }
 
