@@ -33,3 +33,9 @@ dist-ssr
 
 # Private / local only
 INTERVIEW_PREP.md
+
+# Test artifacts
+test-results/
+playwright-report/
+coverage/
+.nyc_output/
