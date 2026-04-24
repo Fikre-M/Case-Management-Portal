@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Dashboard from './dashboard/Dashboard'
 import AIAssistant from '../components/ai/AIAssistant'
+import { setLocalStorageItem } from '../hooks/useLocalStorage'
 
 function Demo() {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ function Demo() {
       loginTime: Date.now(),
       isDemo: true
     }
-    localStorage.setItem('ai_casemanager_current_user', JSON.stringify(demoUser))
+    setLocalStorageItem('ai_casemanager_current_user', demoUser)
   }, [])
 
   return (

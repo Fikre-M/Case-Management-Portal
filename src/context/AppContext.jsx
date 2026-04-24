@@ -4,6 +4,7 @@ import { appointmentService } from '../services/appointmentService'
 import { caseService } from '../services/caseService'
 import { useError } from './ErrorContext'
 import { UI } from '../config/constants'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 const AppContext = createContext()
 
@@ -73,17 +74,8 @@ export const AppProvider = memo(function AppProvider({ children }) {
   const [casesLoading, setCasesLoading] = useState(true)
   const [casesError, setCasesError] = useState(null)
 
-  // AI Assistant State
-  const [aiChatHistory, setAiChatHistory] = useState(() => {
-    // Load chat history from localStorage
-    try {
-      const saved = localStorage.getItem('aiChatHistory')
-      return saved ? JSON.parse(saved) : []
-    } catch (error) {
-      console.warn('Failed to load AI chat history:', error)
-      return []
-    }
-  })
+  // AI Assistant State - using useLocalStorage hook
+  const [aiChatHistory, setAiChatHistory] = useLocalStorage('aiChatHistory', [])
 
   // Load appointments using service layer
   const loadAppointments = useCallback(async () => {
@@ -123,15 +115,7 @@ export const AppProvider = memo(function AppProvider({ children }) {
     loadCases()
   }, [])
 
-  // Save AI chat history to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem('aiChatHistory', JSON.stringify(aiChatHistory))
-    } catch (error) {
-      console.warn('Failed to save AI chat history:', error)
-    }
-  }, [aiChatHistory])
-
+  
   // Retry functions now simply call the loader functions
   const retryLoadAppointments = loadAppointments
   const retryLoadCases = loadCases

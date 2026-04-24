@@ -1,37 +1,35 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
 const ThemeContext = createContext()
 
 // Helper function to get the initial theme
 const getInitialTheme = () => {
-  // Check for saved theme preference
-  if (typeof window !== 'undefined') {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) return savedTheme
-    
-    // Check for system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
+  // Check for system preference
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
   return 'light'
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(getInitialTheme)
+  // Use useLocalStorage with serialize: false for theme string
+  const [theme, setTheme] = useLocalStorage('theme', getInitialTheme(), { 
+    serialize: false,
+    validator: (value) => value === 'light' || value === 'dark'
+  })
 
   // Apply theme class to document element
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const root = window.document.documentElement
     
     // Remove previous theme class
     root.classList.remove('light', 'dark')
     // Add current theme class
     root.classList.add(theme)
-    
-    // Save to localStorage
-    localStorage.setItem('theme', theme)
   }, [theme])
 
   const toggleTheme = () => {

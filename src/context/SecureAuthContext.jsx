@@ -9,6 +9,7 @@ import {
   getUserFromToken,
   mockJWTUtils 
 } from '../utils/mockJWT'
+import { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem } from '../hooks/useLocalStorage'
 
 const SecureAuthContext = createContext()
 
@@ -46,7 +47,7 @@ const USERS_KEY = STORAGE_KEYS.SECURE_USERS
 // Initialize demo users with hashed passwords
 const initializeSecureUsers = () => {
   try {
-    const existingUsers = localStorage.getItem(USERS_KEY)
+    const existingUsers = getLocalStorageItem(USERS_KEY)
     if (!existingUsers) {
       const demoUsers = [
         {
@@ -66,7 +67,7 @@ const initializeSecureUsers = () => {
           createdAt: new Date().toISOString()
         }
       ]
-      localStorage.setItem(USERS_KEY, JSON.stringify(demoUsers))
+      setLocalStorageItem(USERS_KEY, demoUsers)
       console.log('🔒 Demo users initialized with hashed passwords')
     }
   } catch (error) {
@@ -95,7 +96,7 @@ export function SecureAuthProvider({ children }) {
       try {
         initializeSecureUsers()
         
-        const storedToken = localStorage.getItem(TOKEN_KEY)
+        const storedToken = getLocalStorageItem(TOKEN_KEY)
         if (storedToken && !await isTokenExpired(storedToken)) {
           const userData = await getUserFromToken(storedToken)
           if (userData) {
@@ -106,12 +107,12 @@ export function SecureAuthProvider({ children }) {
           }
         } else if (storedToken) {
           // Token expired, clean up
-          localStorage.removeItem(TOKEN_KEY)
+          removeLocalStorageItem(TOKEN_KEY)
           console.log('🔒 Expired token removed')
         }
       } catch (error) {
         console.error('Auth initialization error:', error)
-        localStorage.removeItem(TOKEN_KEY)
+        removeLocalStorageItem(TOKEN_KEY)
       } finally {
         setIsLoading(false)
       }
@@ -144,7 +145,7 @@ export function SecureAuthProvider({ children }) {
         return { success: false, error: 'Password must be at least 6 characters' }
       }
 
-      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+      const users = getLocalStorageItem(USERS_KEY) || []
       
       // Check if user already exists
       if (users.find(u => u.email === sanitizedData.email)) {
@@ -162,7 +163,7 @@ export function SecureAuthProvider({ children }) {
       }
 
       users.push(newUser)
-      localStorage.setItem(USERS_KEY, JSON.stringify(users))
+      setLocalStorageItem(USERS_KEY, users)
 
       // Create JWT token for new user
       const tokenPayload = {
@@ -175,7 +176,7 @@ export function SecureAuthProvider({ children }) {
       const jwtToken = await createMockJWT(tokenPayload, { expiresIn: '24h' })
       
       // Store token and update state
-      localStorage.setItem(TOKEN_KEY, jwtToken)
+      setLocalStorageItem(TOKEN_KEY, jwtToken)
       setUser(tokenPayload)
       setIsAuthenticated(true)
       setToken(jwtToken)
@@ -204,7 +205,7 @@ export function SecureAuthProvider({ children }) {
         return { success: false, error: 'Email and password are required' }
       }
 
-      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+      const users = getLocalStorageItem(USERS_KEY) || []
       const foundUser = users.find(u => u.email === sanitizedEmail)
 
       if (!foundUser) {
@@ -227,7 +228,7 @@ export function SecureAuthProvider({ children }) {
       const jwtToken = await createMockJWT(tokenPayload, { expiresIn: '24h' })
       
       // Store token and update state
-      localStorage.setItem(TOKEN_KEY, jwtToken)
+      setLocalStorageItem(TOKEN_KEY, jwtToken)
       setUser(tokenPayload)
       setIsAuthenticated(true)
       setToken(jwtToken)
@@ -245,7 +246,7 @@ export function SecureAuthProvider({ children }) {
    */
   const logout = () => {
     try {
-      localStorage.removeItem(TOKEN_KEY)
+      removeLocalStorageItem(TOKEN_KEY)
       setUser(null)
       setIsAuthenticated(false)
       setToken(null)
@@ -264,7 +265,7 @@ export function SecureAuthProvider({ children }) {
 
       const newToken = await refreshMockJWT(token)
       if (newToken) {
-        localStorage.setItem(TOKEN_KEY, newToken)
+        setLocalStorageItem(TOKEN_KEY, newToken, false)
         setToken(newToken)
         console.log('🔒 Token refreshed successfully')
         return true

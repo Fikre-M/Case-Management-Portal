@@ -1,20 +1,22 @@
 // Authentication Service - Handles user authentication with secure backend
 
+import { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem } from '../hooks/useLocalStorage'
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 // Store auth token in localStorage
 export function setAuthToken(token) {
-  localStorage.setItem('authToken', token)
+  return setLocalStorageItem('authToken', token, false)
 }
 
 // Get auth token from localStorage
 export function getAuthToken() {
-  return localStorage.getItem('authToken')
+  return getLocalStorageItem('authToken', null, false)
 }
 
 // Remove auth token from localStorage
 export function removeAuthToken() {
-  localStorage.removeItem('authToken')
+  return removeLocalStorageItem('authToken')
 }
 
 // Decode a JWT payload segment (base64url → JSON) without verifying signature.
