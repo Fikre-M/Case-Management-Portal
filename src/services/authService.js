@@ -1,6 +1,7 @@
 // Authentication Service - Handles user authentication with secure backend
 
 import { getLocalStorageItem, setLocalStorageItem, removeLocalStorageItem } from '../hooks/useLocalStorage'
+import { auth, error } from '../utils/logger'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
@@ -42,7 +43,7 @@ export function isAuthenticated() {
     if (!payload) { removeAuthToken(); return false }
     return payload.exp > Date.now() / 1000
   } catch (error) {
-    console.error('Invalid token format:', error)
+    error('Invalid token format:', { error: error.message })
     removeAuthToken()
     return false
   }
@@ -75,7 +76,7 @@ export async function register(username, email, password, signal) {
     }
   } catch (error) {
     if (error.name === 'AbortError') return { success: false, error: 'Request cancelled' }
-    console.error('Registration error:', error)
+    error('Registration error:', { error: error.message })
     return { success: false, error: error.message }
   }
 }
@@ -106,7 +107,7 @@ export async function login(email, password, signal) {
     }
   } catch (error) {
     if (error.name === 'AbortError') return { success: false, error: 'Request cancelled' }
-    console.error('Login error:', error)
+    error('Login error:', { error: error.message })
     return { success: false, error: error.message }
   }
 }
@@ -130,7 +131,7 @@ export function getCurrentUser() {
       username: payload.username
     }
   } catch (error) {
-    console.error('Failed to decode token:', error)
+    error('Failed to decode token:', { error: error.message })
     return null
   }
 }

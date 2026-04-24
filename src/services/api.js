@@ -1,5 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false' // Default to true for demo
+import { api as apiLogger } from '../utils/logger'
 
 /**
  * Generic API request handler with error handling and cancellation support.
@@ -30,7 +31,7 @@ async function apiRequest(endpoint, options = {}) {
   } catch (error) {
     // Don't log or rethrow abort errors — they are intentional cancellations
     if (error.name === 'AbortError') throw error
-    console.error(`API Request failed for ${endpoint}:`, error)
+    apiLogger(`API Request failed for ${endpoint}`, { error: error.message, endpoint })
     throw error
   }
 }

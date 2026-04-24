@@ -9,6 +9,8 @@
  * ErrorContext registers its addError function on mount via registerReporter().
  */
 
+import { error } from '../utils/logger'
+
 let _addError = null
 
 /**
@@ -35,7 +37,7 @@ export function reportError(error, options = {}) {
   if (_addError) {
     _addError(error, { type: 'error', ...options })
   } else {
-    console.error(`[${options.context || 'Service'}]`, error)
+    error(`[${options.context || 'Service'}]`, { error: error.message })
   }
 
   if (options.rethrow) throw error

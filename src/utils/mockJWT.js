@@ -112,20 +112,20 @@ export async function verifyMockJWT(token) {
     )
 
     if (!valid) {
-      console.warn('🔒 JWT: Invalid signature')
+      warn('JWT: Invalid signature')
       return null
     }
 
     const payload = JSON.parse(base64UrlDecode(encodedPayload))
 
     if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
-      console.warn('🔒 JWT: Token expired')
+      warn('JWT: Token expired')
       return null
     }
 
     return payload
   } catch (error) {
-    console.warn('🔒 JWT: Verification failed', error)
+    warn('JWT: Verification failed', { error: error.message })
     return null
   }
 }

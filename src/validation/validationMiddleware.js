@@ -1,5 +1,6 @@
 import { ZodError, ZodType } from 'zod'
 import { reportError } from '../services/errorReporter'
+import { validation } from '../utils/logger'
 
 /**
  * Validation error class for API response validation failures
@@ -48,15 +49,13 @@ export function validateApiResponse(data, schema, context = 'API Response') {
     // Parse and validate the data
     const validatedData = schema.parse(data)
     
-    // Log successful validation in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ Validation successful for ${context}:`, {
-        dataType: schema.description || context,
-        dataKeys: Object.keys(validatedData),
-        isArray: Array.isArray(validatedData),
-        itemCount: Array.isArray(validatedData) ? validatedData.length : null,
-      })
-    }
+    // Log successful validation
+    validation(`Validation successful for ${context}`, {
+      dataType: schema.description || context,
+      dataKeys: Object.keys(validatedData),
+      isArray: Array.isArray(validatedData),
+      itemCount: Array.isArray(validatedData) ? validatedData.length : null,
+    }, true)
 
     return validatedData
   } catch (error) {
@@ -76,14 +75,12 @@ export function validateApiResponse(data, schema, context = 'API Response') {
         itemCount: Array.isArray(data) ? data.length : null,
       })
 
-      // Log validation error in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`❌ Validation failed for ${context}:`, {
-          errors: error.errors,
-          data,
-          schema: schema.description || context,
-        })
-      }
+      // Log validation error
+      validation(`Validation failed for ${context}`, {
+        errors: error.errors,
+        data,
+        schema: schema.description || context,
+      }, false)
 
       throw validationError
     }
@@ -141,13 +138,11 @@ export function validateApiRequest(data, schema, context = 'API Request') {
   try {
     const validatedData = schema.parse(data)
     
-    // Log successful request validation in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ Request validation successful for ${context}:`, {
-        dataType: schema.description || context,
-        dataKeys: Object.keys(validatedData),
-      })
-    }
+    // Log successful request validation
+    validation(`Request validation successful for ${context}`, {
+      dataType: schema.description || context,
+      dataKeys: Object.keys(validatedData),
+    }, true)
 
     return validatedData
   } catch (error) {
@@ -159,14 +154,12 @@ export function validateApiRequest(data, schema, context = 'API Request') {
         error
       )
 
-      // Log request validation error in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error(`❌ Request validation failed for ${context}:`, {
-          errors: error.errors,
-          data,
-          schema: schema.description || context,
-        })
-      }
+      // Log request validation error
+      validation(`Request validation failed for ${context}`, {
+        errors: error.errors,
+        data,
+        schema: schema.description || context,
+      }, false)
 
       throw validationError
     }
@@ -222,9 +215,7 @@ export function safeValidate(data, schema, context = 'Safe Validation') {
   try {
     return validateApiResponse(data, schema, context)
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`⚠️ Safe validation failed for ${context}:`, error.message)
-    }
+    validation(`Safe validation failed for ${context}`, { error: error.message }, false)
     return null
   }
 }

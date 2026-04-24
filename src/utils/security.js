@@ -4,7 +4,8 @@
  * Provides client-side security utilities for demo purposes.
  * In production, always validate and sanitize on the server side as well.
  */
-import { RATE_LIMIT, UI } from '../config/constants'
+import { SECURITY, STORAGE_KEYS, RATE_LIMIT, UI } from '../config/constants'
+import { security } from './logger'
 
 /**
  * HTML entity encoding map
@@ -337,10 +338,8 @@ export class SecurityAudit {
     
     this.events.push(event)
     
-    // In production, send to security monitoring service
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔒 Security Event:', event)
-    }
+    // Log security event
+    security('Security Event:', event)
     
     // Keep only last UI.AUDIT_LOG_MAX_EVENTS events in memory
     if (this.events.length > UI.AUDIT_LOG_MAX_EVENTS) {

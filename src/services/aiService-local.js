@@ -1,6 +1,8 @@
 // Local AI Service - For development testing only
 // Uses direct Gemini API calls instead of Netlify proxy
-import { reportError } from './errorReporter'
+import { simulateNetworkDelay, isMockMode } from './api'
+import { delay } from '../utils/helpers'
+import { ai, auth, warn, info, debug } from '../utils/logger'
 
 // Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
@@ -27,7 +29,7 @@ function getAuthToken() {
 function isAuthenticated() {
   const userData = localStorage.getItem('ai_casemanager_current_user')
   if (!userData) {
-    console.warn('🔐 No user data found - user not logged in')
+    warn('No user data found - user not logged in')
     return false
   }
   
@@ -38,14 +40,14 @@ function isAuthenticated() {
     const sessionTimeout = SESSION_TIMEOUT_MS
     
     if (!loginTime || (now - loginTime) > sessionTimeout) {
-      console.warn('🔐 Session expired')
+      warn('Session expired')
       localStorage.removeItem('ai_casemanager_current_user')
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Error parsing user data for auth check:', error)
+    auth('Error parsing user data for auth check:', { error: error.message })
     return false
   }
 }
@@ -104,22 +106,30 @@ export function updateRateLimit() {
 
 // Main function to send message and get response
 export async function sendMessage(message, conversationId = null, customSystemPrompt = null, signal = null) {
-  console.log('🤖 AI Service called with message:', message)
-  console.log('🔧 Raw environment variables:')
-  console.log('  - VITE_AI_ENABLED:', import.meta.env.VITE_AI_ENABLED)
-  console.log('  - VITE_USE_MOCK_DATA:', import.meta.env.VITE_USE_MOCK_DATA)
-  console.log('  - AidFlow_API_KEY length:', import.meta.env.AidFlow_API_KEY?.length || 0)
+  ai('AI Service called with message:', { message })
+  debug('Raw environment variables:', {
+    'VITE_AI_ENABLED': import.meta.env.VITE_AI_ENABLED,
+    'VITE_USE_MOCK_DATA': import.meta.env.VITE_USE_MOCK_DATA,
+    'AidFlow_API_KEY length': import.meta.env.AidFlow_API_KEY?.length || 0
+  })
   
-  console.log('🔧 Processed configuration:')
-  console.log('  - AI_ENABLED:', AI_ENABLED)
-  console.log('  - USE_MOCK_DATA:', USE_MOCK_DATA)
-  console.log('  - API Key available:', !!GEMINI_API_KEY, 'Length:', GEMINI_API_KEY?.length || 0)
+  info('Processed configuration:', {
+    'AI_ENABLED': AI_ENABLED,
+    'USE_MOCK_DATA': USE_MOCK_DATA,
+    'API Key available': !!GEMINI_API_KEY,
+    'API Key Length': GEMINI_API_KEY?.length || 0
+  })
   
   // Check if AI is enabled
   if (!AI_ENABLED) {
-    console.log('❌ AI is disabled (VITE_AI_ENABLED=false)')
+    warn('AI is disabled (VITE_AI_ENABLED=false)')
     await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
-    console.log('❌ User not authenticated')
+    return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
+  }
+  
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    warn('User not authenticated')
     return "🔐 Please login to use AI features. Click the login button in the top right to get started with AI assistance."
   }
   
@@ -133,17 +143,17 @@ export async function sendMessage(message, conversationId = null, customSystemPr
   
   // If mock data is enabled, return mock responses
   if (USE_MOCK_DATA) {
-    console.log('🎭 Using mock responses (USE_MOCK_DATA=true)')
+    info('Using mock responses (USE_MOCK_DATA=true)')
     await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
     return getRandomResponse('default')
   }
   
-  console.log('✅ Passed all checks, attempting real AI call')
+  info('✅ Passed all checks, attempting real AI call')
   
   // Try direct Gemini API call for local development
   if (GEMINI_API_KEY && GEMINI_API_KEY.length > 10) {
     try {
-      console.log('🔒 Using direct Gemini API call')
+      info('Using direct Gemini API call')
       
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
@@ -157,32 +167,33 @@ export async function sendMessage(message, conversationId = null, customSystemPr
 
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ Gemini API response received:', data)
+        info('Gemini API response received:', { status: 'success' })
         
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          console.log('🤖 Real Gemini AI response received')
+          ai('Real Gemini AI response received')
           return data.candidates[0].content.parts[0].text
         } else {
-        console.warn('Unexpected Gemini response format:', data)
+          warn('Unexpected Gemini response format:', { data })
           throw new Error('Invalid response format from Gemini API')
         }
       } else {
         const errorData = await response.json()
-        console.error('Gemini API error:', errorData)
+        error('Gemini API error:', { error: errorData.error?.message, status: response.status })
         throw new Error(errorData.error?.message || `Gemini API error ${response.status}`)
       }
       
     } catch (error) {
       if (error.name === 'AbortError') throw error // propagate cancellation
-      reportError(error, { context: 'AI Service (Local)', type: 'warning', duration: TOAST_DURATION.LONG, autoClose: true })
+      error('Gemini API request failed:', { error: error.message })
+      throw new Error(`AI service temporarily unavailable: ${error.message}`)
     }
   } else {
-    console.warn('⚠️ No valid Gemini API key found in environment')
-    console.warn('🔧 Set AidFlow_API_KEY in your .env file')
+    error('⚠️ No valid Gemini API key found in environment')
+    error('🔧 Set AidFlow_API_KEY in your .env file')
   }
   
   // Fallback to mock responses
-  console.log('🎭 Using demo fallback responses')
+  info('Using demo fallback responses')
   await delay(AI.MOCK_DELAY_MIN_MS + Math.random() * AI.MOCK_DELAY_RANGE_MS)
   return getRandomResponse('default')
 }
