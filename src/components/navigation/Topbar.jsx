@@ -389,15 +389,6 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
             </svg>
           </button>
 
-          {/* Desktop Collapse Button */}
-          <button
-            onClick={toggleCollapse}
-            className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <span className="text-xl">{sidebarCollapsed ? "→" : "←"}</span>
-          </button>
-
           {/* Search Bar */}
           <div className="hidden md:flex flex-1 max-w-md">
             <div className="relative w-full">

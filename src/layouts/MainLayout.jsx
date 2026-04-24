@@ -80,6 +80,7 @@ function MainLayout() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           collapsed={sidebarCollapsed}
+          toggleCollapse={toggleCollapse}
         />
 
         {/* Main Content Area - NO GAP */}

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-function Sidebar({ isOpen, onClose, collapsed = false }) {
+function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
   const location = useLocation();
   const { user } = useAuth();
 
@@ -41,25 +41,49 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
       >
         {/* Logo */}
         <div className={`border-b border-gray-200 dark:border-gray-700 ${collapsed ? "p-3" : "p-4"}`}>
-          <Link
-            to="/landing"
-            className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? "justify-center" : "space-x-3"}`}
-            title="AI Case Manager"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-              <span className="text-xl">🤖</span>
-            </div>
-            {!collapsed && (
-              <div>
-                <div className="font-bold text-base text-gray-900 dark:text-white leading-tight">
-                  AI Case Manager
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Smart Management
-                </div>
+          <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
+            <Link
+              to="/landing"
+              className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? "justify-center" : "space-x-3"}`}
+              title="AI Case Manager"
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                <span className="text-xl">🤖</span>
               </div>
+              {!collapsed && (
+                <div>
+                  <div className="font-bold text-base text-gray-900 dark:text-white leading-tight">
+                    AI Case Manager
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Smart Management
+                  </div>
+                </div>
+              )}
+            </Link>
+            {!collapsed && (
+              <button
+                onClick={toggleCollapse}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+                title="Collapse sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
+                </svg>
+              </button>
             )}
-          </Link>
+            {collapsed && (
+              <button
+                onClick={toggleCollapse}
+                className="mt-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-500 dark:text-gray-400"
+                title="Expand sidebar"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M6 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Navigation */}
