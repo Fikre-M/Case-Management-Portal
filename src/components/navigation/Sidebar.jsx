@@ -39,6 +39,29 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
           collapsed ? "w-20" : "w-64"
         }`}
       >
+        {/* Logo */}
+        <div className={`border-b border-gray-200 dark:border-gray-700 ${collapsed ? "p-3" : "p-4"}`}>
+          <Link
+            to="/landing"
+            className={`flex items-center hover:opacity-80 transition-opacity ${collapsed ? "justify-center" : "space-x-3"}`}
+            title="AI Case Manager"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+              <span className="text-xl">🤖</span>
+            </div>
+            {!collapsed && (
+              <div>
+                <div className="font-bold text-base text-gray-900 dark:text-white leading-tight">
+                  AI Case Manager
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Smart Management
+                </div>
+              </div>
+            )}
+          </Link>
+        </div>
+
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4">
           <div className="space-y-1">
@@ -100,6 +123,27 @@ function Sidebar({ isOpen, onClose, collapsed = false }) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        {/* Mobile Logo */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <Link
+            to="/landing"
+            onClick={onClose}
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-md">
+              <span className="text-xl">🤖</span>
+            </div>
+            <div>
+              <div className="font-bold text-base text-gray-900 dark:text-white leading-tight">
+                AI Case Manager
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Smart Management
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* Mobile Navigation */}
         <nav className="flex-1 overflow-y-auto py-4">
           <div className="px-3 space-y-1">
