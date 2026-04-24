@@ -394,70 +394,8 @@ function Landing() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="space-y-8">
-            {/* Logo section - centered at top */}
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center">
-                <span className="text-3xl">🤖</span>
-              </div>
-            </div>
-            
-            {/* Brand info and 3 columns side by side */}
-            <div className="space-y-6 md:space-y-8">
-              {/* Brand info */}
-              <div className="text-center">
-                <h3 className="font-bold text-lg md:text-xl mb-3">AI Case Manager</h3>
-                <p className="text-gray-400 text-sm md:text-base">
-                  Empowering professionals with intelligent case management solutions.
-                </p>
-              </div>
-              
-              {/* Product, Company, Support - 3 columns side by side */}
-              <div className="grid grid-cols-3 md:grid-cols-3 gap-4 md:gap-8">
-                {/* Product */}
-                <div className="text-center">
-                  <h4 className="font-semibold mb-4 text-sm md:text-base">Product</h4>
-                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
-                    <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
-                    <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                    <li><Link to="/demo" className="hover:text-white transition-colors">Demo</Link></li>
-                  </ul>
-                </div>
-                
-                {/* Company */}
-                <div className="text-center">
-                  <h4 className="font-semibold mb-4 text-sm md:text-base">Company</h4>
-                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
-                    <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
-                    <li><Link to="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                    <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-                  </ul>
-                </div>
-                
-                {/* Support */}
-                <div className="text-center">
-                  <h4 className="font-semibold mb-4 text-sm md:text-base">Support</h4>
-                  <ul className="space-y-2 text-gray-400 text-xs md:text-sm">
-                    <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
-                    <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                    <li><Link to="/status" className="hover:text-white transition-colors">Status</Link></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
-            <p>&copy; 2024 AI Case Manager. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
-  )
+  );
 }
 
 export default Landing
