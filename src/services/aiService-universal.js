@@ -70,6 +70,7 @@ function checkRateLimit() {
   
   if (timeSinceLastRequest > 60000) {
     requestCount = 0
+    lastRequestTime = now
   }
   
   if (requestCount >= MAX_REQUESTS_PER_MINUTE) {
