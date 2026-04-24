@@ -94,7 +94,7 @@ function checkRateLimit() {
 }
 
 // Update rate limit tracking
-function updateRateLimit() {
+export function updateRateLimit() {
   lastRequestTime = Date.now()
   requestCount++
 }
