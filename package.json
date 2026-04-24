@@ -41,6 +41,12 @@
     "test:components": "vitest --run src/components/**/__tests__/*.test.{js,jsx}",
     "test:hooks": "vitest --run src/hooks/**/__tests__/*.test.{js,jsx}",
     "test:utils": "vitest --run src/utils/**/__tests__/*.test.{js,jsx}",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:install": "playwright install",
     "build:analyze": "npm run build && npx vite-bundle-analyzer",
     "serve": "npm run build && npm run preview",
     "deploy:vercel": "npm run build && vercel --prod",
@@ -67,6 +73,7 @@
     "web-vitals": "^4.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
