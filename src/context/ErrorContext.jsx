@@ -33,7 +33,7 @@ export function ErrorProvider({ children }) {
     // Auto-remove error after duration
     if (errorObj.autoClose) {
       setTimeout(() => {
-        removeError(errorObj.id)
+        setErrors(prev => prev.filter(err => err.id !== errorObj.id))
       }, errorObj.duration)
     }
 

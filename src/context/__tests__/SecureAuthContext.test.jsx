@@ -6,7 +6,18 @@ import * as mockJWT from '../../utils/mockJWT'
 import * as security from '../../utils/security'
 
 // Mock dependencies
-vi.mock('../../utils/mockJWT')
+vi.mock('../../utils/mockJWT', () => ({
+  createMockJWT: vi.fn(),
+  verifyMockJWT: vi.fn(),
+  isTokenExpired: vi.fn(),
+  getUserFromToken: vi.fn(),
+  refreshMockJWT: vi.fn(),
+  mockJWTUtils: {
+    sanitizeInput: vi.fn((input) => input),
+    hashPassword: vi.fn((password) => `hashed_${password}`),
+    verifyPassword: vi.fn((password, hash) => hash === `hashed_${password}`),
+  },
+}))
 vi.mock('../../utils/security')
 
 describe('SecureAuthContext', () => {
@@ -22,31 +33,29 @@ describe('SecureAuthContext', () => {
       writable: true
     })
     
-    // Mock JWT utilities
-    mockJWT.createMockJWT.mockReturnValue('mock-jwt-token')
-    mockJWT.verifyMockJWT.mockReturnValue({
+    // Default JWT mock return values (all async)
+    mockJWT.createMockJWT.mockResolvedValue('mock-jwt-token')
+    mockJWT.verifyMockJWT.mockResolvedValue({
       userId: 1,
       email: 'test@example.com',
       name: 'Test User',
       role: 'user',
-      exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+      exp: Math.floor(Date.now() / 1000) + 3600,
     })
-    mockJWT.isTokenExpired.mockReturnValue(false)
-    mockJWT.getUserFromToken.mockReturnValue({
+    mockJWT.isTokenExpired.mockResolvedValue(false)
+    mockJWT.getUserFromToken.mockResolvedValue({
       userId: 1,
       email: 'test@example.com',
       name: 'Test User',
-      role: 'user'
+      role: 'user',
     })
-    
-    // Mock security utilities
-    security.mockJWTUtils = {
-      sanitizeInput: vi.fn((input) => input),
-      hashPassword: vi.fn((password) => `hashed_${password}`),
-      verifyPassword: vi.fn((password, hash) => hash === `hashed_${password}`)
-    }
-    
-    // Mock console methods
+    mockJWT.refreshMockJWT.mockResolvedValue('new-token')
+
+    // Reset mockJWTUtils spies (defined in factory, just reset implementations)
+    mockJWT.mockJWTUtils.sanitizeInput.mockImplementation((input) => input)
+    mockJWT.mockJWTUtils.hashPassword.mockImplementation((password) => `hashed_${password}`)
+    mockJWT.mockJWTUtils.verifyPassword.mockImplementation((password, hash) => hash === `hashed_${password}`)
+
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -97,7 +106,7 @@ describe('SecureAuthContext', () => {
 
     it('should clear expired token on initialization', async () => {
       mockStorage.getItem.mockReturnValue('expired-token')
-      mockJWT.isTokenExpired.mockReturnValue(true)
+      mockJWT.isTokenExpired.mockResolvedValue(true)
       
       const { result } = renderAuthHook()
       
@@ -150,9 +159,9 @@ describe('SecureAuthContext', () => {
         role: 'user'
       })
       
-      expect(security.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('New User')
-      expect(security.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('new@example.com')
-      expect(security.mockJWTUtils.hashPassword).toHaveBeenCalledWith('password123')
+      expect(mockJWT.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('New User')
+      expect(mockJWT.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('new@example.com')
+      expect(mockJWT.mockJWTUtils.hashPassword).toHaveBeenCalledWith('password123')
       expect(mockJWT.createMockJWT).toHaveBeenCalled()
     })
 
@@ -242,13 +251,13 @@ describe('SecureAuthContext', () => {
         role: 'user'
       })
       
-      expect(security.mockJWTUtils.verifyPassword).toHaveBeenCalledWith('password123', 'hashed_password123')
+      expect(mockJWT.mockJWTUtils.verifyPassword).toHaveBeenCalledWith('password123', 'hashed_password123')
       expect(mockJWT.createMockJWT).toHaveBeenCalled()
       expect(result.current.isAuthenticated).toBe(true)
     })
 
     it('should reject login with incorrect password', async () => {
-      security.mockJWTUtils.verifyPassword.mockReturnValue(false)
+      mockJWT.mockJWTUtils.verifyPassword.mockReturnValue(false)
       
       const { result } = renderAuthHook()
       
@@ -281,7 +290,7 @@ describe('SecureAuthContext', () => {
         await result.current.login('  TEST@EXAMPLE.COM  ', 'password123')
       })
       
-      expect(security.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('  test@example.com  ')
+      expect(mockJWT.mockJWTUtils.sanitizeInput).toHaveBeenCalledWith('  test@example.com  ')
     })
 
     it('should require both email and password', async () => {
@@ -322,7 +331,7 @@ describe('SecureAuthContext', () => {
 
   describe('Token Management', () => {
     it('should refresh token successfully', async () => {
-      mockJWT.refreshMockJWT.mockReturnValue('new-token')
+      mockJWT.refreshMockJWT.mockResolvedValue('new-token')
       
       const { result } = renderAuthHook()
       
@@ -342,7 +351,7 @@ describe('SecureAuthContext', () => {
     })
 
     it('should logout when token refresh fails', async () => {
-      mockJWT.refreshMockJWT.mockReturnValue(null)
+      mockJWT.refreshMockJWT.mockResolvedValue(null)
       
       const { result } = renderAuthHook()
       
@@ -374,7 +383,7 @@ describe('SecureAuthContext', () => {
         await result.current.login('test@example.com', 'password123')
       })
       
-      const tokenInfo = result.current.getTokenInfo()
+      const tokenInfo = await result.current.getTokenInfo()
       
       expect(tokenInfo).toEqual({
         isValid: true,

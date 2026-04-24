@@ -86,7 +86,7 @@ function Alert({
 
 Alert.propTypes = {
   type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
-  message: PropTypes.string.isRequired,
+  message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   onClose: PropTypes.func,
   autoClose: PropTypes.bool,
   autoCloseDelay: PropTypes.number,

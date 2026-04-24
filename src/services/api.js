@@ -9,12 +9,13 @@ const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA !== 'false' // Default 
  */
 async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`
+  const { headers: customHeaders, ...restOptions } = options
   const config = {
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...customHeaders,
     },
-    ...options,
+    ...restOptions,
   }
 
   try {
