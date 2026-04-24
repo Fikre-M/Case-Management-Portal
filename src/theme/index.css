@@ -16,19 +16,62 @@
     --tooltip-text: #f3f4f6;
     --text-color: #f3f4f6;
   }
-  
+
+  html {
+    overflow: hidden;
+    height: 100%;
+  }
+
   body {
+    overflow: hidden;
+    height: 100%;
     @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
-/* Custom scrollbar */
+@layer components {
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200;
+  }
+
+  .table-responsive {
+    @apply overflow-x-auto -mx-4 sm:mx-0;
+  }
+
+  .table-responsive table {
+    @apply min-w-full;
+  }
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+  }
+}
+
+/* Scrollbar — only the main content area scrolls */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -43,17 +86,12 @@
   @apply bg-gray-400 dark:bg-gray-500;
 }
 
-/* Smooth transitions for theme switching */
-* {
+/* Smooth theme transitions */
+*, *::before, *::after {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-/* Focus styles */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
-}
-
-/* Draggable styles */
+/* Drag styles */
 .dragging {
   cursor: grabbing !important;
   user-select: none !important;
@@ -70,269 +108,57 @@
   cursor: grabbing;
 }
 
-/* Animation utilities */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
-}
-
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-/* Focus styles */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
-}
-
-/* Animation utilities */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes pulse-soft {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@layer base {
-  body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white;
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-all duration-200 hover:shadow-lg transform hover:scale-105;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all duration-200;
-  }
-  
-  .card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-lg;
-  }
-  
-  .input-field {
-    @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200;
-  }
-}
-
 /* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateX(-100%); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: translateY(-100%); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
 }
 
-.animate-slide-in-left {
-  animation: slideInLeft 0.3s ease-out;
-}
+.animate-fade-in-up      { animation: fadeInUp 0.5s ease-out; }
+.animate-slide-in-right  { animation: slideInRight 0.3s ease-out; }
+.animate-slide-in-left   { animation: slideInLeft 0.3s ease-out; }
+.animate-slide-in-up     { animation: slideInUp 0.3s ease-out; }
+.animate-slide-in-down   { animation: slideInDown 0.3s ease-out; }
+.animate-fade-in         { animation: fadeIn 0.3s ease-out; }
+.animate-scale-in        { animation: scaleIn 0.3s ease-out; }
+.animate-pulse-soft      { animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 
-.animate-slide-in-up {
-  animation: slideInUp 0.3s ease-out;
-}
-
-.animate-slide-in-down {
-  animation: slideInDown 0.3s ease-out;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
-}
-
-/* Smooth transitions for dark mode */
-* {
-  @apply transition-colors duration-200;
-}
-
-/* Responsive table wrapper */
-.table-responsive {
-  @apply overflow-x-auto -mx-4 sm:mx-0;
-}
-
-.table-responsive table {
-  @apply min-w-full;
-}
-
-/* Mobile-friendly cards */
+/* Mobile cards */
 @media (max-width: 640px) {
-  .card {
-    @apply p-4;
-  }
-}
-
-/* Improved scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  .card { @apply p-4; }
 }
