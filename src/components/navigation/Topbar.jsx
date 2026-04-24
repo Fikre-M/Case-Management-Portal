@@ -393,78 +393,68 @@ function Topbar({ onMenuClick, toggleCollapse, sidebarCollapsed }) {
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
-      <div className="flex items-center justify-between px-4 py-3 md:px-6">
-        {/* Left Section */}
-        <div className="flex items-center space-x-4 flex-1">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      <div className="flex items-center gap-3 px-4 py-3 md:px-6">
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        >
+          <svg
+            className="w-5 h-5 text-gray-600 dark:text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-6 h-6 text-gray-600 dark:text-gray-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md" ref={searchRef}>
-            <form onSubmit={handleSearch} className="relative w-full">
-              <input
-                type="search"
-                placeholder="Search appointments, cases, clients..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSearch(e.target.value.trim().length > 0);
-                }}
-                onFocus={() => searchQuery.trim() && setShowSearch(true)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              />
-              <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+        {/* Search Bar — centered, grows proportionally */}
+        <div className="hidden md:flex flex-1 min-w-0" ref={searchRef}>
+          <form onSubmit={handleSearch} className="relative w-full max-w-lg mx-auto">
+            <input
+              type="search"
+              placeholder="Search appointments, cases, clients..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSearch(e.target.value.trim().length > 0);
+              }}
+              onFocus={() => searchQuery.trim() && setShowSearch(true)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+            />
+            <span className="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
 
-              {/* Search suggestions dropdown */}
-              {showSearch && searchQuery.trim() && (
-                <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
-                  <p className="px-4 pt-3 pb-1 text-xs text-gray-500 dark:text-gray-400">
-                    Search "{searchQuery}" in:
-                  </p>
-                  {searchSections.map((s) => (
-                    <button
-                      key={s.path}
-                      type="button"
-                      onClick={() => handleSearchNav(s.path)}
-                      className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <span className="mr-3">{s.icon}</span>
-                      {s.label}
-                    </button>
-                  ))}
-                  <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-2.5">
-                    <button
-                      type="submit"
-                      className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
-                    >
-                      Press Enter to search appointments
-                    </button>
-                  </div>
+            {/* Search suggestions dropdown */}
+            {showSearch && searchQuery.trim() && (
+              <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                <p className="px-4 pt-3 pb-1 text-xs text-gray-500 dark:text-gray-400">
+                  Search "{searchQuery}" in:
+                </p>
+                {searchSections.map((s) => (
+                  <button
+                    key={s.path}
+                    type="button"
+                    onClick={() => handleSearchNav(s.path)}
+                    className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <span className="mr-3">{s.icon}</span>
+                    {s.label}
+                  </button>
+                ))}
+                <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-2.5">
+                  <button type="submit" className="text-xs text-primary-600 dark:text-primary-400 hover:underline">
+                    Press Enter to search appointments
+                  </button>
                 </div>
-              )}
-            </form>
-          </div>
+              </div>
+            )}
+          </form>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Right Section — evenly spaced icons */}
+        <div className="flex items-center gap-1 flex-shrink-0">
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleTheme}
