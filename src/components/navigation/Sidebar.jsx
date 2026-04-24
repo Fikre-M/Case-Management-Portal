@@ -35,7 +35,7 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col h-screen overflow-hidden bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex-shrink-0 ${
+        className={`hidden lg:flex flex-col h-full overflow-hidden bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex-shrink-0 ${
           collapsed ? "w-20" : "w-64"
         }`}
       >
@@ -117,14 +117,14 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
         </nav>
 
         {/* User Profile Section */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="border-t border-gray-200 dark:border-gray-700">
           <Link
             to="/profile"
-            className={`flex items-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              collapsed ? "justify-center p-2" : "space-x-3 p-3"
+            className={`flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+              collapsed ? "justify-center p-3" : "space-x-3 p-4"
             }`}
           >
-            <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
               {userInitials}
             </div>
             {!collapsed && (
@@ -190,13 +190,13 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
         </nav>
 
         {/* Mobile User Profile */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="border-t border-gray-200 dark:border-gray-700">
           <Link
             to="/profile"
             onClick={onClose}
-            className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center space-x-3 p-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold">
+            <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
               {userInitials}
             </div>
             <div className="flex-1 min-w-0">

@@ -4,10 +4,10 @@ function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3">
+    <footer className="flex-shrink-0 w-full border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
         <span>© {year} AI Case Manager. All rights reserved.</span>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           <Link to="/help" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
             Help
           </Link>

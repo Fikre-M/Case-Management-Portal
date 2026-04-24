@@ -75,51 +75,45 @@ function MainLayout() {
 
   return (
     <div className={theme}>
-      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors">
-        {/* Sidebar */}
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          collapsed={sidebarCollapsed}
-          toggleCollapse={toggleCollapse}
-        />
+      <div className="flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 transition-colors">
 
-        {/* Main Content Area - NO GAP */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Topbar */}
-          <Topbar
-            onMenuClick={toggleSidebar}
+        {/* Top row: Sidebar + Main content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            collapsed={sidebarCollapsed}
             toggleCollapse={toggleCollapse}
-            sidebarCollapsed={sidebarCollapsed}
           />
 
-          {/* Page Content */}
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8">
-            <Outlet />
-          </main>
+          {/* Main Content Area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Topbar */}
+            <Topbar
+              onMenuClick={toggleSidebar}
+              toggleCollapse={toggleCollapse}
+              sidebarCollapsed={sidebarCollapsed}
+            />
 
-          <Footer />
+            {/* Page Content */}
+            <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8">
+              <Outlet />
+            </main>
+          </div>
+
+          {/* Mobile Overlay */}
+          {sidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
         </div>
 
-        {/* Mobile Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
+        {/* Full-width Footer */}
+        <Footer />
 
-        {/* AI Assistant - Temporarily disabled to fix freezing */}
-        {/* <AIAssistant 
-          isOpen={aiAssistantOpen} 
-          onToggle={toggleAiAssistant}
-        /> */}
-
-        {/* AI Assistant Toggle Button */}
-        {/* <AIAssistantToggle 
-          isOpen={aiAssistantOpen} 
-          onToggle={toggleAiAssistant}
-        /> */}
       </div>
     </div>
   );
