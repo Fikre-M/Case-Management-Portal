@@ -35,7 +35,7 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col h-screen overflow-hidden bg-white dark:bg-gray-800 shadow-lg border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex-shrink-0 ${
           collapsed ? "w-20" : "w-64"
         }`}
       >
@@ -87,14 +87,14 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4">
-          <div className="space-y-1">
+        <nav className="flex-1 overflow-hidden py-2">
+          <div className="space-y-0.5">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 className={`flex items-center transition-all ${
-                  collapsed ? "justify-center px-4 py-3" : "px-6 py-3"
+                  collapsed ? "justify-center px-4 py-2.5" : "px-6 py-2.5"
                 } ${
                   isActive(item.path)
                     ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
@@ -102,10 +102,10 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
                 }`}
                 title={collapsed ? item.label : ""}
               >
-                <span className="text-xl">{item.icon}</span>
+                <span className="text-lg">{item.icon}</span>
                 {!collapsed && (
                   <>
-                    <span className="ml-3 font-medium">{item.label}</span>
+                    <span className="ml-3 font-medium text-sm">{item.label}</span>
                     {isActive(item.path) && (
                       <span className="ml-auto w-1.5 h-1.5 bg-primary-600 dark:bg-primary-400 rounded-full"></span>
                     )}
@@ -143,7 +143,7 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-30 w-64 flex flex-col bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -169,20 +169,20 @@ function Sidebar({ isOpen, onClose, collapsed = false, toggleCollapse }) {
         </div>
 
         {/* Mobile Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4">
-          <div className="px-3 space-y-1">
+        <nav className="flex-1 overflow-hidden py-2">
+          <div className="px-3 space-y-0.5">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all ${
+                className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
                   isActive(item.path)
                     ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 shadow-sm"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
-                <span className="text-xl mr-3">{item.icon}</span>
+                <span className="text-lg mr-3">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             ))}
